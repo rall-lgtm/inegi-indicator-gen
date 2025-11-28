@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText } from "lucide-react";
+import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,6 +12,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Tipos de respuesta de la API
 type ErrorTemporalidad = {
@@ -41,6 +47,8 @@ type PropuestaIndicador = {
   enfoque: string;
   tipo: string;
   descripcion: string;
+  objetivo?: string;
+  importancia?: string;
 };
 
 type PropuestasIniciales = {
@@ -393,52 +401,76 @@ const Index = () => {
                 )}
 
                 {/* Grid de propuestas */}
-                <div className="grid gap-4 md:grid-cols-2">
-                  {propuestasAcumuladas.map((propuesta) => (
-                    <Card
-                      key={propuesta.id}
-                      className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10"
-                    >
-                      <CardHeader>
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                                {propuesta.id}
+                <TooltipProvider>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {propuestasAcumuladas.map((propuesta) => (
+                      <Tooltip key={propuesta.id}>
+                        <TooltipTrigger asChild>
+                          <Card
+                            className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10 cursor-help"
+                          >
+                            <CardHeader>
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                                      {propuesta.id}
+                                    </div>
+                                    <CardTitle className="text-lg leading-tight">
+                                      {propuesta.nombre}
+                                    </CardTitle>
+                                    {(propuesta.objetivo || propuesta.importancia) && (
+                                      <Info className="h-4 w-4 text-primary flex-shrink-0" />
+                                    )}
+                                  </div>
+                                  <CardDescription className="mt-2">
+                                    {propuesta.descripcion}
+                                  </CardDescription>
+                                </div>
                               </div>
-                              <CardTitle className="text-lg leading-tight">
-                                {propuesta.nombre}
-                              </CardTitle>
-                            </div>
-                            <CardDescription className="mt-2">
-                              {propuesta.descripcion}
-                            </CardDescription>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex gap-2">
-                          <Badge className="bg-accent">{propuesta.enfoque}</Badge>
-                          <Badge variant="outline">{propuesta.tipo}</Badge>
-                        </div>
-                        <Button
-                          onClick={() => handleSeleccionar(propuesta)}
-                          disabled={loading}
-                          className="w-full bg-warning hover:bg-warning/90"
-                        >
-                          {loading ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Elegir esta propuesta
-                            </>
-                          )}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <div className="flex gap-2">
+                                <Badge className="bg-accent">{propuesta.enfoque}</Badge>
+                                <Badge variant="outline">{propuesta.tipo}</Badge>
+                              </div>
+                              <Button
+                                onClick={() => handleSeleccionar(propuesta)}
+                                disabled={loading}
+                                className="w-full bg-warning hover:bg-warning/90"
+                              >
+                                {loading ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <>
+                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                    Elegir esta propuesta
+                                  </>
+                                )}
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </TooltipTrigger>
+                        {(propuesta.objetivo || propuesta.importancia) && (
+                          <TooltipContent className="max-w-md p-4 space-y-3" side="top">
+                            {propuesta.objetivo && (
+                              <div>
+                                <p className="font-semibold text-sm mb-1 text-primary">Objetivo:</p>
+                                <p className="text-sm">{propuesta.objetivo}</p>
+                              </div>
+                            )}
+                            {propuesta.importancia && (
+                              <div>
+                                <p className="font-semibold text-sm mb-1 text-primary">Importancia:</p>
+                                <p className="text-sm">{propuesta.importancia}</p>
+                              </div>
+                            )}
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    ))}
+                  </div>
+                </TooltipProvider>
 
                 {/* Botón más opciones */}
                 <Button
