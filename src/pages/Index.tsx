@@ -5,6 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Tipos de respuesta de la API
 type ErrorTemporalidad = {
@@ -89,6 +96,8 @@ const Index = () => {
   const [idVar, setIdVar] = useState("");
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<ApiResponse | null>(null);
+  const [fichaMetodologica, setFichaMetodologica] = useState<FichaMetodologica | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [sessionId] = useState(`session-${Date.now()}`);
   const { toast } = useToast();
 
@@ -155,15 +164,49 @@ const Index = () => {
   };
 
   const handleSeleccionar = async (propuesta: PropuestaIndicador) => {
-    await enviarConsulta("seleccionar", {
-      propuestaId: propuesta.id,
-      nombrePropuesta: propuesta.nombre,
-    });
+    setLoading(true);
+    try {
+      const body = {
+        idVar: idVar.toUpperCase(),
+        sessionId,
+        accion: "seleccionar",
+        propuestaId: propuesta.id,
+        nombrePropuesta: propuesta.nombre,
+      };
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        throw new Error("Error en la conexión con el servidor");
+      }
+
+      const data = await res.json();
+      if (data.tipo === "ficha_metodologica") {
+        setFichaMetodologica(data);
+        setIsModalOpen(true);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo conectar con el servidor. Intenta nuevamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNuevaVariable = () => {
     setIdVar("");
     setResponse(null);
+    setFichaMetodologica(null);
+    setIsModalOpen(false);
   };
 
   return (
@@ -391,199 +434,205 @@ const Index = () => {
               </div>
             )}
 
-            {/* Ficha metodológica */}
-            {response.tipo === "ficha_metodologica" && (
-              <div className="space-y-6">
-                {/* Header de la ficha */}
-                <Card className="shadow-xl border-success border-2">
-                  <CardHeader className="bg-success/10">
-                    <div className="flex items-center gap-3">
-                      <FileText className="w-8 h-8 text-success" />
-                      <div>
-                        <CardTitle className="text-2xl text-success">
-                          Ficha Metodológica Generada
-                        </CardTitle>
-                        <CardDescription className="text-lg font-semibold mt-1">
-                          {response.indicador.nombre}
-                        </CardDescription>
-                        <Badge className="mt-2 bg-success" variant="secondary">
-                          {response.indicador.siglas}
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-
-                {/* Objetivo e importancia */}
-                <Card className="shadow-lg">
-                  <CardHeader>
-                    <CardTitle>Objetivo</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{response.ficha.objetivo}</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="shadow-lg">
-                  <CardHeader>
-                    <CardTitle>Importancia</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{response.ficha.importancia}</p>
-                  </CardContent>
-                </Card>
-
-                {/* Numerador y Denominador */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Card className="shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Numerador</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground">{response.ficha.numerador}</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Denominador</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground">
-                        {response.ficha.denominador}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Fórmula */}
-                <Card className="shadow-lg bg-muted/50">
-                  <CardHeader>
-                    <CardTitle>Fórmula</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <code className="block p-4 bg-card rounded-lg text-sm font-mono">
-                      {response.ficha.formula}
-                    </code>
-                  </CardContent>
-                </Card>
-
-                {/* Características técnicas */}
-                <div className="grid md:grid-cols-3 gap-4">
-                  <Card className="shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="text-base">Unidad</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm font-semibold">{response.ficha.unidad}</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="text-base">Cobertura</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm font-semibold">{response.ficha.cobertura}</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="text-base">Frecuencia</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm font-semibold">{response.ficha.frecuencia}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Temporal y Fuente */}
-                <Card className="shadow-lg">
-                  <CardHeader>
-                    <CardTitle>Información Temporal</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Años disponibles:</p>
-                      <p className="font-semibold">{response.ficha.temporal}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Fuente:</p>
-                      <p className="font-semibold">
-                        {response.ficha.fuente.nombre} - {response.ficha.fuente.institucion}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Limitaciones */}
-                <Card className="shadow-lg border-warning/30 bg-warning/5">
-                  <CardHeader>
-                    <CardTitle className="text-warning-foreground">Limitaciones</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {response.ficha.limitaciones.map((limitacion, idx) => (
-                        <li key={idx} className="text-sm text-muted-foreground flex gap-2">
-                          <span className="text-warning">•</span>
-                          <span>{limitacion}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {/* Alineación ODS y MDEA */}
-                <Card className="shadow-lg border-primary/30 bg-primary/5">
-                  <CardHeader>
-                    <CardTitle>Alineación con Marcos Internacionales</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Objetivos de Desarrollo Sostenible (ODS)
-                      </p>
-                      <Badge className="bg-primary">
-                        ODS {response.ficha.alineacion.ods.numero} -{" "}
-                        {response.ficha.alineacion.ods.nombre}
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Marco de Desarrollo Estadístico Ambiental (MDEA)
-                      </p>
-                      <Badge variant="outline">{response.ficha.alineacion.mdea.componente}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Botones de acción */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  {response.descarga.disponible && (
-                    <Button
-                      className="flex-1 bg-success hover:bg-success/90"
-                      size="lg"
-                      onClick={() => window.open(response.descarga.url, "_blank")}
-                    >
-                      <Download className="w-5 h-5 mr-2" />
-                      Descargar PDF
-                    </Button>
-                  )}
-                  <Button
-                    onClick={handleNuevaVariable}
-                    variant="outline"
-                    size="lg"
-                    className="flex-1"
-                  >
-                    <RefreshCw className="w-5 h-5 mr-2" />
-                    Nueva Variable
-                  </Button>
-                </div>
-              </div>
-            )}
           </div>
         )}
+
+        {/* Modal de Ficha Metodológica */}
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3 text-2xl">
+                <FileText className="w-8 h-8 text-success" />
+                Ficha Metodológica
+              </DialogTitle>
+            </DialogHeader>
+            <ScrollArea className="h-[calc(90vh-8rem)] pr-4">
+              {fichaMetodologica && (
+                <div className="space-y-6">
+                  {/* Header de la ficha */}
+                  <Card className="border-success border-2">
+                    <CardHeader className="bg-success/10">
+                      <div>
+                        <CardTitle className="text-xl text-success">
+                          {fichaMetodologica.indicador.nombre}
+                        </CardTitle>
+                        <Badge className="mt-2 bg-success" variant="secondary">
+                          {fichaMetodologica.indicador.siglas}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                  </Card>
+
+                  {/* Objetivo e importancia */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Objetivo</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">{fichaMetodologica.ficha.objetivo}</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Importancia</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">{fichaMetodologica.ficha.importancia}</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Numerador y Denominador */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Numerador</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground">{fichaMetodologica.ficha.numerador}</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Denominador</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground">
+                          {fichaMetodologica.ficha.denominador}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Fórmula */}
+                  <Card className="bg-muted/50">
+                    <CardHeader>
+                      <CardTitle>Fórmula</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <code className="block p-4 bg-card rounded-lg text-sm font-mono">
+                        {fichaMetodologica.ficha.formula}
+                      </code>
+                    </CardContent>
+                  </Card>
+
+                  {/* Características técnicas */}
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Unidad</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm font-semibold">{fichaMetodologica.ficha.unidad}</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Cobertura</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm font-semibold">{fichaMetodologica.ficha.cobertura}</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Frecuencia</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm font-semibold">{fichaMetodologica.ficha.frecuencia}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Temporal y Fuente */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Información Temporal</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Años disponibles:</p>
+                        <p className="font-semibold">{fichaMetodologica.ficha.temporal}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Fuente:</p>
+                        <p className="font-semibold">
+                          {fichaMetodologica.ficha.fuente.nombre} - {fichaMetodologica.ficha.fuente.institucion}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Limitaciones */}
+                  <Card className="border-warning/30 bg-warning/5">
+                    <CardHeader>
+                      <CardTitle className="text-warning-foreground">Limitaciones</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {fichaMetodologica.ficha.limitaciones.map((limitacion, idx) => (
+                          <li key={idx} className="text-sm text-muted-foreground flex gap-2">
+                            <span className="text-warning">•</span>
+                            <span>{limitacion}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+
+                  {/* Alineación ODS y MDEA */}
+                  <Card className="border-primary/30 bg-primary/5">
+                    <CardHeader>
+                      <CardTitle>Alineación con Marcos Internacionales</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Objetivos de Desarrollo Sostenible (ODS)
+                        </p>
+                        <Badge className="bg-primary">
+                          ODS {fichaMetodologica.ficha.alineacion.ods.numero} -{" "}
+                          {fichaMetodologica.ficha.alineacion.ods.nombre}
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Marco de Desarrollo Estadístico Ambiental (MDEA)
+                        </p>
+                        <Badge variant="outline">{fichaMetodologica.ficha.alineacion.mdea.componente}</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Botones de acción */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                    {fichaMetodologica.descarga.disponible && (
+                      <Button
+                        className="flex-1 bg-success hover:bg-success/90"
+                        size="lg"
+                        onClick={() => window.open(fichaMetodologica.descarga.url, "_blank")}
+                      >
+                        <Download className="w-5 h-5 mr-2" />
+                        Descargar PDF
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => setIsModalOpen(false)}
+                      variant="outline"
+                      size="lg"
+                      className="flex-1"
+                    >
+                      Cerrar
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
       </main>
 
       {/* Footer */}
