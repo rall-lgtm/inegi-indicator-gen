@@ -57,6 +57,16 @@ type PropuestasIniciales = {
   propuestas: PropuestaIndicador[];
 };
 
+type PropuestasAdicionales = {
+  tipo: "propuestas_adicionales";
+  mensaje: string;
+  variable: {
+    idVar: string;
+    nombre: string;
+  };
+  propuestas: PropuestaIndicador[];
+};
+
 type FichaMetodologica = {
   tipo: "ficha_metodologica";
   indicador: {
@@ -90,7 +100,7 @@ type FichaMetodologica = {
   };
 };
 
-type ApiResponse = ErrorTemporalidad | PropuestasIniciales | FichaMetodologica;
+type ApiResponse = ErrorTemporalidad | PropuestasIniciales | PropuestasAdicionales | FichaMetodologica;
 
 const Index = () => {
   const [idVar, setIdVar] = useState("");
@@ -99,6 +109,7 @@ const Index = () => {
   const [fichaMetodologica, setFichaMetodologica] = useState<FichaMetodologica | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sessionId] = useState(`session-${Date.now()}`);
+  const [propuestasAcumuladas, setPropuestasAcumuladas] = useState<PropuestaIndicador[]>([]);
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
@@ -127,6 +138,16 @@ const Index = () => {
 
       const data = await res.json();
       setResponse(data);
+
+      // Si es propuestas iniciales, resetear acumuladas
+      if (data.tipo === 'propuestas_iniciales') {
+        setPropuestasAcumuladas(data.propuestas || []);
+      }
+      
+      // Si son propuestas adicionales, acumular
+      if (data.tipo === 'propuestas_adicionales') {
+        setPropuestasAcumuladas(prev => [...prev, ...(data.propuestas || [])]);
+      }
 
       // Scroll al resultado
       setTimeout(() => {
@@ -207,6 +228,7 @@ const Index = () => {
     setResponse(null);
     setFichaMetodologica(null);
     setIsModalOpen(false);
+    setPropuestasAcumuladas([]);
   };
 
   return (
@@ -343,34 +365,36 @@ const Index = () => {
               </Card>
             )}
 
-            {/* Propuestas iniciales */}
-            {response.tipo === "propuestas_iniciales" && (
+            {/* Propuestas */}
+            {(response.tipo === "propuestas_iniciales" || response.tipo === "propuestas_adicionales") && (
               <div className="space-y-6">
                 {/* Info de la variable */}
-                <Card className="shadow-lg border-primary/20">
-                  <CardContent className="pt-6">
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-primary">
-                        {response.variable.nombre}
-                      </h3>
-                      <p className="text-muted-foreground">{response.variable.definicion}</p>
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        <Badge variant="outline">{response.variable.tema}</Badge>
-                        <Badge variant="outline">{response.variable.subtema}</Badge>
-                        <Badge variant="secondary">
-                          {response.variable.totalAnios} años disponibles
-                        </Badge>
-                        <Badge variant="secondary">
-                          {response.variable.años.join(", ")}
-                        </Badge>
+                {response.tipo === "propuestas_iniciales" && (
+                  <Card className="shadow-lg border-primary/20">
+                    <CardContent className="pt-6">
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-primary">
+                          {response.variable.nombre}
+                        </h3>
+                        <p className="text-muted-foreground">{response.variable.definicion}</p>
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          <Badge variant="outline">{response.variable.tema}</Badge>
+                          <Badge variant="outline">{response.variable.subtema}</Badge>
+                          <Badge variant="secondary">
+                            {response.variable.totalAnios} años disponibles
+                          </Badge>
+                          <Badge variant="secondary">
+                            {response.variable.años.join(", ")}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Grid de propuestas */}
                 <div className="grid gap-4 md:grid-cols-2">
-                  {response.propuestas.map((propuesta) => (
+                  {propuestasAcumuladas.map((propuesta) => (
                     <Card
                       key={propuesta.id}
                       className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10"
