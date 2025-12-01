@@ -100,11 +100,11 @@ type FichaMetodologica = {
     alineacion: {
       ods: { numero: string; nombre: string };
       mdea: { componente: string };
-    };
-    pnd?: {
-      eje: string;
-      objetivo: string;
-      estrategia: string;
+      pnd?: {
+        eje: string;
+        objetivo: string;
+        estrategia: string;
+      };
     };
   };
   descarga: {
@@ -665,7 +665,7 @@ const Index = () => {
                         </p>
                         <Badge variant="outline">{fichaMetodologica.ficha.alineacion.mdea.componente}</Badge>
                       </div>
-                      {fichaMetodologica.ficha.pnd && (
+                      {fichaMetodologica.ficha.alineacion.pnd && (
                         <div className="pt-2 border-t">
                           <p className="text-sm text-muted-foreground mb-3 font-semibold">
                             Plan Nacional de Desarrollo (PND)
@@ -673,15 +673,15 @@ const Index = () => {
                           <div className="space-y-2 pl-2">
                             <div>
                               <p className="text-xs text-muted-foreground">Eje</p>
-                              <p className="text-sm font-medium">{fichaMetodologica.ficha.pnd.eje}</p>
+                              <p className="text-sm font-medium">{fichaMetodologica.ficha.alineacion.pnd.eje}</p>
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Objetivo</p>
-                              <p className="text-sm font-medium">{fichaMetodologica.ficha.pnd.objetivo}</p>
+                              <p className="text-sm font-medium">{fichaMetodologica.ficha.alineacion.pnd.objetivo}</p>
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Estrategia</p>
-                              <p className="text-sm font-medium">{fichaMetodologica.ficha.pnd.estrategia}</p>
+                              <p className="text-sm font-medium">{fichaMetodologica.ficha.alineacion.pnd.estrategia}</p>
                             </div>
                           </div>
                         </div>
