@@ -644,7 +644,7 @@ const Index = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Alineación ODS y MDEA */}
+                  {/* Alineación ODS, MDEA y PND */}
                   <Card className="border-primary/30 bg-primary/5">
                     <CardHeader>
                       <CardTitle>Alineación con Marcos Internacionales</CardTitle>
@@ -665,31 +665,29 @@ const Index = () => {
                         </p>
                         <Badge variant="outline">{fichaMetodologica.ficha.alineacion.mdea.componente}</Badge>
                       </div>
+                      {fichaMetodologica.ficha.pnd && (
+                        <div className="pt-2 border-t">
+                          <p className="text-sm text-muted-foreground mb-3 font-semibold">
+                            Plan Nacional de Desarrollo (PND)
+                          </p>
+                          <div className="space-y-2 pl-2">
+                            <div>
+                              <p className="text-xs text-muted-foreground">Eje</p>
+                              <p className="text-sm font-medium">{fichaMetodologica.ficha.pnd.eje}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Objetivo</p>
+                              <p className="text-sm font-medium">{fichaMetodologica.ficha.pnd.objetivo}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Estrategia</p>
+                              <p className="text-sm font-medium">{fichaMetodologica.ficha.pnd.estrategia}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
-
-                  {/* Plan Nacional de Desarrollo (PND) */}
-                  {fichaMetodologica.ficha.pnd && (
-                    <Card className="border-accent/30 bg-accent/5">
-                      <CardHeader>
-                        <CardTitle>Plan Nacional de Desarrollo (PND)</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div>
-                          <p className="text-sm text-muted-foreground mb-1">Eje</p>
-                          <p className="font-semibold">{fichaMetodologica.ficha.pnd.eje}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground mb-1">Objetivo</p>
-                          <p className="font-semibold">{fichaMetodologica.ficha.pnd.objetivo}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground mb-1">Estrategia</p>
-                          <p className="font-semibold">{fichaMetodologica.ficha.pnd.estrategia}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
 
                   {/* Botones de acción */}
                   <div className="flex flex-col sm:flex-row gap-3 pt-4">
