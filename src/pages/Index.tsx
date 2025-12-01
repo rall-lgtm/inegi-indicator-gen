@@ -101,6 +101,11 @@ type FichaMetodologica = {
       ods: { numero: string; nombre: string };
       mdea: { componente: string };
     };
+    pnd?: {
+      eje: string;
+      objetivo: string;
+      estrategia: string;
+    };
   };
   descarga: {
     disponible: boolean;
@@ -662,6 +667,29 @@ const Index = () => {
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* Plan Nacional de Desarrollo (PND) */}
+                  {fichaMetodologica.ficha.pnd && (
+                    <Card className="border-accent/30 bg-accent/5">
+                      <CardHeader>
+                        <CardTitle>Plan Nacional de Desarrollo (PND)</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Eje</p>
+                          <p className="font-semibold">{fichaMetodologica.ficha.pnd.eje}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Objetivo</p>
+                          <p className="font-semibold">{fichaMetodologica.ficha.pnd.objetivo}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Estrategia</p>
+                          <p className="font-semibold">{fichaMetodologica.ficha.pnd.estrategia}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Botones de acción */}
                   <div className="flex flex-col sm:flex-row gap-3 pt-4">
