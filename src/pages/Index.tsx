@@ -85,13 +85,19 @@ type FichaMetodologica = {
   ficha: {
     objetivo: string;
     importancia: string;
+    definicion_variables: string;
     numerador: string;
     denominador: string;
     unidad: string;
     formula: string;
+    formula_detalle: string;
+    tabla_datos: string;
+    grafico: string;
     cobertura: string;
     temporal: string;
     frecuencia: string;
+    Periodicidad: string;
+    temporal_fuente: string;
     fuente: {
       nombre: string;
       institucion: string;
@@ -527,7 +533,7 @@ const Index = () => {
                   {/* Objetivo e importancia */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Objetivo</CardTitle>
+                      <CardTitle>Objetivo del Indicador</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-muted-foreground">{fichaMetodologica.ficha.objetivo}</p>
@@ -536,10 +542,20 @@ const Index = () => {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>Importancia</CardTitle>
+                      <CardTitle>Importancia y/o Utilidad del Indicador</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-muted-foreground">{fichaMetodologica.ficha.importancia}</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Definición de las Variables */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Definición de las Variables</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">{fichaMetodologica.ficha.definicion_variables}</p>
                     </CardContent>
                   </Card>
 
@@ -569,20 +585,47 @@ const Index = () => {
                   {/* Fórmula */}
                   <Card className="bg-muted/50">
                     <CardHeader>
-                      <CardTitle>Fórmula</CardTitle>
+                      <CardTitle>Fórmula de Cálculo</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
                       <code className="block p-4 bg-card rounded-lg text-sm font-mono">
                         {fichaMetodologica.ficha.formula}
                       </code>
+                      {fichaMetodologica.ficha.formula_detalle && (
+                        <p className="text-sm text-muted-foreground">{fichaMetodologica.ficha.formula_detalle}</p>
+                      )}
                     </CardContent>
                   </Card>
+
+                  {/* Tabla de Datos */}
+                  {fichaMetodologica.ficha.tabla_datos && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Tabla de Datos</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-sm text-muted-foreground whitespace-pre-wrap">{fichaMetodologica.ficha.tabla_datos}</div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Gráfico */}
+                  {fichaMetodologica.ficha.grafico && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Gráfico</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-sm text-muted-foreground">{fichaMetodologica.ficha.grafico}</div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Características técnicas */}
                   <div className="grid md:grid-cols-3 gap-4">
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-base">Unidad</CardTitle>
+                        <CardTitle className="text-base">Unidad de Medida</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm font-semibold">{fichaMetodologica.ficha.unidad}</p>
@@ -591,7 +634,7 @@ const Index = () => {
 
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-base">Cobertura</CardTitle>
+                        <CardTitle className="text-base">Cobertura Geográfica</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm font-semibold">{fichaMetodologica.ficha.cobertura}</p>
@@ -600,7 +643,7 @@ const Index = () => {
 
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-base">Frecuencia</CardTitle>
+                        <CardTitle className="text-base">Frecuencia de Actualización del Indicador</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm font-semibold">{fichaMetodologica.ficha.frecuencia}</p>
@@ -611,15 +654,27 @@ const Index = () => {
                   {/* Temporal y Fuente */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Información Temporal</CardTitle>
+                      <CardTitle>Información Temporal y Fuente de Datos</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div>
-                        <p className="text-sm text-muted-foreground">Años disponibles:</p>
+                        <p className="text-sm text-muted-foreground">Cobertura Temporal del Indicador:</p>
                         <p className="font-semibold">{fichaMetodologica.ficha.temporal}</p>
                       </div>
+                      {fichaMetodologica.ficha.Periodicidad && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Periodicidad:</p>
+                          <p className="font-semibold">{fichaMetodologica.ficha.Periodicidad}</p>
+                        </div>
+                      )}
+                      {fichaMetodologica.ficha.temporal_fuente && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Cobertura Temporal de la Fuente de Datos:</p>
+                          <p className="font-semibold">{fichaMetodologica.ficha.temporal_fuente}</p>
+                        </div>
+                      )}
                       <div>
-                        <p className="text-sm text-muted-foreground">Fuente:</p>
+                        <p className="text-sm text-muted-foreground">Fuente de Datos:</p>
                         <p className="font-semibold">
                           {fichaMetodologica.ficha.fuente.nombre} - {fichaMetodologica.ficha.fuente.institucion}
                         </p>
