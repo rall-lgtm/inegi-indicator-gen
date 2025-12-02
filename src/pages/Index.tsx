@@ -236,8 +236,19 @@ const Index = () => {
       }
 
       const data = await res.json();
-      if (data.tipo === "ficha_metodologica") {
-        setFichaMetodologica(data);
+      
+      // Parsear la respuesta que viene en el campo "output" como string con markdown
+      let fichaData = data;
+      if (data.output && typeof data.output === 'string') {
+        // Extraer el JSON del markdown code block
+        const jsonMatch = data.output.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch && jsonMatch[1]) {
+          fichaData = JSON.parse(jsonMatch[1]);
+        }
+      }
+      
+      if (fichaData.tipo === "ficha_metodologica") {
+        setFichaMetodologica(fichaData);
         setIsModalOpen(true);
       }
     } catch (error) {
