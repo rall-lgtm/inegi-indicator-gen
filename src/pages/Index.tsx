@@ -85,27 +85,36 @@ type FichaMetodologica = {
   ficha: {
     objetivo: string;
     importancia: string;
-    definicion_variables: string;
-    numerador: string;
-    denominador: string;
+    definicion_variables: Record<string, string>;
     unidad: string;
     formula: string;
-    formula_detalle: string;
+    formula_detalle: Record<string, string>;
     tabla_datos: any;
     grafico: any;
     cobertura: string;
+    desagregacion: string;
     temporal: string;
     frecuencia: string;
-    Periodicidad: string;
+    periodicidad: string;
     temporal_fuente: string;
     fuente: {
       nombre: string;
       institucion: string;
+      programa: string;
+      url: string;
     };
     limitaciones: string[];
     alineacion: {
-      ods: { numero: string; nombre: string };
-      mdea: { componente: string };
+      ods: { 
+        numero: string; 
+        nombre: string;
+        meta: string;
+      };
+      mdea: { 
+        componente: string;
+        subcomponente: string;
+        tema: string;
+      };
       pnd?: {
         eje: string;
         objetivo: string;
@@ -554,33 +563,15 @@ const Index = () => {
                     <CardHeader>
                       <CardTitle>Definición de las Variables</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{fichaMetodologica.ficha.definicion_variables}</p>
+                    <CardContent className="space-y-3">
+                      {Object.entries(fichaMetodologica.ficha.definicion_variables).map(([variable, definicion]) => (
+                        <div key={variable}>
+                          <p className="font-semibold text-sm mb-1">{variable}</p>
+                          <p className="text-muted-foreground text-sm">{definicion}</p>
+                        </div>
+                      ))}
                     </CardContent>
                   </Card>
-
-                  {/* Numerador y Denominador */}
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg">Numerador</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">{fichaMetodologica.ficha.numerador}</p>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg">Denominador</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">
-                          {fichaMetodologica.ficha.denominador}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div>
 
                   {/* Fórmula */}
                   <Card className="bg-muted/50">
@@ -592,7 +583,14 @@ const Index = () => {
                         {fichaMetodologica.ficha.formula}
                       </code>
                       {fichaMetodologica.ficha.formula_detalle && (
-                        <p className="text-sm text-muted-foreground">{fichaMetodologica.ficha.formula_detalle}</p>
+                        <div className="space-y-2 pt-2">
+                          <p className="text-sm font-semibold">Donde:</p>
+                          {Object.entries(fichaMetodologica.ficha.formula_detalle).map(([sigla, descripcion]) => (
+                            <div key={sigla} className="text-sm text-muted-foreground pl-2">
+                              <span className="font-mono font-semibold">{sigla}</span> = {descripcion}
+                            </div>
+                          ))}
+                        </div>
                       )}
                     </CardContent>
                   </Card>
@@ -630,7 +628,7 @@ const Index = () => {
                   )}
 
                   {/* Características técnicas */}
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid md:grid-cols-2 gap-4">
                     <Card>
                       <CardHeader>
                         <CardTitle className="text-base">Unidad de Medida</CardTitle>
@@ -646,6 +644,15 @@ const Index = () => {
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm font-semibold">{fichaMetodologica.ficha.cobertura}</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Desagregación</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm font-semibold">{fichaMetodologica.ficha.desagregacion}</p>
                       </CardContent>
                     </Card>
 
@@ -669,10 +676,10 @@ const Index = () => {
                         <p className="text-sm text-muted-foreground">Cobertura Temporal del Indicador:</p>
                         <p className="font-semibold">{fichaMetodologica.ficha.temporal}</p>
                       </div>
-                      {fichaMetodologica.ficha.Periodicidad && (
+                      {fichaMetodologica.ficha.periodicidad && (
                         <div>
                           <p className="text-sm text-muted-foreground">Periodicidad:</p>
-                          <p className="font-semibold">{fichaMetodologica.ficha.Periodicidad}</p>
+                          <p className="font-semibold">{fichaMetodologica.ficha.periodicidad}</p>
                         </div>
                       )}
                       {fichaMetodologica.ficha.temporal_fuente && (
@@ -686,6 +693,19 @@ const Index = () => {
                         <p className="font-semibold">
                           {fichaMetodologica.ficha.fuente.nombre} - {fichaMetodologica.ficha.fuente.institucion}
                         </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Programa: {fichaMetodologica.ficha.fuente.programa}
+                        </p>
+                        {fichaMetodologica.ficha.fuente.url && (
+                          <a 
+                            href={fichaMetodologica.ficha.fuente.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-sm text-primary hover:underline mt-1 inline-block"
+                          >
+                            Ver fuente →
+                          </a>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -714,38 +734,49 @@ const Index = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <p className="text-sm text-muted-foreground mb-1">
+                        <p className="text-sm text-muted-foreground mb-2 font-semibold">
                           Objetivos de Desarrollo Sostenible (ODS)
                         </p>
-                        <Badge className="bg-primary">
-                          ODS {fichaMetodologica.ficha.alineacion.ods.numero} -{" "}
-                          {fichaMetodologica.ficha.alineacion.ods.nombre}
-                        </Badge>
+                        <div className="pl-2 space-y-1">
+                          <Badge className="bg-primary">
+                            ODS {fichaMetodologica.ficha.alineacion.ods.numero} - {fichaMetodologica.ficha.alineacion.ods.nombre}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Meta: {fichaMetodologica.ficha.alineacion.ods.meta}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">
+                      <div className="pt-2 border-t">
+                        <p className="text-sm text-muted-foreground mb-2 font-semibold">
                           Marco de Desarrollo Estadístico Ambiental (MDEA)
                         </p>
-                        <Badge variant="outline">{fichaMetodologica.ficha.alineacion.mdea.componente}</Badge>
+                        <div className="pl-2 space-y-1">
+                          <p className="text-sm">
+                            <span className="font-medium">Componente:</span> {fichaMetodologica.ficha.alineacion.mdea.componente}
+                          </p>
+                          <p className="text-sm">
+                            <span className="font-medium">Subcomponente:</span> {fichaMetodologica.ficha.alineacion.mdea.subcomponente}
+                          </p>
+                          <p className="text-sm">
+                            <span className="font-medium">Tema:</span> {fichaMetodologica.ficha.alineacion.mdea.tema}
+                          </p>
+                        </div>
                       </div>
                       {fichaMetodologica.ficha.alineacion.pnd && (
                         <div className="pt-2 border-t">
-                          <p className="text-sm text-muted-foreground mb-3 font-semibold">
+                          <p className="text-sm text-muted-foreground mb-2 font-semibold">
                             Plan Nacional de Desarrollo (PND)
                           </p>
-                          <div className="space-y-2 pl-2">
-                            <div>
-                              <p className="text-xs text-muted-foreground">Eje</p>
-                              <p className="text-sm font-medium">{fichaMetodologica.ficha.alineacion.pnd.eje}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground">Objetivo</p>
-                              <p className="text-sm font-medium">{fichaMetodologica.ficha.alineacion.pnd.objetivo}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground">Estrategia</p>
-                              <p className="text-sm font-medium">{fichaMetodologica.ficha.alineacion.pnd.estrategia}</p>
-                            </div>
+                          <div className="pl-2 space-y-1">
+                            <p className="text-sm">
+                              <span className="font-medium">Eje:</span> {fichaMetodologica.ficha.alineacion.pnd.eje}
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium">Objetivo:</span> {fichaMetodologica.ficha.alineacion.pnd.objetivo}
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium">Estrategia:</span> {fichaMetodologica.ficha.alineacion.pnd.estrategia}
+                            </p>
                           </div>
                         </div>
                       )}
