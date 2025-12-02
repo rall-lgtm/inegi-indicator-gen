@@ -91,8 +91,8 @@ type FichaMetodologica = {
     unidad: string;
     formula: string;
     formula_detalle: string;
-    tabla_datos: string;
-    grafico: string;
+    tabla_datos: any;
+    grafico: any;
     cobertura: string;
     temporal: string;
     frecuencia: string;
@@ -604,7 +604,11 @@ const Index = () => {
                         <CardTitle>Tabla de Datos</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-sm text-muted-foreground whitespace-pre-wrap">{fichaMetodologica.ficha.tabla_datos}</div>
+                        <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          {typeof fichaMetodologica.ficha.tabla_datos === 'object' 
+                            ? JSON.stringify(fichaMetodologica.ficha.tabla_datos, null, 2)
+                            : fichaMetodologica.ficha.tabla_datos}
+                        </div>
                       </CardContent>
                     </Card>
                   )}
@@ -616,7 +620,11 @@ const Index = () => {
                         <CardTitle>Gráfico</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-sm text-muted-foreground">{fichaMetodologica.ficha.grafico}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {typeof fichaMetodologica.ficha.grafico === 'object' 
+                            ? JSON.stringify(fichaMetodologica.ficha.grafico, null, 2)
+                            : fichaMetodologica.ficha.grafico}
+                        </div>
                       </CardContent>
                     </Card>
                   )}
