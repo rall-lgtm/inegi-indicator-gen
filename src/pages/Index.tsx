@@ -21,6 +21,7 @@ import {
 
 // Tipos de respuesta de la API
 type ErrorTemporalidad = {
+  success: false;
   tipo: "error_temporalidad";
   error: {
     codigo: string;
@@ -29,16 +30,14 @@ type ErrorTemporalidad = {
     detalles: {
       anios_requeridos: number;
       anios_disponibles: number;
-      años: number[];
     };
   };
   variable: {
     idVar: string;
     nombre: string;
     totalAnios: number;
+    años: number[];
   };
-  recomendacion: string;
-  alternativas: string[];
 };
 
 type PropuestaIndicador = {
@@ -165,6 +164,19 @@ const Index = () => {
       }
 
       const data = await res.json();
+      
+      // Manejar error de temporalidad
+      if (data.tipo === 'error_temporalidad') {
+        setResponse(data);
+        setPropuestasAcumuladas([]);
+        toast({
+          title: "⚠️ Temporalidad insuficiente",
+          description: data.error.mensaje,
+          variant: "destructive",
+        });
+        return;
+      }
+      
       setResponse(data);
 
       // Si es propuestas iniciales, resetear acumuladas
@@ -334,66 +346,68 @@ const Index = () => {
           <div id="result-section" className="mt-8 space-y-6">
             {/* Error de temporalidad */}
             {response.tipo === "error_temporalidad" && (
-              <Card className="border-destructive border-2 shadow-xl">
-                <CardHeader className="bg-destructive/10">
+              <Card className="border-warning border-2 shadow-xl">
+                <CardHeader className="bg-warning/10">
                   <div className="flex items-start gap-4">
-                    <AlertCircle className="w-8 h-8 text-destructive flex-shrink-0 mt-1" />
+                    <AlertCircle className="w-8 h-8 text-warning flex-shrink-0 mt-1" />
                     <div className="flex-1">
-                      <CardTitle className="text-destructive text-xl">
+                      <CardTitle className="text-warning-foreground text-xl">
                         {response.error.mensaje}
                       </CardTitle>
-                      <CardDescription className="text-destructive/80 mt-2">
+                      <CardDescription className="text-foreground/80 mt-2">
                         {response.error.razon}
                       </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-4">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Variable consultada:</h3>
-                    <p className="text-muted-foreground">
-                      <span className="font-medium">{response.variable.idVar}</span> -{" "}
-                      {response.variable.nombre}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-lg">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Años disponibles</p>
-                      <p className="text-2xl font-bold text-destructive">
-                        {response.error.detalles.anios_disponibles}
+                  {/* Información de la variable */}
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                    <h3 className="font-semibold text-base">Variable consultada</h3>
+                    <div className="space-y-1">
+                      <p className="text-sm">
+                        <span className="font-semibold text-primary">{response.variable.idVar}</span>
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {response.variable.nombre}
                       </p>
                     </div>
+                    
+                    {/* Años disponibles vs requeridos */}
+                    <div className="flex items-center gap-2 pt-2 border-t">
+                      <Badge variant="outline" className="bg-warning/10 border-warning text-warning-foreground">
+                        Disponibles: {response.error.detalles.anios_disponibles} año(s)
+                      </Badge>
+                      <span className="text-muted-foreground">·</span>
+                      <Badge variant="outline" className="bg-success/10 border-success text-success">
+                        Requeridos: {response.error.detalles.anios_requeridos} años
+                      </Badge>
+                    </div>
+
+                    {/* Lista de años */}
                     <div>
-                      <p className="text-sm text-muted-foreground">Años requeridos</p>
-                      <p className="text-2xl font-bold text-success">
-                        {response.error.detalles.anios_requeridos}
-                      </p>
+                      <p className="text-xs text-muted-foreground mb-2">Años con información:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {response.variable.años.map((año) => (
+                          <Badge key={año} variant="secondary" className="text-xs">
+                            {año}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="font-semibold mb-2">Años con información:</h4>
-                    <div className="flex gap-2">
-                      {response.error.detalles.años.map((año) => (
-                        <Badge key={año} variant="outline">
-                          {año}
-                        </Badge>
-                      ))}
+                  {/* Sugerencia */}
+                  <div className="bg-accent/20 border border-accent/30 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <span className="text-2xl">💡</span>
+                      <div>
+                        <p className="font-medium text-sm mb-1">Sugerencia</p>
+                        <p className="text-sm text-muted-foreground">
+                          Intenta con otra variable que tenga al menos <span className="font-semibold text-foreground">{response.error.detalles.anios_requeridos} años</span> de datos históricos para generar indicadores válidos según el Catálogo Nacional de Indicadores de INEGI.
+                        </p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
-                    <h4 className="font-semibold text-warning-foreground mb-2">
-                      Recomendaciones:
-                    </h4>
-                    <ul className="space-y-1">
-                      {response.alternativas.map((alt, idx) => (
-                        <li key={idx} className="text-sm text-muted-foreground">
-                          • {alt}
-                        </li>
-                      ))}
-                    </ul>
                   </div>
 
                   <Button onClick={handleNuevaVariable} className="w-full" variant="outline">
