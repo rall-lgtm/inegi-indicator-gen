@@ -575,7 +575,7 @@ const Index = () => {
                       <CardTitle>Definición de las Variables</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {Object.entries(fichaMetodologica.ficha.definicion_variables).map(([variable, definicion]) => (
+                      {fichaMetodologica.ficha.definicion_variables && Object.entries(fichaMetodologica.ficha.definicion_variables).map(([variable, definicion]) => (
                         <div key={variable}>
                           <p className="font-semibold text-sm mb-1">{variable}</p>
                           <p className="text-muted-foreground text-sm">{definicion}</p>
@@ -593,7 +593,7 @@ const Index = () => {
                       <code className="block p-4 bg-card rounded-lg text-sm font-mono">
                         {fichaMetodologica.ficha.formula}
                       </code>
-                      {fichaMetodologica.ficha.formula_detalle && (
+                      {fichaMetodologica.ficha.formula_detalle && Object.keys(fichaMetodologica.ficha.formula_detalle).length > 0 && (
                         <div className="space-y-2 pt-2">
                           <p className="text-sm font-semibold">Donde:</p>
                           {Object.entries(fichaMetodologica.ficha.formula_detalle).map(([sigla, descripcion]) => (
@@ -722,21 +722,23 @@ const Index = () => {
                   </Card>
 
                   {/* Limitaciones */}
-                  <Card className="border-warning/30 bg-warning/5">
-                    <CardHeader>
-                      <CardTitle className="text-warning-foreground">Limitaciones</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2">
-                        {fichaMetodologica.ficha.limitaciones.map((limitacion, idx) => (
-                          <li key={idx} className="text-sm text-muted-foreground flex gap-2">
-                            <span className="text-warning">•</span>
-                            <span>{limitacion}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
+                  {fichaMetodologica.ficha.limitaciones && fichaMetodologica.ficha.limitaciones.length > 0 && (
+                    <Card className="border-warning/30 bg-warning/5">
+                      <CardHeader>
+                        <CardTitle className="text-warning-foreground">Limitaciones</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-2">
+                          {fichaMetodologica.ficha.limitaciones.map((limitacion, idx) => (
+                            <li key={idx} className="text-sm text-muted-foreground flex gap-2">
+                              <span className="text-warning">•</span>
+                              <span>{limitacion}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Alineación ODS, MDEA y PND */}
                   <Card className="border-primary/30 bg-primary/5">
