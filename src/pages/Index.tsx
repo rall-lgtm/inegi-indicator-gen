@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -140,6 +140,68 @@ const Index = () => {
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
+
+  // Leer idVar de la URL al cargar la página
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const idVarFromUrl = params.get("idVar");
+    if (idVarFromUrl) {
+      const cleaned = idVarFromUrl.toUpperCase().trim();
+      setIdVar(cleaned);
+      setTimeout(() => {
+        // Ejecutar la consulta después de que el estado se actualice
+        const runQuery = async () => {
+          setLoading(true);
+          try {
+            const body = {
+              idVar: cleaned,
+              sessionId,
+              accion: "iniciar",
+            };
+
+            const res = await fetch(API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(body),
+            });
+
+            if (!res.ok) {
+              throw new Error("Error en la conexión con el servidor");
+            }
+
+            const data = await res.json();
+            
+            if (data.tipo === 'error_temporalidad') {
+              setResponse(data);
+              setPropuestasAcumuladas([]);
+              toast({
+                title: "⚠️ Temporalidad insuficiente",
+                description: data.error.mensaje,
+                variant: "destructive",
+              });
+              return;
+            }
+            
+            setResponse(data);
+            if (data.tipo === 'propuestas_iniciales' && data.propuestas) {
+              setPropuestasAcumuladas(data.propuestas);
+            }
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "No se pudo conectar con el servidor",
+              variant: "destructive",
+            });
+          } finally {
+            setLoading(false);
+          }
+        };
+        runQuery();
+      }, 300);
+    }
+  }, []);
 
   const enviarConsulta = async (accion: string, datos: any = {}) => {
     setLoading(true);
