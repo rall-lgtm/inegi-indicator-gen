@@ -444,7 +444,7 @@ const Index = () => {
                   <div className="flex items-start gap-4">
                     <AlertCircle className="w-8 h-8 text-warning flex-shrink-0 mt-1" />
                     <div className="flex-1">
-                      <CardTitle className="text-warning-foreground text-xl">
+                      <CardTitle className="text-amber-900 text-xl">
                         {response.error.mensaje}
                       </CardTitle>
                       <CardDescription className="text-foreground/80 mt-2">
