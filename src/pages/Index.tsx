@@ -20,6 +20,13 @@ import {
 } from "@/components/ui/tooltip";
 
 // Tipos de respuesta de la API
+type ErrorGenerico = {
+  tipo: "error";
+  codigo: string;
+  mensaje: string;
+  detalles: string;
+};
+
 type ErrorTemporalidad = {
   success: false;
   tipo: "error_temporalidad";
@@ -127,7 +134,7 @@ type FichaMetodologica = {
   };
 };
 
-type ApiResponse = ErrorTemporalidad | PropuestasIniciales | PropuestasAdicionales | FichaMetodologica;
+type ApiResponse = ErrorGenerico | ErrorTemporalidad | PropuestasIniciales | PropuestasAdicionales | FichaMetodologica;
 
 const Index = () => {
   const [idVar, setIdVar] = useState("");
@@ -172,6 +179,18 @@ const Index = () => {
             }
 
             const data = await res.json();
+            
+            // Manejar error genérico (variable no encontrada)
+            if (data.tipo === 'error') {
+              setResponse(null);
+              setPropuestasAcumuladas([]);
+              toast({
+                title: `❌ ${data.codigo === 'VARIABLE_NO_ENCONTRADA' ? 'Variable no encontrada' : 'Error'}`,
+                description: `${data.mensaje} ${data.detalles}`,
+                variant: "destructive",
+              });
+              return;
+            }
             
             if (data.tipo === 'error_temporalidad') {
               setResponse(data);
@@ -226,6 +245,18 @@ const Index = () => {
       }
 
       const data = await res.json();
+      
+      // Manejar error genérico (variable no encontrada)
+      if (data.tipo === 'error') {
+        setResponse(null);
+        setPropuestasAcumuladas([]);
+        toast({
+          title: `❌ ${data.codigo === 'VARIABLE_NO_ENCONTRADA' ? 'Variable no encontrada' : 'Error'}`,
+          description: `${data.mensaje} ${data.detalles}`,
+          variant: "destructive",
+        });
+        return;
+      }
       
       // Manejar error de temporalidad
       if (data.tipo === 'error_temporalidad') {
