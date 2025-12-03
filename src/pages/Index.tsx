@@ -468,11 +468,11 @@ const Index = () => {
                     
                     {/* Años disponibles vs requeridos */}
                     <div className="flex items-center gap-2 pt-2 border-t">
-                      <Badge variant="outline" className="bg-warning/10 border-warning text-warning-foreground">
+                      <Badge variant="outline" className="bg-amber-100 border-amber-500 text-amber-900 font-semibold">
                         Disponibles: {response.error.detalles.anios_disponibles} año(s)
                       </Badge>
                       <span className="text-muted-foreground">·</span>
-                      <Badge variant="outline" className="bg-success/10 border-success text-success">
+                      <Badge variant="outline" className="bg-green-100 border-green-600 text-green-800 font-semibold">
                         Requeridos: {response.error.detalles.anios_requeridos} años
                       </Badge>
                     </div>
@@ -482,7 +482,7 @@ const Index = () => {
                       <p className="text-xs text-muted-foreground mb-2">Años con información:</p>
                       <div className="flex flex-wrap gap-2">
                         {response.variable.años.map((año) => (
-                          <Badge key={año} variant="secondary" className="text-xs">
+                          <Badge key={año} variant="secondary" className="text-xs bg-slate-200 text-slate-800 font-medium">
                             {año}
                           </Badge>
                         ))}
