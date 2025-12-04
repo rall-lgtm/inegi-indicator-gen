@@ -119,7 +119,7 @@ type FichaMetodologica = {
       mdea: { 
         componente: string;
         subcomponente: string;
-        tema: string;
+        topico: string;
       };
       pnd?: {
         eje: string;
@@ -878,7 +878,7 @@ const Index = () => {
                             <span className="font-medium">Subcomponente:</span> {fichaMetodologica.ficha.alineacion.mdea.subcomponente}
                           </p>
                           <p className="text-sm">
-                            <span className="font-medium">Tema:</span> {fichaMetodologica.ficha.alineacion.mdea.tema}
+                            <span className="font-medium">Tópico:</span> {fichaMetodologica.ficha.alineacion.mdea.topico}
                           </p>
                         </div>
                       </div>
