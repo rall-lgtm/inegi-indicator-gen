@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -153,6 +154,10 @@ type FichaMetodologica = {
 type ApiResponse = ErrorGenerico | ErrorTemporalidad | PropuestasIniciales | PropuestasAdicionales | FichaMetodologica;
 
 const Index = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const idFromUrl = searchParams.get("idVar") || searchParams.get("id");
+  
   const [idVar, setIdVar] = useState("");
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<ApiResponse | null>(null);
@@ -160,6 +165,7 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sessionId] = useState(`session-${Date.now()}`);
   const [propuestasAcumuladas, setPropuestasAcumuladas] = useState<PropuestaIndicador[]>([]);
+  const [mostrandoTodas, setMostrandoTodas] = useState(false);
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
@@ -293,9 +299,10 @@ const Index = () => {
         setPropuestasAcumuladas(data.propuestas || []);
       }
       
-      // Si son propuestas adicionales, acumular
+      // Si son propuestas adicionales, acumular y marcar como todas mostradas
       if (data.tipo === 'propuestas_adicionales') {
         setPropuestasAcumuladas(prev => [...prev, ...(data.propuestas || [])]);
+        setMostrandoTodas(true);
       }
 
       // Scroll al resultado
@@ -389,6 +396,11 @@ const Index = () => {
     setFichaMetodologica(null);
     setIsModalOpen(false);
     setPropuestasAcumuladas([]);
+    setMostrandoTodas(false);
+    // Si venía por URL, navegar a la raíz
+    if (idFromUrl) {
+      navigate('/');
+    }
   };
 
   // Helper para obtener advertencia ambiental
@@ -406,7 +418,7 @@ const Index = () => {
       {/* Header INEGI */}
       <header className="bg-inegi-blue-dark text-white shadow-lg sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
             {/* Logo INEGI */}
             <div className="flex items-center gap-4">
               <div className="text-3xl font-bold tracking-tight">INEGI</div>
@@ -420,66 +432,74 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            
-            {/* Navegación opcional */}
-            <nav className="hidden lg:flex items-center gap-6 text-sm">
-              <a href="#" className="hover:text-inegi-gold transition-colors">
-                Procesos de Producción
-              </a>
-              <a href="#" className="hover:text-inegi-gold transition-colors">
-                Inventario de Variables
-              </a>
-              <a href="#" className="hover:text-inegi-gold transition-colors">
-                Indicadores Existentes
-              </a>
-            </nav>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Formulario de búsqueda */}
-        <Card className="shadow-xl border-0">
-          <CardHeader>
-            <CardTitle className="text-2xl text-inegi-blue-dark">Consultar Variable</CardTitle>
-            <CardDescription>
-              Ingresa el ID de la variable para generar propuestas de indicadores
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleInicio} className="flex gap-3">
-              <div className="flex-1">
-                <Input
-                  type="text"
-                  placeholder="Ej: ENIGH-068, CPV-139"
-                  value={idVar}
-                  onChange={(e) => setIdVar(e.target.value.toUpperCase())}
-                  disabled={loading}
-                  className="text-lg h-12 border-inegi-blue-medium/30 focus:border-inegi-blue-medium focus:ring-inegi-blue-medium"
-                />
+        {/* Formulario de búsqueda o versión compacta */}
+        {idFromUrl ? (
+          <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium">
+            <CardContent className="py-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-inegi-gray-medium">Variable en consulta</p>
+                  <p className="text-lg font-semibold text-inegi-blue-medium">{idFromUrl.toUpperCase()}</p>
+                </div>
+                <Button 
+                  onClick={handleNuevaVariable} 
+                  variant="outline"
+                  className="border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Consultar otra
+                </Button>
               </div>
-              <Button
-                type="submit"
-                disabled={loading || idVar.trim().length < 3}
-                className="h-12 px-6 bg-inegi-blue-medium hover:bg-inegi-blue-dark"
-                size="lg"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Consultando...
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-5 h-5 mr-2" />
-                    Generar Propuestas
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="shadow-xl border-0">
+            <CardHeader>
+              <CardTitle className="text-2xl text-inegi-blue-dark">Consultar Variable</CardTitle>
+              <CardDescription>
+                Ingresa el ID de la variable para generar propuestas de indicadores
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleInicio} className="flex gap-3">
+                <div className="flex-1">
+                  <Input
+                    type="text"
+                    placeholder="Ej: ENIGH-068, CPV-139"
+                    value={idVar}
+                    onChange={(e) => setIdVar(e.target.value.toUpperCase())}
+                    disabled={loading}
+                    className="text-lg h-12 border-inegi-blue-medium/30 focus:border-inegi-blue-medium focus:ring-inegi-blue-medium"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={loading || idVar.trim().length < 3}
+                  className="h-12 px-6 bg-inegi-blue-medium hover:bg-inegi-blue-dark"
+                  size="lg"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Consultando...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-5 h-5 mr-2" />
+                      Generar Propuestas
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Resultados */}
         {response && (
@@ -681,21 +701,27 @@ const Index = () => {
                   </div>
                 </TooltipProvider>
 
-                {/* Botón más opciones */}
-                <Button
-                  onClick={handleMasOpciones}
-                  disabled={loading}
-                  variant="outline"
-                  className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
-                  size="lg"
-                >
-                  {loading ? (
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  ) : (
-                    <RefreshCw className="w-5 h-5 mr-2" />
-                  )}
-                  Ver más opciones
-                </Button>
+                {/* Botón más opciones o mensaje de completado */}
+                {!mostrandoTodas ? (
+                  <Button
+                    onClick={handleMasOpciones}
+                    disabled={loading}
+                    variant="outline"
+                    className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
+                    size="lg"
+                  >
+                    {loading ? (
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-5 h-5 mr-2" />
+                    )}
+                    Ver más opciones
+                  </Button>
+                ) : (
+                  <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
+                    <p className="text-sm text-inegi-blue-dark">✅ 8 propuestas generadas. Selecciona del 1 al 8</p>
+                  </div>
+                )}
               </div>
             )}
 
