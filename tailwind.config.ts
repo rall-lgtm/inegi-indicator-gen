@@ -55,9 +55,25 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // INEGI specific colors
+        inegi: {
+          blue: {
+            dark: "#00447C",
+            medium: "#0066B3",
+            light: "#E8F4F8",
+          },
+          green: "#6BA43A",
+          gold: "#F2B705",
+          gray: {
+            dark: "#333333",
+            medium: "#666666",
+            light: "#F5F5F5",
+          },
+        },
       },
       backgroundImage: {
         'gradient-primary': 'linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-end)))',
+        'gradient-inegi': 'linear-gradient(135deg, #E8F4F8, #FFFFFF, #F5F5F5)',
       },
       borderRadius: {
         lg: "var(--radius)",

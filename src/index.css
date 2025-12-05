@@ -2,89 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Definition of the design system - Paleta INEGI
 All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 217 100% 97%;
-    --foreground: 222 47% 11%;
+    /* INEGI Color Palette */
+    --background: 195 50% 97%;
+    --foreground: 0 0% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 20%;
 
-    --primary: 217 91% 60%;
+    /* Azul INEGI oscuro #00447C */
+    --primary: 209 100% 24%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 214 32% 91%;
-    --secondary-foreground: 222 47% 11%;
+    /* Azul INEGI medio #0066B3 */
+    --secondary: 205 100% 35%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 214 32% 91%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
+    /* Azul INEGI claro #E8F4F8 */
+    --accent: 195 50% 94%;
+    --accent-foreground: 209 100% 24%;
 
-    --success: 142 71% 45%;
+    /* Verde INEGI #6BA43A */
+    --success: 95 48% 43%;
     --success-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 100%;
+    /* Amarillo/Dorado INEGI #F2B705 */
+    --warning: 44 97% 48%;
+    --warning-foreground: 0 0% 20%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 217 91% 60%;
+    --border: 205 30% 85%;
+    --input: 205 30% 85%;
+    --ring: 205 100% 35%;
 
     --radius: 0.75rem;
 
-    --gradient-start: 214 100% 97%;
-    --gradient-end: 226 100% 94%;
+    /* Gradients */
+    --gradient-start: 195 50% 94%;
+    --gradient-end: 0 0% 100%;
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: 209 100% 10%;
+    --foreground: 0 0% 95%;
 
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
+    --card: 209 80% 15%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 209 80% 15%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 217 91% 60%;
+    --primary: 205 100% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 209 80% 20%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 209 50% 20%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 209 80% 20%;
+    --accent-foreground: 0 0% 95%;
 
-    --success: 142 71% 45%;
+    --success: 95 48% 43%;
     --success-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 95%;
 
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 44 97% 48%;
+    --warning-foreground: 0 0% 20%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 217 91% 60%;
+    --border: 209 50% 25%;
+    --input: 209 50% 25%;
+    --ring: 205 100% 45%;
 
-    --gradient-start: 222 47% 11%;
-    --gradient-end: 217 33% 17%;
+    --gradient-start: 209 100% 10%;
+    --gradient-end: 209 80% 15%;
   }
 }
 
