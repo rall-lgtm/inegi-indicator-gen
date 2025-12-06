@@ -599,10 +599,10 @@ const Index = () => {
 
             {/* Propuestas */}
             {(response.tipo === "propuestas_iniciales" || response.tipo === "propuestas_adicionales") && (
-              <div className="space-y-6">
+              <div className="space-y-6 animate-fade-in">
                 {/* Info de la variable */}
                 {response.tipo === "propuestas_iniciales" && (
-                  <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium">
+                  <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in">
                     <CardContent className="pt-6">
                       <div className="space-y-2">
                         <h3 className="text-xl font-bold text-inegi-blue-dark">
@@ -627,11 +627,12 @@ const Index = () => {
                 {/* Grid de propuestas */}
                 <TooltipProvider>
                   <div className="grid gap-4 md:grid-cols-2">
-                    {propuestasAcumuladas.map((propuesta) => (
+                    {propuestasAcumuladas.map((propuesta, index) => (
                       <Tooltip key={propuesta.id}>
                         <TooltipTrigger asChild>
                           <Card
-                            className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-inegi-blue-medium/10 cursor-help"
+                            className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-inegi-blue-medium/10 cursor-help animate-fade-in"
+                            style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'backwards' }}
                           >
                             <CardHeader>
                               <div className="flex items-start justify-between gap-3">
