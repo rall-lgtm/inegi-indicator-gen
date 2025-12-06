@@ -442,19 +442,14 @@ const Index = () => {
         {idFromUrl ? (
           <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium">
             <CardContent className="py-4">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                {loading && !response && (
+                  <Loader2 className="w-5 h-5 animate-spin text-inegi-blue-medium" />
+                )}
                 <div>
                   <p className="text-sm text-inegi-gray-medium">Variable en consulta</p>
                   <p className="text-lg font-semibold text-inegi-blue-medium">{idFromUrl.toUpperCase()}</p>
                 </div>
-                <Button 
-                  onClick={handleNuevaVariable} 
-                  variant="outline"
-                  className="border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Consultar otra
-                </Button>
               </div>
             </CardContent>
           </Card>
