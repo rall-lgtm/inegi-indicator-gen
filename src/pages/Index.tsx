@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2 } from "lucide-react";
+import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -24,6 +24,9 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
+import { jsPDF } from "jspdf";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle } from "docx";
+import { saveAs } from "file-saver";
 
 // Tipos de respuesta de la API
 type ErrorGenerico = {
@@ -414,6 +417,189 @@ const Index = () => {
 
   const advertenciaAmbiental = getAdvertenciaAmbiental();
 
+  // Obtener información de la variable para exportación
+  const getVariableInfo = () => {
+    if (response?.tipo === 'propuestas_iniciales') {
+      return response.variable;
+    }
+    return null;
+  };
+
+  // Descargar propuestas en PDF
+  const handleDownloadPDF = () => {
+    const variableInfo = getVariableInfo();
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPosition = 20;
+
+    // Título
+    doc.setFontSize(18);
+    doc.setTextColor(0, 68, 124); // INEGI blue
+    doc.text("Propuestas de Indicadores Ambientales", pageWidth / 2, yPosition, { align: "center" });
+    yPosition += 10;
+
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Instituto Nacional de Estadística y Geografía", pageWidth / 2, yPosition, { align: "center" });
+    yPosition += 15;
+
+    // Info de la variable
+    if (variableInfo) {
+      doc.setFontSize(11);
+      doc.setTextColor(0, 68, 124);
+      doc.text(`Variable: ${variableInfo.idVar}`, 15, yPosition);
+      yPosition += 7;
+      
+      doc.setTextColor(50, 50, 50);
+      doc.setFontSize(10);
+      const nombreLines = doc.splitTextToSize(variableInfo.nombre, pageWidth - 30);
+      doc.text(nombreLines, 15, yPosition);
+      yPosition += nombreLines.length * 5 + 5;
+
+      doc.text(`Tema: ${variableInfo.tema} | Subtema: ${variableInfo.subtema}`, 15, yPosition);
+      yPosition += 7;
+      doc.text(`Años disponibles: ${variableInfo.años.join(", ")}`, 15, yPosition);
+      yPosition += 12;
+    }
+
+    // Línea separadora
+    doc.setDrawColor(0, 68, 124);
+    doc.line(15, yPosition, pageWidth - 15, yPosition);
+    yPosition += 10;
+
+    // Propuestas
+    propuestasAcumuladas.forEach((propuesta, index) => {
+      // Verificar si necesitamos nueva página
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      // Número y nombre
+      doc.setFontSize(12);
+      doc.setTextColor(0, 102, 179); // INEGI medium blue
+      doc.text(`${propuesta.id}. ${propuesta.nombre}`, 15, yPosition);
+      yPosition += 7;
+
+      // Descripción
+      doc.setFontSize(9);
+      doc.setTextColor(80, 80, 80);
+      const descLines = doc.splitTextToSize(propuesta.descripcion, pageWidth - 30);
+      doc.text(descLines, 15, yPosition);
+      yPosition += descLines.length * 4 + 3;
+
+      // Enfoque y tipo
+      doc.setFontSize(8);
+      doc.setTextColor(0, 68, 124);
+      doc.text(`Enfoque: ${propuesta.enfoque} | Tipo: ${propuesta.tipo}`, 15, yPosition);
+      yPosition += 10;
+    });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Generado el ${new Date().toLocaleDateString("es-MX")}`, pageWidth / 2, 285, { align: "center" });
+
+    doc.save(`propuestas_${idVar || "indicadores"}.pdf`);
+    
+    toast({
+      title: "PDF descargado",
+      description: "Las propuestas se han exportado correctamente.",
+    });
+  };
+
+  // Descargar propuestas en Word
+  const handleDownloadWord = async () => {
+    const variableInfo = getVariableInfo();
+
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new Paragraph({
+              text: "Propuestas de Indicadores Ambientales",
+              heading: HeadingLevel.HEADING_1,
+              alignment: "center",
+            }),
+            new Paragraph({
+              text: "Instituto Nacional de Estadística y Geografía",
+              alignment: "center",
+              spacing: { after: 400 },
+            }),
+            ...(variableInfo ? [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Variable: ", bold: true }),
+                  new TextRun({ text: variableInfo.idVar }),
+                ],
+              }),
+              new Paragraph({
+                text: variableInfo.nombre,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Tema: ", bold: true }),
+                  new TextRun({ text: `${variableInfo.tema} | ` }),
+                  new TextRun({ text: "Subtema: ", bold: true }),
+                  new TextRun({ text: variableInfo.subtema }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Años disponibles: ", bold: true }),
+                  new TextRun({ text: variableInfo.años.join(", ") }),
+                ],
+                spacing: { after: 400 },
+              }),
+            ] : []),
+            new Paragraph({
+              text: "─".repeat(50),
+              spacing: { after: 400 },
+            }),
+            ...propuestasAcumuladas.flatMap((propuesta) => [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `${propuesta.id}. `, bold: true, color: "0066B3" }),
+                  new TextRun({ text: propuesta.nombre, bold: true, color: "0066B3" }),
+                ],
+                heading: HeadingLevel.HEADING_2,
+              }),
+              new Paragraph({
+                text: propuesta.descripcion,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Enfoque: ", bold: true }),
+                  new TextRun({ text: propuesta.enfoque }),
+                  new TextRun({ text: " | " }),
+                  new TextRun({ text: "Tipo: ", bold: true }),
+                  new TextRun({ text: propuesta.tipo }),
+                ],
+                spacing: { after: 400 },
+              }),
+            ]),
+            new Paragraph({
+              text: `Generado el ${new Date().toLocaleDateString("es-MX")}`,
+              alignment: "center",
+              spacing: { before: 800 },
+            }),
+          ],
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, `propuestas_${idVar || "indicadores"}.docx`);
+
+    toast({
+      title: "Word descargado",
+      description: "Las propuestas se han exportado correctamente.",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-inegi">
       {/* Header INEGI */}
@@ -698,7 +884,29 @@ const Index = () => {
                   </div>
                 </TooltipProvider>
 
-                {/* Botón más opciones o mensaje de completado */}
+                {/* Botones de descarga */}
+                {propuestasAcumuladas.length > 0 && (
+                  <div className="flex flex-wrap gap-3 justify-center p-4 bg-inegi-gray-light rounded-lg border border-inegi-blue-medium/20">
+                    <p className="w-full text-center text-sm text-inegi-gray-medium mb-2">Descargar propuestas:</p>
+                    <Button
+                      onClick={handleDownloadPDF}
+                      variant="outline"
+                      className="border-red-500 text-red-600 hover:bg-red-50"
+                    >
+                      <FileDown className="w-4 h-4 mr-2" />
+                      Descargar PDF
+                    </Button>
+                    <Button
+                      onClick={handleDownloadWord}
+                      variant="outline"
+                      className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                    >
+                      <FileDown className="w-4 h-4 mr-2" />
+                      Descargar Word
+                    </Button>
+                  </div>
+                )}
+
                 {!mostrandoTodas ? (
                   <Button
                     onClick={handleMasOpciones}
