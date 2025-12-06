@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle } from "lucide-react";
+import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -163,6 +163,7 @@ const Index = () => {
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [fichaMetodologica, setFichaMetodologica] = useState<FichaMetodologica | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalExpanded, setIsModalExpanded] = useState(false);
   const [sessionId] = useState(`session-${Date.now()}`);
   const [propuestasAcumuladas, setPropuestasAcumuladas] = useState<PropuestaIndicador[]>([]);
   const [mostrandoTodas, setMostrandoTodas] = useState(false);
@@ -437,7 +438,7 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+      <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Formulario de búsqueda o versión compacta */}
         {idFromUrl ? (
           <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium">
@@ -725,15 +726,31 @@ const Index = () => {
         )}
 
         {/* Modal de Ficha Metodológica */}
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+        <Dialog open={isModalOpen} onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) setIsModalExpanded(false);
+        }}>
+          <DialogContent className={`${isModalExpanded ? 'max-w-[95vw] max-h-[95vh]' : 'max-w-4xl max-h-[90vh]'} p-0 overflow-hidden transition-all duration-300`}>
             <DialogHeader className="bg-inegi-blue-dark text-white p-6">
-              <DialogTitle className="flex items-center gap-3 text-2xl">
-                <FileText className="w-8 h-8" />
-                Ficha Metodológica del Indicador
-              </DialogTitle>
+              <div className="flex items-center justify-between">
+                <DialogTitle className="flex items-center gap-3 text-2xl">
+                  <FileText className="w-8 h-8" />
+                  Ficha Metodológica del Indicador
+                </DialogTitle>
+                <button
+                  onClick={() => setIsModalExpanded(!isModalExpanded)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  title={isModalExpanded ? "Reducir" : "Expandir"}
+                >
+                  {isModalExpanded ? (
+                    <Minimize2 className="w-5 h-5" />
+                  ) : (
+                    <Maximize2 className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </DialogHeader>
-            <ScrollArea className="h-[calc(90vh-8rem)] p-6">
+            <ScrollArea className={`${isModalExpanded ? 'h-[calc(95vh-8rem)]' : 'h-[calc(90vh-8rem)]'} p-6`}>
               {fichaMetodologica && (
                 <div className="space-y-6">
                   {/* Header de la ficha */}
