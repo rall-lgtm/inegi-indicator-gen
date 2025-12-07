@@ -24,8 +24,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
-import { jsPDF } from "jspdf";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle } from "docx";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { saveAs } from "file-saver";
 
 // Tipos de respuesta de la API
@@ -417,100 +416,12 @@ const Index = () => {
 
   const advertenciaAmbiental = getAdvertenciaAmbiental();
 
-  // Obtener información de la variable para exportación
-  const getVariableInfo = () => {
-    if (response?.tipo === 'propuestas_iniciales') {
-      return response.variable;
-    }
-    return null;
-  };
+  // Descargar ficha metodológica en Word
+  const handleDownloadFichaWord = async () => {
+    if (!fichaMetodologica) return;
 
-  // Descargar propuestas en PDF
-  const handleDownloadPDF = () => {
-    const variableInfo = getVariableInfo();
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let yPosition = 20;
-
-    // Título
-    doc.setFontSize(18);
-    doc.setTextColor(0, 68, 124); // INEGI blue
-    doc.text("Propuestas de Indicadores Ambientales", pageWidth / 2, yPosition, { align: "center" });
-    yPosition += 10;
-
-    doc.setFontSize(12);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Instituto Nacional de Estadística y Geografía", pageWidth / 2, yPosition, { align: "center" });
-    yPosition += 15;
-
-    // Info de la variable
-    if (variableInfo) {
-      doc.setFontSize(11);
-      doc.setTextColor(0, 68, 124);
-      doc.text(`Variable: ${variableInfo.idVar}`, 15, yPosition);
-      yPosition += 7;
-      
-      doc.setTextColor(50, 50, 50);
-      doc.setFontSize(10);
-      const nombreLines = doc.splitTextToSize(variableInfo.nombre, pageWidth - 30);
-      doc.text(nombreLines, 15, yPosition);
-      yPosition += nombreLines.length * 5 + 5;
-
-      doc.text(`Tema: ${variableInfo.tema} | Subtema: ${variableInfo.subtema}`, 15, yPosition);
-      yPosition += 7;
-      doc.text(`Años disponibles: ${variableInfo.años.join(", ")}`, 15, yPosition);
-      yPosition += 12;
-    }
-
-    // Línea separadora
-    doc.setDrawColor(0, 68, 124);
-    doc.line(15, yPosition, pageWidth - 15, yPosition);
-    yPosition += 10;
-
-    // Propuestas
-    propuestasAcumuladas.forEach((propuesta, index) => {
-      // Verificar si necesitamos nueva página
-      if (yPosition > 250) {
-        doc.addPage();
-        yPosition = 20;
-      }
-
-      // Número y nombre
-      doc.setFontSize(12);
-      doc.setTextColor(0, 102, 179); // INEGI medium blue
-      doc.text(`${propuesta.id}. ${propuesta.nombre}`, 15, yPosition);
-      yPosition += 7;
-
-      // Descripción
-      doc.setFontSize(9);
-      doc.setTextColor(80, 80, 80);
-      const descLines = doc.splitTextToSize(propuesta.descripcion, pageWidth - 30);
-      doc.text(descLines, 15, yPosition);
-      yPosition += descLines.length * 4 + 3;
-
-      // Enfoque y tipo
-      doc.setFontSize(8);
-      doc.setTextColor(0, 68, 124);
-      doc.text(`Enfoque: ${propuesta.enfoque} | Tipo: ${propuesta.tipo}`, 15, yPosition);
-      yPosition += 10;
-    });
-
-    // Footer
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Generado el ${new Date().toLocaleDateString("es-MX")}`, pageWidth / 2, 285, { align: "center" });
-
-    doc.save(`propuestas_${idVar || "indicadores"}.pdf`);
-    
-    toast({
-      title: "PDF descargado",
-      description: "Las propuestas se han exportado correctamente.",
-    });
-  };
-
-  // Descargar propuestas en Word
-  const handleDownloadWord = async () => {
-    const variableInfo = getVariableInfo();
+    const ficha = fichaMetodologica.ficha;
+    const indicador = fichaMetodologica.indicador;
 
     const doc = new Document({
       sections: [
@@ -518,7 +429,7 @@ const Index = () => {
           properties: {},
           children: [
             new Paragraph({
-              text: "Propuestas de Indicadores Ambientales",
+              text: "Ficha Metodológica del Indicador",
               heading: HeadingLevel.HEADING_1,
               alignment: "center",
             }),
@@ -527,60 +438,225 @@ const Index = () => {
               alignment: "center",
               spacing: { after: 400 },
             }),
-            ...(variableInfo ? [
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Variable: ", bold: true }),
-                  new TextRun({ text: variableInfo.idVar }),
-                ],
-              }),
-              new Paragraph({
-                text: variableInfo.nombre,
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Tema: ", bold: true }),
-                  new TextRun({ text: `${variableInfo.tema} | ` }),
-                  new TextRun({ text: "Subtema: ", bold: true }),
-                  new TextRun({ text: variableInfo.subtema }),
-                ],
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Años disponibles: ", bold: true }),
-                  new TextRun({ text: variableInfo.años.join(", ") }),
-                ],
-                spacing: { after: 400 },
-              }),
-            ] : []),
+            new Paragraph({
+              children: [
+                new TextRun({ text: indicador.nombre, bold: true, size: 28 }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: `Siglas: ${indicador.siglas}`, italics: true }),
+              ],
+              spacing: { after: 400 },
+            }),
             new Paragraph({
               text: "─".repeat(50),
               spacing: { after: 400 },
             }),
-            ...propuestasAcumuladas.flatMap((propuesta) => [
+            // Objetivo
+            new Paragraph({
+              text: "Objetivo del Indicador",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              text: ficha.objetivo,
+              spacing: { after: 300 },
+            }),
+            // Importancia
+            new Paragraph({
+              text: "Importancia y/o Utilidad",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              text: ficha.importancia,
+              spacing: { after: 300 },
+            }),
+            // Definición de variables
+            new Paragraph({
+              text: "Definición de las Variables",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            ...Object.entries(ficha.definicion_variables || {}).flatMap(([nombre, definicion]) => [
               new Paragraph({
                 children: [
-                  new TextRun({ text: `${propuesta.id}. `, bold: true, color: "0066B3" }),
-                  new TextRun({ text: propuesta.nombre, bold: true, color: "0066B3" }),
+                  new TextRun({ text: `• ${nombre}: `, bold: true }),
+                  new TextRun({ text: definicion as string }),
                 ],
-                heading: HeadingLevel.HEADING_2,
-              }),
-              new Paragraph({
-                text: propuesta.descripcion,
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Enfoque: ", bold: true }),
-                  new TextRun({ text: propuesta.enfoque }),
-                  new TextRun({ text: " | " }),
-                  new TextRun({ text: "Tipo: ", bold: true }),
-                  new TextRun({ text: propuesta.tipo }),
-                ],
-                spacing: { after: 400 },
+                spacing: { after: 100 },
               }),
             ]),
+            new Paragraph({ text: "", spacing: { after: 200 } }),
+            // Unidad y Fórmula
+            new Paragraph({
+              text: "Unidad de Medida",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              text: ficha.unidad,
+              spacing: { after: 300 },
+            }),
+            new Paragraph({
+              text: "Fórmula",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              children: [new TextRun({ text: ficha.formula, bold: true })],
+              spacing: { after: 200 },
+            }),
+            ...Object.entries(ficha.formula_detalle || {}).flatMap(([sigla, desc]) => [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `${sigla}: `, bold: true }),
+                  new TextRun({ text: desc as string }),
+                ],
+                spacing: { after: 100 },
+              }),
+            ]),
+            new Paragraph({ text: "", spacing: { after: 200 } }),
+            // Cobertura y desagregación
+            new Paragraph({
+              text: "Cobertura Geográfica",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              text: ficha.cobertura,
+              spacing: { after: 300 },
+            }),
+            new Paragraph({
+              text: "Desagregación",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              text: ficha.desagregacion,
+              spacing: { after: 300 },
+            }),
+            // Temporalidad
+            new Paragraph({
+              text: "Información Temporal",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Período: ", bold: true }),
+                new TextRun({ text: ficha.temporal }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Frecuencia: ", bold: true }),
+                new TextRun({ text: ficha.frecuencia }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Periodicidad: ", bold: true }),
+                new TextRun({ text: ficha.periodicidad }),
+              ],
+              spacing: { after: 300 },
+            }),
+            // Fuente
+            new Paragraph({
+              text: "Fuente de Información",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Nombre: ", bold: true }),
+                new TextRun({ text: ficha.fuente?.nombre || "" }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Institución: ", bold: true }),
+                new TextRun({ text: ficha.fuente?.institucion || "" }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Programa: ", bold: true }),
+                new TextRun({ text: ficha.fuente?.programa || "" }),
+              ],
+            }),
+            ...(ficha.fuente?.url ? [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "URL: ", bold: true }),
+                  new TextRun({ text: ficha.fuente.url }),
+                ],
+              }),
+            ] : []),
+            new Paragraph({ text: "", spacing: { after: 200 } }),
+            // Limitaciones
+            ...(ficha.limitaciones && ficha.limitaciones.length > 0 ? [
+              new Paragraph({
+                text: "Limitaciones",
+                heading: HeadingLevel.HEADING_2,
+              }),
+              ...ficha.limitaciones.map((lim) =>
+                new Paragraph({
+                  children: [new TextRun({ text: `• ${lim}` })],
+                  spacing: { after: 100 },
+                })
+              ),
+              new Paragraph({ text: "", spacing: { after: 200 } }),
+            ] : []),
+            // Alineación
+            new Paragraph({
+              text: "Alineación con Marcos Internacionales",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "ODS: ", bold: true }),
+                new TextRun({ text: `${ficha.alineacion?.ods?.numero} - ${ficha.alineacion?.ods?.nombre}` }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Meta ODS: ", bold: true }),
+                new TextRun({ text: ficha.alineacion?.ods?.meta || "" }),
+              ],
+              spacing: { after: 200 },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "MDEA Componente: ", bold: true }),
+                new TextRun({ text: ficha.alineacion?.mdea?.componente || "" }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Subcomponente: ", bold: true }),
+                new TextRun({ text: ficha.alineacion?.mdea?.subcomponente || "" }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Tópico: ", bold: true }),
+                new TextRun({ text: ficha.alineacion?.mdea?.topico || "" }),
+              ],
+              spacing: { after: 200 },
+            }),
+            ...(ficha.alineacion?.pnd ? [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "PND Eje: ", bold: true }),
+                  new TextRun({ text: ficha.alineacion.pnd.eje }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Objetivo: ", bold: true }),
+                  new TextRun({ text: ficha.alineacion.pnd.objetivo }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Estrategia: ", bold: true }),
+                  new TextRun({ text: ficha.alineacion.pnd.estrategia }),
+                ],
+              }),
+            ] : []),
             new Paragraph({
               text: `Generado el ${new Date().toLocaleDateString("es-MX")}`,
               alignment: "center",
@@ -592,13 +668,14 @@ const Index = () => {
     });
 
     const blob = await Packer.toBlob(doc);
-    saveAs(blob, `propuestas_${idVar || "indicadores"}.docx`);
+    saveAs(blob, `ficha_${indicador.siglas || idVar || "indicador"}.docx`);
 
     toast({
       title: "Word descargado",
-      description: "Las propuestas se han exportado correctamente.",
+      description: "La ficha metodológica se ha exportado correctamente.",
     });
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-inegi">
@@ -883,29 +960,6 @@ const Index = () => {
                     ))}
                   </div>
                 </TooltipProvider>
-
-                {/* Botones de descarga */}
-                {propuestasAcumuladas.length > 0 && (
-                  <div className="flex flex-wrap gap-3 justify-center p-4 bg-inegi-gray-light rounded-lg border border-inegi-blue-medium/20">
-                    <p className="w-full text-center text-sm text-inegi-gray-medium mb-2">Descargar propuestas:</p>
-                    <Button
-                      onClick={handleDownloadPDF}
-                      variant="outline"
-                      className="border-red-500 text-red-600 hover:bg-red-50"
-                    >
-                      <FileDown className="w-4 h-4 mr-2" />
-                      Descargar PDF
-                    </Button>
-                    <Button
-                      onClick={handleDownloadWord}
-                      variant="outline"
-                      className="border-blue-500 text-blue-600 hover:bg-blue-50"
-                    >
-                      <FileDown className="w-4 h-4 mr-2" />
-                      Descargar Word
-                    </Button>
-                  </div>
-                )}
 
                 {!mostrandoTodas ? (
                   <Button
@@ -1233,6 +1287,14 @@ const Index = () => {
                         Descargar PDF
                       </Button>
                     )}
+                    <Button
+                      className="flex-1 bg-inegi-blue-medium hover:bg-inegi-blue-dark text-white"
+                      size="lg"
+                      onClick={() => handleDownloadFichaWord()}
+                    >
+                      <FileDown className="w-5 h-5 mr-2" />
+                      Descargar Word
+                    </Button>
                     <Button
                       onClick={() => setIsModalOpen(false)}
                       variant="outline"
