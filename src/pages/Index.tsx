@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2, FileDown } from "lucide-react";
+import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2, FileDown, Sparkles, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -169,6 +169,8 @@ const Index = () => {
   const [sessionId] = useState(`session-${Date.now()}`);
   const [propuestasAcumuladas, setPropuestasAcumuladas] = useState<PropuestaIndicador[]>([]);
   const [mostrandoTodas, setMostrandoTodas] = useState(false);
+  const [nombrePersonalizado, setNombrePersonalizado] = useState("");
+  const [mostrarInputPersonalizado, setMostrarInputPersonalizado] = useState(false);
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
@@ -343,6 +345,69 @@ const Index = () => {
     await enviarConsulta("mas_opciones");
   };
 
+  const handlePersonalizado = async () => {
+    if (nombrePersonalizado.trim().length < 3) {
+      toast({
+        title: "Validación",
+        description: "El nombre del indicador debe tener al menos 3 caracteres",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const body = {
+        idVar: idVar.toUpperCase(),
+        sessionId,
+        accion: "personalizado",
+        nombreIndicador: nombrePersonalizado.trim(),
+      };
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        throw new Error("Error en la conexión con el servidor");
+      }
+
+      const data = await res.json();
+      
+      // Parsear la respuesta que viene en el campo "output" como string con markdown
+      let fichaData = data;
+      if (data.output && typeof data.output === 'string') {
+        const jsonMatch = data.output.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch && jsonMatch[1]) {
+          fichaData = JSON.parse(jsonMatch[1]);
+        }
+      }
+      
+      if (fichaData.tipo === "ficha_metodologica") {
+        setFichaMetodologica(fichaData);
+        setIsModalOpen(true);
+        setMostrarInputPersonalizado(false);
+        setNombrePersonalizado("");
+        toast({
+          title: "Ficha generada",
+          description: `Se generó la ficha para "${nombrePersonalizado}"`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo generar la propuesta personalizada. Intenta nuevamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSeleccionar = async (propuesta: PropuestaIndicador) => {
     setLoading(true);
     try {
@@ -400,6 +465,8 @@ const Index = () => {
     setIsModalOpen(false);
     setPropuestasAcumuladas([]);
     setMostrandoTodas(false);
+    setNombrePersonalizado("");
+    setMostrarInputPersonalizado(false);
     // Si venía por URL, navegar a la raíz
     if (idFromUrl) {
       navigate('/');
@@ -961,26 +1028,92 @@ const Index = () => {
                   </div>
                 </TooltipProvider>
 
-                {!mostrandoTodas ? (
-                  <Button
-                    onClick={handleMasOpciones}
-                    disabled={loading}
-                    variant="outline"
-                    className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
-                    size="lg"
-                  >
-                    {loading ? (
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    ) : (
-                      <RefreshCw className="w-5 h-5 mr-2" />
-                    )}
-                    Ver más opciones
-                  </Button>
-                ) : (
-                  <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
-                    <p className="text-sm text-inegi-blue-dark">✅ 8 propuestas generadas. Selecciona del 1 al 8</p>
-                  </div>
-                )}
+                {/* Botones de acción */}
+                <div className="space-y-4">
+                  {/* Ver más opciones */}
+                  {!mostrandoTodas ? (
+                    <Button
+                      onClick={handleMasOpciones}
+                      disabled={loading}
+                      variant="outline"
+                      className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
+                      size="lg"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-5 h-5 mr-2" />
+                      )}
+                      Ver más opciones
+                    </Button>
+                  ) : (
+                    <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
+                      <p className="text-sm text-inegi-blue-dark">✅ 8 propuestas generadas. Selecciona del 1 al 8</p>
+                    </div>
+                  )}
+
+                  {/* Propuesta Personalizada */}
+                  <Card className="border-inegi-green/30 bg-gradient-to-r from-inegi-green/5 to-inegi-blue-light">
+                    <CardContent className="pt-4 pb-4">
+                      {!mostrarInputPersonalizado ? (
+                        <Button
+                          onClick={() => setMostrarInputPersonalizado(true)}
+                          variant="outline"
+                          className="w-full border-inegi-green text-inegi-green hover:bg-inegi-green hover:text-white"
+                          size="lg"
+                        >
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          Crear Propuesta Personalizada
+                        </Button>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2 text-inegi-green">
+                            <PenLine className="w-5 h-5" />
+                            <h4 className="font-semibold">Propuesta Personalizada</h4>
+                          </div>
+                          <p className="text-sm text-inegi-gray-medium">
+                            Escribe el nombre del indicador que deseas crear. El sistema generará automáticamente la descripción y ficha metodológica.
+                          </p>
+                          <div className="flex gap-2">
+                            <Input
+                              type="text"
+                              placeholder="Ej: Tasa de reciclaje de residuos sólidos"
+                              value={nombrePersonalizado}
+                              onChange={(e) => setNombrePersonalizado(e.target.value)}
+                              disabled={loading}
+                              className="flex-1 border-inegi-green/30 focus:border-inegi-green focus:ring-inegi-green"
+                            />
+                            <Button
+                              onClick={handlePersonalizado}
+                              disabled={loading || nombrePersonalizado.trim().length < 3}
+                              className="bg-inegi-green hover:bg-inegi-green/90 text-white"
+                            >
+                              {loading ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <>
+                                  <Sparkles className="w-4 h-4 mr-2" />
+                                  Generar
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                          <Button
+                            onClick={() => {
+                              setMostrarInputPersonalizado(false);
+                              setNombrePersonalizado("");
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="text-inegi-gray-medium hover:text-inegi-blue-dark"
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             )}
 
