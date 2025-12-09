@@ -55,6 +55,24 @@ type ErrorTemporalidad = {
   };
 };
 
+type ErrorValidacion = {
+  tipo: "error_validacion";
+  error: {
+    codigo: string;
+    mensaje: string;
+    nombre_recibido: string;
+    razon: string;
+    sugerencias: string[];
+    ejemplos_contextuales: string[];
+  };
+  variable: {
+    idVar: string;
+    nombre: string;
+    tema: string;
+    subtema: string;
+  };
+};
+
 type AdvertenciaAmbiental = {
   detectado: boolean;
   mensaje: string;
@@ -171,6 +189,7 @@ const Index = () => {
   const [mostrandoTodas, setMostrandoTodas] = useState(false);
   const [nombrePersonalizado, setNombrePersonalizado] = useState("");
   const [mostrarInputPersonalizado, setMostrarInputPersonalizado] = useState(false);
+  const [errorValidacion, setErrorValidacion] = useState<ErrorValidacion | null>(null);
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
@@ -356,6 +375,7 @@ const Index = () => {
     }
     
     setLoading(true);
+    setErrorValidacion(null);
     try {
       const body = {
         idVar: idVar.toUpperCase(),
@@ -385,6 +405,17 @@ const Index = () => {
         if (jsonMatch && jsonMatch[1]) {
           fichaData = JSON.parse(jsonMatch[1]);
         }
+      }
+      
+      // Manejar error de validación
+      if (fichaData.tipo === "error_validacion") {
+        setErrorValidacion(fichaData as ErrorValidacion);
+        toast({
+          title: "Nombre no válido",
+          description: fichaData.error.mensaje,
+          variant: "destructive",
+        });
+        return;
       }
       
       if (fichaData.tipo === "ficha_metodologica") {
@@ -467,6 +498,7 @@ const Index = () => {
     setMostrandoTodas(false);
     setNombrePersonalizado("");
     setMostrarInputPersonalizado(false);
+    setErrorValidacion(null);
     // Si venía por URL, navegar a la raíz
     if (idFromUrl) {
       navigate('/');
@@ -1079,7 +1111,10 @@ const Index = () => {
                               type="text"
                               placeholder="Ej: Tasa de reciclaje de residuos sólidos"
                               value={nombrePersonalizado}
-                              onChange={(e) => setNombrePersonalizado(e.target.value)}
+                              onChange={(e) => {
+                                setNombrePersonalizado(e.target.value);
+                                if (errorValidacion) setErrorValidacion(null);
+                              }}
                               disabled={loading}
                               className="flex-1 border-inegi-green/30 focus:border-inegi-green focus:ring-inegi-green"
                             />
@@ -1098,10 +1133,65 @@ const Index = () => {
                               )}
                             </Button>
                           </div>
+                          
+                          {/* Error de validación */}
+                          {errorValidacion && (
+                            <Card className="border-red-300 bg-red-50">
+                              <CardHeader className="pb-2">
+                                <CardTitle className="text-red-700 text-base flex items-center gap-2">
+                                  <AlertCircle className="w-5 h-5" />
+                                  {errorValidacion.error.codigo.replace(/_/g, ' ')}
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-3 text-sm">
+                                <p className="text-red-700 font-medium">{errorValidacion.error.mensaje}</p>
+                                
+                                <div className="space-y-1">
+                                  <p className="text-inegi-gray-dark"><span className="font-semibold">Nombre recibido:</span> {errorValidacion.error.nombre_recibido}</p>
+                                  <p className="text-inegi-gray-medium">{errorValidacion.error.razon}</p>
+                                </div>
+                                
+                                {errorValidacion.error.sugerencias && errorValidacion.error.sugerencias.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-semibold text-inegi-gray-dark">Sugerencias:</p>
+                                    <ul className="list-none space-y-1 text-inegi-gray-medium">
+                                      {errorValidacion.error.sugerencias.map((sugerencia, idx) => (
+                                        <li key={idx} className={idx === 0 ? "" : "pl-2"}>{sugerencia}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                
+                                {errorValidacion.error.ejemplos_contextuales && errorValidacion.error.ejemplos_contextuales.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-semibold text-inegi-gray-dark">Ejemplos contextuales:</p>
+                                    <ul className="list-disc list-inside space-y-1 text-inegi-gray-medium">
+                                      {errorValidacion.error.ejemplos_contextuales.map((ejemplo, idx) => (
+                                        <li key={idx}>{ejemplo}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                
+                                {errorValidacion.variable && (
+                                  <div className="pt-2 border-t border-red-200">
+                                    <p className="text-xs text-inegi-gray-medium">
+                                      Variable: <span className="font-medium">{errorValidacion.variable.nombre}</span> ({errorValidacion.variable.idVar})
+                                    </p>
+                                    <p className="text-xs text-inegi-gray-medium">
+                                      Tema: {errorValidacion.variable.tema} / {errorValidacion.variable.subtema}
+                                    </p>
+                                  </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          )}
+                          
                           <Button
                             onClick={() => {
                               setMostrarInputPersonalizado(false);
                               setNombrePersonalizado("");
+                              setErrorValidacion(null);
                             }}
                             variant="ghost"
                             size="sm"
