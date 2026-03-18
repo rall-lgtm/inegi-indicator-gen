@@ -135,21 +135,6 @@ type FichaMetodologica = {
     formula_detalle: Record<string, string>;
     tabla_datos: any;
     grafico: any;
-    visualizacion?: {
-      tabla_datos?: {
-        años: number[];
-        series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
-        notas: string[];
-      };
-      grafico?: {
-        tipo: "lineas" | "barras" | "lineas_multiples";
-        titulo: string;
-        eje_x: { label: string; valores: number[] };
-        eje_y: { label: string; min: number; max: number };
-        series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
-        notas: string[];
-      };
-    };
     cobertura: string;
     desagregacion: string;
     temporal: string;
@@ -179,6 +164,22 @@ type FichaMetodologica = {
         objetivo: string;
         estrategia: string;
       };
+    };
+  };
+  visualizacion?: {
+    tabla_datos: {
+      años: number[];
+      series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+      notas?: string[];
+    };
+    grafico: {
+      tipo: "lineas" | "barras" | "lineas_multiples";
+      titulo: string;
+      subtitulo?: string;
+      eje_x: { label: string; valores: number[] };
+      eje_y: { label: string; min: number; max: number };
+      series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+      notas?: string[];
     };
   };
   descarga: {
