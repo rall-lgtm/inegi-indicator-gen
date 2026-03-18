@@ -135,21 +135,6 @@ type FichaMetodologica = {
     formula_detalle: Record<string, string>;
     tabla_datos: any;
     grafico: any;
-    visualizacion?: {
-      tabla_datos?: {
-        años: number[];
-        series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
-        notas: string[];
-      };
-      grafico?: {
-        tipo: "lineas" | "barras" | "lineas_multiples";
-        titulo: string;
-        eje_x: { label: string; valores: number[] };
-        eje_y: { label: string; min: number; max: number };
-        series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
-        notas: string[];
-      };
-    };
     cobertura: string;
     desagregacion: string;
     temporal: string;
@@ -179,6 +164,22 @@ type FichaMetodologica = {
         objetivo: string;
         estrategia: string;
       };
+    };
+  };
+  visualizacion?: {
+    tabla_datos: {
+      años: number[];
+      series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+      notas?: string[];
+    };
+    grafico: {
+      tipo: "lineas" | "barras" | "lineas_multiples";
+      titulo: string;
+      subtitulo?: string;
+      eje_x: { label: string; valores: number[] };
+      eje_y: { label: string; min: number; max: number };
+      series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+      notas?: string[];
     };
   };
   descarga: {
@@ -1330,97 +1331,94 @@ const Index = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Tabla de Datos */}
-                  {(() => {
-                    const tablaData = fichaMetodologica.ficha.visualizacion?.tabla_datos || fichaMetodologica.ficha.tabla_datos;
-                    if (!tablaData?.series) return null;
-                    return (
-                      <Card className="border-inegi-blue-medium/20">
-                        <CardHeader className="bg-inegi-blue-light">
-                          <CardTitle className="text-inegi-blue-dark">Tabla de Datos</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-4">
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-sm border-collapse">
-                              <thead>
-                                <tr className="bg-inegi-blue-dark text-white">
-                                  <th className="px-4 py-2 text-left font-semibold">Año</th>
-                                  {tablaData.series.map((s: any) => (
-                                    <th key={s.nombre} className="px-4 py-2 text-right font-semibold">{s.nombre}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {(tablaData.años || []).map((año: number, i: number) => (
-                                  <tr key={año} className={i % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
-                                    <td className="px-4 py-2 font-medium text-inegi-blue-dark">{año}</td>
-                                    {tablaData.series.map((s: any) => {
-                                      const dato = s.datos?.find((d: any) => d.año === año);
-                                      return (
-                                        <td key={s.nombre} className="px-4 py-2 text-right text-inegi-gray-dark">
-                                          {dato?.valor != null ? Number(dato.valor).toFixed(2) : "—"}
-                                        </td>
-                                      );
-                                    })}
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                          {tablaData.notas?.length > 0 && (
-                            <div className="mt-3 space-y-1">
-                              {tablaData.notas.map((nota: string, idx: number) => (
-                                <p key={idx} className="text-xs text-inegi-gray-medium italic">{nota}</p>
+                  {/* Tabla de datos */}
+                  {fichaMetodologica.visualizacion?.tabla_datos && (
+                    <Card className="border-inegi-blue-medium/20">
+                      <CardHeader className="bg-inegi-blue-light">
+                        <CardTitle className="text-inegi-blue-dark">Datos de Referencia</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-4 overflow-x-auto">
+                        <table className="w-full text-sm border-collapse">
+                          <thead>
+                            <tr className="bg-inegi-blue-dark text-white">
+                              <th className="p-2 text-left font-semibold">Año</th>
+                              {fichaMetodologica.visualizacion.tabla_datos.series.map((serie) => (
+                                <th key={serie.nombre} className="p-2 text-right font-semibold">
+                                  {serie.nombre}
+                                </th>
                               ))}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })()}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {fichaMetodologica.visualizacion.tabla_datos.años.map((año, idx) => (
+                              <tr key={año} className={idx % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
+                                <td className="p-2 font-medium text-inegi-blue-dark">{año}</td>
+                                {fichaMetodologica.visualizacion!.tabla_datos.series.map((serie) => {
+                                  const punto = serie.datos.find((d) => d.año === año);
+                                  return (
+                                    <td key={serie.nombre} className="p-2 text-right text-inegi-gray-dark">
+                                      {punto !== undefined ? punto.valor.toFixed(2) : "—"}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {fichaMetodologica.visualizacion.tabla_datos.notas?.map((nota, i) => (
+                          <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Gráfico */}
-                  {(() => {
-                    const grafico = fichaMetodologica.ficha.visualizacion?.grafico || fichaMetodologica.ficha.grafico;
-                    if (!grafico?.series || !grafico?.eje_x?.valores) return null;
-                    const chartData = grafico.eje_x.valores.map((año: number) => ({
+                  {fichaMetodologica.visualizacion?.grafico && (() => {
+                    const grafico = fichaMetodologica.visualizacion!.grafico;
+                    const chartData = grafico.eje_x.valores.map(año => ({
                       año,
-                      ...grafico.series.reduce((acc: any, s: any) => ({
+                      ...grafico.series.reduce((acc, s) => ({
                         ...acc,
-                        [s.nombre]: s.datos.find((d: any) => d.año === año)?.valor ?? null,
-                      }), {}),
+                        [s.nombre]: s.datos.find(d => d.año === año)?.valor ?? null
+                      }), {} as Record<string, number | null>)
                     }));
-                    const isBarChart = grafico.tipo === "barras";
-                    const ChartComponent = isBarChart ? BarChart : LineChart;
+                    const ChartComponent = grafico.tipo === "barras" ? BarChart : LineChart;
                     return (
                       <Card className="border-inegi-blue-medium/20">
                         <CardHeader className="bg-inegi-blue-light">
-                          <CardTitle className="text-inegi-blue-dark">{grafico.titulo || "Gráfico"}</CardTitle>
+                          <CardTitle className="text-inegi-blue-dark">{grafico.titulo}</CardTitle>
+                          {grafico.subtitulo && (
+                            <p className="text-sm text-inegi-gray-medium">{grafico.subtitulo}</p>
+                          )}
                         </CardHeader>
                         <CardContent className="pt-4">
                           <ResponsiveContainer width="100%" height={300}>
                             <ChartComponent data={chartData}>
                               <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="año" label={{ value: grafico.eje_x.label, position: "insideBottom", offset: -5 }} />
-                              <YAxis label={{ value: grafico.eje_y.label, angle: -90, position: "insideLeft" }} domain={[grafico.eje_y.min ?? "auto", grafico.eje_y.max ?? "auto"]} />
+                              <XAxis dataKey="año" />
+                              <YAxis domain={[grafico.eje_y.min, grafico.eje_y.max]} />
                               <RechartsTooltip />
                               <Legend />
-                              {grafico.series.map((s: any) =>
-                                isBarChart ? (
-                                  <Bar key={s.nombre} dataKey={s.nombre} fill={s.color} />
+                              {grafico.series.map((serie) =>
+                                grafico.tipo === "barras" ? (
+                                  <Bar key={serie.nombre} dataKey={serie.nombre} fill={serie.color} />
                                 ) : (
-                                  <Line key={s.nombre} dataKey={s.nombre} stroke={s.color} strokeWidth={2} dot={{ fill: s.color }} />
+                                  <Line
+                                    key={serie.nombre}
+                                    type="monotone"
+                                    dataKey={serie.nombre}
+                                    stroke={serie.color}
+                                    strokeWidth={2}
+                                    dot={{ r: 4 }}
+                                    connectNulls
+                                  />
                                 )
                               )}
                             </ChartComponent>
                           </ResponsiveContainer>
-                          {grafico.notas?.length > 0 && (
-                            <div className="mt-3 space-y-1">
-                              {grafico.notas.map((nota: string, idx: number) => (
-                                <p key={idx} className="text-xs text-inegi-gray-medium italic">{nota}</p>
-                              ))}
-                            </div>
-                          )}
+                          {grafico.notas?.map((nota, i) => (
+                            <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
+                          ))}
                         </CardContent>
                       </Card>
                     );
