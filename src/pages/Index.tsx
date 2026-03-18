@@ -971,22 +971,22 @@ const Index = () => {
             {(response.tipo === "propuestas_iniciales" || response.tipo === "propuestas_adicionales") && (
               <div className="space-y-6 animate-fade-in">
                 {/* Info de la variable */}
-                {response.tipo === "propuestas_iniciales" && (
+                {variableInfo && propuestasAcumuladas.length > 0 && (
                   <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in">
                     <CardContent className="pt-6">
                       <div className="space-y-2">
                         <h3 className="text-xl font-bold text-inegi-blue-dark">
-                          {response.variable.nombre}
+                          {variableInfo.nombre}
                         </h3>
-                        <p className="text-inegi-gray-medium">{response.variable.definicion}</p>
+                        <p className="text-inegi-gray-medium">{variableInfo.definicion}</p>
                         <div className="flex flex-wrap gap-2 mt-4">
-                          <Badge className="bg-inegi-blue-dark text-white">{response.variable.tema}</Badge>
-                          <Badge className="bg-inegi-blue-medium text-white">{response.variable.subtema}</Badge>
+                          <Badge className="bg-inegi-blue-dark text-white">{variableInfo.tema}</Badge>
+                          <Badge className="bg-inegi-blue-medium text-white">{variableInfo.subtema}</Badge>
                           <Badge className="bg-inegi-green text-white">
-                            {response.variable.totalAnios} años disponibles
+                            {variableInfo.totalAnios} años disponibles
                           </Badge>
                           <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-dark">
-                            {response.variable.años.join(", ")}
+                            {variableInfo.años.join(", ")}
                           </Badge>
                         </div>
                       </div>
