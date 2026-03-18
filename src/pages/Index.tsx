@@ -325,6 +325,7 @@ const Index = () => {
       // Si es propuestas iniciales, resetear acumuladas
       if (data.tipo === 'propuestas_iniciales') {
         setPropuestasAcumuladas(data.propuestas || []);
+        setVariableInfo(data.variable);
       }
       
       // Si son propuestas adicionales, acumular y marcar como todas mostradas
