@@ -504,6 +504,8 @@ const Index = () => {
     setNombrePersonalizado("");
     setMostrarInputPersonalizado(false);
     setErrorValidacion(null);
+    setVariableInfo(null);
+    setLoadingPropuestaId(null);
     // Si venía por URL, navegar a la raíz
     if (idFromUrl) {
       navigate('/');
