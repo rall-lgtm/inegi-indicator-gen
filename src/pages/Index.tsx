@@ -1029,12 +1029,12 @@ const Index = () => {
                                 <Badge className="bg-inegi-blue-dark text-white">{propuesta.enfoque}</Badge>
                                 <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-medium">{propuesta.tipo}</Badge>
                               </div>
-                              <Button
+                      <Button
                                 onClick={() => handleSeleccionar(propuesta)}
-                                disabled={loading}
+                                disabled={loadingPropuestaId !== null}
                                 className="w-full bg-inegi-gold hover:bg-[#D4A004] text-inegi-gray-dark font-semibold"
                               >
-                                {loading ? (
+                                {loadingPropuestaId === propuesta.id ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
                                   <>
