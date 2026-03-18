@@ -1316,36 +1316,100 @@ const Index = () => {
                   </Card>
 
                   {/* Tabla de Datos */}
-                  {fichaMetodologica.ficha.tabla_datos && (
-                    <Card className="border-inegi-blue-medium/20">
-                      <CardHeader className="bg-inegi-blue-light">
-                        <CardTitle className="text-inegi-blue-dark">Tabla de Datos</CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-4">
-                        <div className="text-sm text-inegi-gray-medium whitespace-pre-wrap">
-                          {typeof fichaMetodologica.ficha.tabla_datos === 'object' 
-                            ? JSON.stringify(fichaMetodologica.ficha.tabla_datos, null, 2)
-                            : fichaMetodologica.ficha.tabla_datos}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                  {(() => {
+                    const tablaData = fichaMetodologica.ficha.visualizacion?.tabla_datos || fichaMetodologica.ficha.tabla_datos;
+                    if (!tablaData?.series) return null;
+                    return (
+                      <Card className="border-inegi-blue-medium/20">
+                        <CardHeader className="bg-inegi-blue-light">
+                          <CardTitle className="text-inegi-blue-dark">Tabla de Datos</CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-4">
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm border-collapse">
+                              <thead>
+                                <tr className="bg-inegi-blue-dark text-white">
+                                  <th className="px-4 py-2 text-left font-semibold">Año</th>
+                                  {tablaData.series.map((s: any) => (
+                                    <th key={s.nombre} className="px-4 py-2 text-right font-semibold">{s.nombre}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(tablaData.años || []).map((año: number, i: number) => (
+                                  <tr key={año} className={i % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
+                                    <td className="px-4 py-2 font-medium text-inegi-blue-dark">{año}</td>
+                                    {tablaData.series.map((s: any) => {
+                                      const dato = s.datos?.find((d: any) => d.año === año);
+                                      return (
+                                        <td key={s.nombre} className="px-4 py-2 text-right text-inegi-gray-dark">
+                                          {dato?.valor != null ? Number(dato.valor).toFixed(2) : "—"}
+                                        </td>
+                                      );
+                                    })}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                          {tablaData.notas?.length > 0 && (
+                            <div className="mt-3 space-y-1">
+                              {tablaData.notas.map((nota: string, idx: number) => (
+                                <p key={idx} className="text-xs text-inegi-gray-medium italic">{nota}</p>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })()}
 
                   {/* Gráfico */}
-                  {fichaMetodologica.ficha.grafico && (
-                    <Card className="border-inegi-blue-medium/20">
-                      <CardHeader className="bg-inegi-blue-light">
-                        <CardTitle className="text-inegi-blue-dark">Gráfico</CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-4">
-                        <div className="text-sm text-inegi-gray-medium">
-                          {typeof fichaMetodologica.ficha.grafico === 'object' 
-                            ? JSON.stringify(fichaMetodologica.ficha.grafico, null, 2)
-                            : fichaMetodologica.ficha.grafico}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                  {(() => {
+                    const grafico = fichaMetodologica.ficha.visualizacion?.grafico || fichaMetodologica.ficha.grafico;
+                    if (!grafico?.series || !grafico?.eje_x?.valores) return null;
+                    const chartData = grafico.eje_x.valores.map((año: number) => ({
+                      año,
+                      ...grafico.series.reduce((acc: any, s: any) => ({
+                        ...acc,
+                        [s.nombre]: s.datos.find((d: any) => d.año === año)?.valor ?? null,
+                      }), {}),
+                    }));
+                    const isBarChart = grafico.tipo === "barras";
+                    const ChartComponent = isBarChart ? BarChart : LineChart;
+                    return (
+                      <Card className="border-inegi-blue-medium/20">
+                        <CardHeader className="bg-inegi-blue-light">
+                          <CardTitle className="text-inegi-blue-dark">{grafico.titulo || "Gráfico"}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-4">
+                          <ResponsiveContainer width="100%" height={300}>
+                            <ChartComponent data={chartData}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="año" label={{ value: grafico.eje_x.label, position: "insideBottom", offset: -5 }} />
+                              <YAxis label={{ value: grafico.eje_y.label, angle: -90, position: "insideLeft" }} domain={[grafico.eje_y.min ?? "auto", grafico.eje_y.max ?? "auto"]} />
+                              <RechartsTooltip />
+                              <Legend />
+                              {grafico.series.map((s: any) =>
+                                isBarChart ? (
+                                  <Bar key={s.nombre} dataKey={s.nombre} fill={s.color} />
+                                ) : (
+                                  <Line key={s.nombre} dataKey={s.nombre} stroke={s.color} strokeWidth={2} dot={{ fill: s.color }} />
+                                )
+                              )}
+                            </ChartComponent>
+                          </ResponsiveContainer>
+                          {grafico.notas?.length > 0 && (
+                            <div className="mt-3 space-y-1">
+                              {grafico.notas.map((nota: string, idx: number) => (
+                                <p key={idx} className="text-xs text-inegi-gray-medium italic">{nota}</p>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })()}
 
                   {/* Características técnicas */}
                   <div className="grid md:grid-cols-2 gap-4">
