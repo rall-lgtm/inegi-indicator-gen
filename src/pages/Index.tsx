@@ -255,6 +255,7 @@ const Index = () => {
             setResponse(data);
             if (data.tipo === 'propuestas_iniciales' && data.propuestas) {
               setPropuestasAcumuladas(data.propuestas);
+              setVariableInfo(data.variable);
             }
           } catch (error) {
             toast({
