@@ -445,7 +445,7 @@ const Index = () => {
   };
 
   const handleSeleccionar = async (propuesta: PropuestaIndicador) => {
-    setLoading(true);
+    setLoadingPropuestaId(propuesta.id);
     try {
       const body = {
         idVar: idVar.toUpperCase(),
