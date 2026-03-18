@@ -191,6 +191,8 @@ const Index = () => {
   const [nombrePersonalizado, setNombrePersonalizado] = useState("");
   const [mostrarInputPersonalizado, setMostrarInputPersonalizado] = useState(false);
   const [errorValidacion, setErrorValidacion] = useState<ErrorValidacion | null>(null);
+  const [loadingPropuestaId, setLoadingPropuestaId] = useState<number | null>(null);
+  const [variableInfo, setVariableInfo] = useState<PropuestasIniciales["variable"] | null>(null);
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
