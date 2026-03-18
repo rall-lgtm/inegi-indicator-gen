@@ -490,7 +490,7 @@ const Index = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoadingPropuestaId(null);
     }
   };
 
