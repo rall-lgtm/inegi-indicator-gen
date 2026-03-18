@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2, FileDown, Sparkles, PenLine } from "lucide-react";
+import { ResponsiveContainer, LineChart, BarChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -134,6 +135,21 @@ type FichaMetodologica = {
     formula_detalle: Record<string, string>;
     tabla_datos: any;
     grafico: any;
+    visualizacion?: {
+      tabla_datos?: {
+        años: number[];
+        series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+        notas: string[];
+      };
+      grafico?: {
+        tipo: "lineas" | "barras" | "lineas_multiples";
+        titulo: string;
+        eje_x: { label: string; valores: number[] };
+        eje_y: { label: string; min: number; max: number };
+        series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+        notas: string[];
+      };
+    };
     cobertura: string;
     desagregacion: string;
     temporal: string;
@@ -190,6 +206,8 @@ const Index = () => {
   const [nombrePersonalizado, setNombrePersonalizado] = useState("");
   const [mostrarInputPersonalizado, setMostrarInputPersonalizado] = useState(false);
   const [errorValidacion, setErrorValidacion] = useState<ErrorValidacion | null>(null);
+  const [loadingPropuestaId, setLoadingPropuestaId] = useState<number | null>(null);
+  const [variableInfo, setVariableInfo] = useState<PropuestasIniciales["variable"] | null>(null);
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
@@ -252,6 +270,7 @@ const Index = () => {
             setResponse(data);
             if (data.tipo === 'propuestas_iniciales' && data.propuestas) {
               setPropuestasAcumuladas(data.propuestas);
+              setVariableInfo(data.variable);
             }
           } catch (error) {
             toast({
@@ -321,6 +340,7 @@ const Index = () => {
       // Si es propuestas iniciales, resetear acumuladas
       if (data.tipo === 'propuestas_iniciales') {
         setPropuestasAcumuladas(data.propuestas || []);
+        setVariableInfo(data.variable);
       }
       
       // Si son propuestas adicionales, acumular y marcar como todas mostradas
@@ -440,7 +460,7 @@ const Index = () => {
   };
 
   const handleSeleccionar = async (propuesta: PropuestaIndicador) => {
-    setLoading(true);
+    setLoadingPropuestaId(propuesta.id);
     try {
       const body = {
         idVar: idVar.toUpperCase(),
@@ -485,7 +505,7 @@ const Index = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoadingPropuestaId(null);
     }
   };
 
@@ -499,6 +519,8 @@ const Index = () => {
     setNombrePersonalizado("");
     setMostrarInputPersonalizado(false);
     setErrorValidacion(null);
+    setVariableInfo(null);
+    setLoadingPropuestaId(null);
     // Si venía por URL, navegar a la raíz
     if (idFromUrl) {
       navigate('/');
@@ -964,22 +986,22 @@ const Index = () => {
             {(response.tipo === "propuestas_iniciales" || response.tipo === "propuestas_adicionales") && (
               <div className="space-y-6 animate-fade-in">
                 {/* Info de la variable */}
-                {response.tipo === "propuestas_iniciales" && (
+                {variableInfo && propuestasAcumuladas.length > 0 && (
                   <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in">
                     <CardContent className="pt-6">
                       <div className="space-y-2">
                         <h3 className="text-xl font-bold text-inegi-blue-dark">
-                          {response.variable.nombre}
+                          {variableInfo.nombre}
                         </h3>
-                        <p className="text-inegi-gray-medium">{response.variable.definicion}</p>
+                        <p className="text-inegi-gray-medium">{variableInfo.definicion}</p>
                         <div className="flex flex-wrap gap-2 mt-4">
-                          <Badge className="bg-inegi-blue-dark text-white">{response.variable.tema}</Badge>
-                          <Badge className="bg-inegi-blue-medium text-white">{response.variable.subtema}</Badge>
+                          <Badge className="bg-inegi-blue-dark text-white">{variableInfo.tema}</Badge>
+                          <Badge className="bg-inegi-blue-medium text-white">{variableInfo.subtema}</Badge>
                           <Badge className="bg-inegi-green text-white">
-                            {response.variable.totalAnios} años disponibles
+                            {variableInfo.totalAnios} años disponibles
                           </Badge>
                           <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-dark">
-                            {response.variable.años.join(", ")}
+                            {variableInfo.años.join(", ")}
                           </Badge>
                         </div>
                       </div>
@@ -1022,12 +1044,12 @@ const Index = () => {
                                 <Badge className="bg-inegi-blue-dark text-white">{propuesta.enfoque}</Badge>
                                 <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-medium">{propuesta.tipo}</Badge>
                               </div>
-                              <Button
+                      <Button
                                 onClick={() => handleSeleccionar(propuesta)}
-                                disabled={loading}
+                                disabled={loadingPropuestaId !== null}
                                 className="w-full bg-inegi-gold hover:bg-[#D4A004] text-inegi-gray-dark font-semibold"
                               >
-                                {loading ? (
+                                {loadingPropuestaId === propuesta.id ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
                                   <>
@@ -1076,7 +1098,7 @@ const Index = () => {
                       ) : (
                         <RefreshCw className="w-5 h-5 mr-2" />
                       )}
-                      Ver más opciones
+                      Generar más propuestas
                     </Button>
                   ) : (
                     <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
@@ -1309,36 +1331,100 @@ const Index = () => {
                   </Card>
 
                   {/* Tabla de Datos */}
-                  {fichaMetodologica.ficha.tabla_datos && (
-                    <Card className="border-inegi-blue-medium/20">
-                      <CardHeader className="bg-inegi-blue-light">
-                        <CardTitle className="text-inegi-blue-dark">Tabla de Datos</CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-4">
-                        <div className="text-sm text-inegi-gray-medium whitespace-pre-wrap">
-                          {typeof fichaMetodologica.ficha.tabla_datos === 'object' 
-                            ? JSON.stringify(fichaMetodologica.ficha.tabla_datos, null, 2)
-                            : fichaMetodologica.ficha.tabla_datos}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                  {(() => {
+                    const tablaData = fichaMetodologica.ficha.visualizacion?.tabla_datos || fichaMetodologica.ficha.tabla_datos;
+                    if (!tablaData?.series) return null;
+                    return (
+                      <Card className="border-inegi-blue-medium/20">
+                        <CardHeader className="bg-inegi-blue-light">
+                          <CardTitle className="text-inegi-blue-dark">Tabla de Datos</CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-4">
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm border-collapse">
+                              <thead>
+                                <tr className="bg-inegi-blue-dark text-white">
+                                  <th className="px-4 py-2 text-left font-semibold">Año</th>
+                                  {tablaData.series.map((s: any) => (
+                                    <th key={s.nombre} className="px-4 py-2 text-right font-semibold">{s.nombre}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(tablaData.años || []).map((año: number, i: number) => (
+                                  <tr key={año} className={i % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
+                                    <td className="px-4 py-2 font-medium text-inegi-blue-dark">{año}</td>
+                                    {tablaData.series.map((s: any) => {
+                                      const dato = s.datos?.find((d: any) => d.año === año);
+                                      return (
+                                        <td key={s.nombre} className="px-4 py-2 text-right text-inegi-gray-dark">
+                                          {dato?.valor != null ? Number(dato.valor).toFixed(2) : "—"}
+                                        </td>
+                                      );
+                                    })}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                          {tablaData.notas?.length > 0 && (
+                            <div className="mt-3 space-y-1">
+                              {tablaData.notas.map((nota: string, idx: number) => (
+                                <p key={idx} className="text-xs text-inegi-gray-medium italic">{nota}</p>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })()}
 
                   {/* Gráfico */}
-                  {fichaMetodologica.ficha.grafico && (
-                    <Card className="border-inegi-blue-medium/20">
-                      <CardHeader className="bg-inegi-blue-light">
-                        <CardTitle className="text-inegi-blue-dark">Gráfico</CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-4">
-                        <div className="text-sm text-inegi-gray-medium">
-                          {typeof fichaMetodologica.ficha.grafico === 'object' 
-                            ? JSON.stringify(fichaMetodologica.ficha.grafico, null, 2)
-                            : fichaMetodologica.ficha.grafico}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                  {(() => {
+                    const grafico = fichaMetodologica.ficha.visualizacion?.grafico || fichaMetodologica.ficha.grafico;
+                    if (!grafico?.series || !grafico?.eje_x?.valores) return null;
+                    const chartData = grafico.eje_x.valores.map((año: number) => ({
+                      año,
+                      ...grafico.series.reduce((acc: any, s: any) => ({
+                        ...acc,
+                        [s.nombre]: s.datos.find((d: any) => d.año === año)?.valor ?? null,
+                      }), {}),
+                    }));
+                    const isBarChart = grafico.tipo === "barras";
+                    const ChartComponent = isBarChart ? BarChart : LineChart;
+                    return (
+                      <Card className="border-inegi-blue-medium/20">
+                        <CardHeader className="bg-inegi-blue-light">
+                          <CardTitle className="text-inegi-blue-dark">{grafico.titulo || "Gráfico"}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-4">
+                          <ResponsiveContainer width="100%" height={300}>
+                            <ChartComponent data={chartData}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="año" label={{ value: grafico.eje_x.label, position: "insideBottom", offset: -5 }} />
+                              <YAxis label={{ value: grafico.eje_y.label, angle: -90, position: "insideLeft" }} domain={[grafico.eje_y.min ?? "auto", grafico.eje_y.max ?? "auto"]} />
+                              <RechartsTooltip />
+                              <Legend />
+                              {grafico.series.map((s: any) =>
+                                isBarChart ? (
+                                  <Bar key={s.nombre} dataKey={s.nombre} fill={s.color} />
+                                ) : (
+                                  <Line key={s.nombre} dataKey={s.nombre} stroke={s.color} strokeWidth={2} dot={{ fill: s.color }} />
+                                )
+                              )}
+                            </ChartComponent>
+                          </ResponsiveContainer>
+                          {grafico.notas?.length > 0 && (
+                            <div className="mt-3 space-y-1">
+                              {grafico.notas.map((nota: string, idx: number) => (
+                                <p key={idx} className="text-xs text-inegi-gray-medium italic">{nota}</p>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })()}
 
                   {/* Características técnicas */}
                   <div className="grid md:grid-cols-2 gap-4">
