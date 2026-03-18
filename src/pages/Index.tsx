@@ -1083,7 +1083,7 @@ const Index = () => {
                       ) : (
                         <RefreshCw className="w-5 h-5 mr-2" />
                       )}
-                      Ver más opciones
+                      Generar más propuestas
                     </Button>
                   ) : (
                     <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
