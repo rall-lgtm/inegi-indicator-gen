@@ -1349,7 +1349,7 @@ const Index = () => {
                   {fichaMetodologica.visualizacion?.tabla_datos && (
                     <Card className="border-inegi-blue-medium/20">
                       <CardHeader className="bg-inegi-blue-light">
-                        <CardTitle className="text-inegi-blue-dark">Datos de Referencia</CardTitle>
+                        <CardTitle className="text-inegi-blue-dark">Tabla de Datos</CardTitle>
                       </CardHeader>
                       <CardContent className="pt-4 overflow-x-auto">
                         <table className="w-full text-sm border-collapse">
