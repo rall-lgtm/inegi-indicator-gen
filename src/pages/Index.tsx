@@ -729,38 +729,42 @@ const Index = () => {
               text: "Alineación con Marcos Internacionales",
               heading: HeadingLevel.HEADING_2,
             }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "ODS: ", bold: true }),
-                new TextRun({ text: `${ficha.alineacion?.ods?.numero} - ${ficha.alineacion?.ods?.nombre}` }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Meta ODS: ", bold: true }),
-                new TextRun({ text: ficha.alineacion?.ods?.meta || "" }),
-              ],
-              spacing: { after: 200 },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "MDEA Componente: ", bold: true }),
-                new TextRun({ text: ficha.alineacion?.mdea?.componente || "" }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Subcomponente: ", bold: true }),
-                new TextRun({ text: ficha.alineacion?.mdea?.subcomponente || "" }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Tópico: ", bold: true }),
-                new TextRun({ text: ficha.alineacion?.mdea?.topico || "" }),
-              ],
-              spacing: { after: 200 },
-            }),
+            ...(ficha.alineacion?.ods?.map((ods, idx) => [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `ODS: `, bold: true }),
+                  new TextRun({ text: ods.objetivo }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Meta: ", bold: true }),
+                  new TextRun({ text: ods.meta }),
+                ],
+                spacing: { after: 200 },
+              }),
+            ]).flat() || []),
+            ...(ficha.alineacion?.mdea?.map((mdea) => [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "MDEA Componente: ", bold: true }),
+                  new TextRun({ text: mdea.componente }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Subcomponente: ", bold: true }),
+                  new TextRun({ text: mdea.subcomponente }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Tópico: ", bold: true }),
+                  new TextRun({ text: mdea.topico }),
+                ],
+                spacing: { after: 200 },
+              }),
+            ]).flat() || []),
             ...(ficha.alineacion?.pnd ? [
               new Paragraph({
                 children: [
