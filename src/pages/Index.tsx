@@ -149,16 +149,18 @@ type FichaMetodologica = {
     };
     limitaciones: string[];
     alineacion: {
-      ods: { 
-        numero: string; 
-        nombre: string;
+      ods?: Array<{
+        objetivo: string;
         meta: string;
-      };
-      mdea: { 
+        indicador?: string;
+      }>;
+      mdea?: Array<{
         componente: string;
         subcomponente: string;
         topico: string;
-      };
+        estadistica1?: string;
+        estadistica2?: string;
+      }>;
       pnd?: {
         eje: string;
         objetivo: string;
@@ -727,38 +729,42 @@ const Index = () => {
               text: "Alineación con Marcos Internacionales",
               heading: HeadingLevel.HEADING_2,
             }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "ODS: ", bold: true }),
-                new TextRun({ text: `${ficha.alineacion?.ods?.numero} - ${ficha.alineacion?.ods?.nombre}` }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Meta ODS: ", bold: true }),
-                new TextRun({ text: ficha.alineacion?.ods?.meta || "" }),
-              ],
-              spacing: { after: 200 },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "MDEA Componente: ", bold: true }),
-                new TextRun({ text: ficha.alineacion?.mdea?.componente || "" }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Subcomponente: ", bold: true }),
-                new TextRun({ text: ficha.alineacion?.mdea?.subcomponente || "" }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Tópico: ", bold: true }),
-                new TextRun({ text: ficha.alineacion?.mdea?.topico || "" }),
-              ],
-              spacing: { after: 200 },
-            }),
+            ...(ficha.alineacion?.ods?.map((ods, idx) => [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `ODS: `, bold: true }),
+                  new TextRun({ text: ods.objetivo }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Meta: ", bold: true }),
+                  new TextRun({ text: ods.meta }),
+                ],
+                spacing: { after: 200 },
+              }),
+            ]).flat() || []),
+            ...(ficha.alineacion?.mdea?.map((mdea) => [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "MDEA Componente: ", bold: true }),
+                  new TextRun({ text: mdea.componente }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Subcomponente: ", bold: true }),
+                  new TextRun({ text: mdea.subcomponente }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Tópico: ", bold: true }),
+                  new TextRun({ text: mdea.topico }),
+                ],
+                spacing: { after: 200 },
+              }),
+            ]).flat() || []),
             ...(ficha.alineacion?.pnd ? [
               new Paragraph({
                 children: [
@@ -1532,35 +1538,68 @@ const Index = () => {
                       <CardTitle className="text-inegi-blue-dark">Alineación con Marcos Internacionales</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div>
-                        <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
-                          Objetivos de Desarrollo Sostenible (ODS)
-                        </p>
-                        <div className="pl-2 space-y-1">
-                          <Badge className="bg-inegi-blue-medium text-white">
-                            ODS {fichaMetodologica.ficha.alineacion.ods.numero} - {fichaMetodologica.ficha.alineacion.ods.nombre}
-                          </Badge>
-                          <p className="text-xs text-inegi-gray-medium mt-2">
-                            Meta: {fichaMetodologica.ficha.alineacion.ods.meta}
+
+                      {/* ODS */}
+                      {fichaMetodologica.ficha.alineacion.ods && fichaMetodologica.ficha.alineacion.ods.length > 0 && (
+                        <div>
+                          <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
+                            Objetivos de Desarrollo Sostenible (ODS)
                           </p>
+                          <div className="pl-2 space-y-3">
+                            {fichaMetodologica.ficha.alineacion.ods.map((ods, idx) => (
+                              <div key={idx} className={idx > 0 ? "pt-3 border-t border-inegi-blue-medium/10" : ""}>
+                                <Badge className="bg-inegi-blue-medium text-white mb-1">
+                                  {ods.objetivo}
+                                </Badge>
+                                <p className="text-xs text-inegi-gray-medium mt-1">
+                                  <span className="font-medium">Meta:</span> {ods.meta}
+                                </p>
+                                {ods.indicador && ods.indicador !== '-' && (
+                                  <p className="text-xs text-inegi-gray-medium mt-1">
+                                    <span className="font-medium">Indicador:</span> {ods.indicador}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                      <div className="pt-2 border-t border-inegi-blue-medium/20">
-                        <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
-                          Marco de Desarrollo Estadístico Ambiental (MDEA)
-                        </p>
-                        <div className="pl-2 space-y-1">
-                          <p className="text-sm text-inegi-gray-dark">
-                            <span className="font-medium text-inegi-blue-dark">Componente:</span> {fichaMetodologica.ficha.alineacion.mdea.componente}
+                      )}
+
+                      {/* MDEA */}
+                      {fichaMetodologica.ficha.alineacion.mdea && fichaMetodologica.ficha.alineacion.mdea.length > 0 && (
+                        <div className="pt-2 border-t border-inegi-blue-medium/20">
+                          <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
+                            Marco de Desarrollo Estadístico Ambiental (MDEA)
                           </p>
-                          <p className="text-sm text-inegi-gray-dark">
-                            <span className="font-medium text-inegi-blue-dark">Subcomponente:</span> {fichaMetodologica.ficha.alineacion.mdea.subcomponente}
-                          </p>
-                          <p className="text-sm text-inegi-gray-dark">
-                            <span className="font-medium text-inegi-blue-dark">Tópico:</span> {fichaMetodologica.ficha.alineacion.mdea.topico}
-                          </p>
+                          <div className="pl-2 space-y-3">
+                            {fichaMetodologica.ficha.alineacion.mdea.map((mdea, idx) => (
+                              <div key={idx} className={idx > 0 ? "pt-3 border-t border-inegi-blue-medium/10" : ""}>
+                                <p className="text-sm text-inegi-gray-dark">
+                                  <span className="font-medium text-inegi-blue-dark">Componente:</span> {mdea.componente}
+                                </p>
+                                <p className="text-sm text-inegi-gray-dark">
+                                  <span className="font-medium text-inegi-blue-dark">Subcomponente:</span> {mdea.subcomponente}
+                                </p>
+                                <p className="text-sm text-inegi-gray-dark">
+                                  <span className="font-medium text-inegi-blue-dark">Tópico:</span> {mdea.topico}
+                                </p>
+                                {mdea.estadistica1 && mdea.estadistica1 !== '-' && (
+                                  <p className="text-sm text-inegi-gray-dark">
+                                    <span className="font-medium text-inegi-blue-dark">Estadística 1:</span> {mdea.estadistica1}
+                                  </p>
+                                )}
+                                {mdea.estadistica2 && mdea.estadistica2 !== '-' && (
+                                  <p className="text-sm text-inegi-gray-dark">
+                                    <span className="font-medium text-inegi-blue-dark">Estadística 2:</span> {mdea.estadistica2}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
+
+                      {/* PND */}
                       {fichaMetodologica.ficha.alineacion.pnd && (
                         <div className="pt-2 border-t border-inegi-blue-medium/20">
                           <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
@@ -1579,6 +1618,7 @@ const Index = () => {
                           </div>
                         </div>
                       )}
+
                     </CardContent>
                   </Card>
 
