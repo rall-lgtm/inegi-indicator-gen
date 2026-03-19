@@ -1356,23 +1356,41 @@ const Index = () => {
                           <thead>
                             <tr className="bg-inegi-blue-dark text-white">
                               <th className="p-2 text-left font-semibold">Año</th>
-                              {fichaMetodologica.visualizacion.tabla_datos.series.map((serie) => (
-                                <th key={serie.nombre} className="p-2 text-right font-semibold">
-                                  {serie.nombre}
-                                </th>
+                              {fichaMetodologica.visualizacion!.tabla_datos.series.map((serie) => (
+                                <>
+                                  <th key={`${serie.nombre}-num`} className="p-2 text-right font-semibold text-xs">
+                                    {serie.columnas.numerador.label}
+                                  </th>
+                                  <th key={`${serie.nombre}-den`} className="p-2 text-right font-semibold text-xs">
+                                    {serie.columnas.denominador.label}
+                                  </th>
+                                  <th key={`${serie.nombre}-res`} className="p-2 text-right font-semibold">
+                                    {serie.columnas.resultado.label}
+                                  </th>
+                                </>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
-                            {fichaMetodologica.visualizacion.tabla_datos.años.map((año, idx) => (
+                            {fichaMetodologica.visualizacion!.tabla_datos.años.map((año, idx) => (
                               <tr key={año} className={idx % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
                                 <td className="p-2 font-medium text-inegi-blue-dark">{año}</td>
                                 {fichaMetodologica.visualizacion!.tabla_datos.series.map((serie) => {
-                                  const punto = serie.datos.find((d) => d.año === año);
+                                  const num = serie.columnas.numerador.datos.find((d) => d.año === año);
+                                  const den = serie.columnas.denominador.datos.find((d) => d.año === año);
+                                  const res = serie.columnas.resultado.datos.find((d) => d.año === año);
                                   return (
-                                    <td key={serie.nombre} className="p-2 text-right text-inegi-gray-dark">
-                                      {punto !== undefined ? punto.valor.toFixed(2) : "—"}
-                                    </td>
+                                    <>
+                                      <td key={`${serie.nombre}-${año}-num`} className="p-2 text-right text-inegi-gray-dark">
+                                        {num !== undefined ? num.valor.toLocaleString('es-MX') : "—"}
+                                      </td>
+                                      <td key={`${serie.nombre}-${año}-den`} className="p-2 text-right text-inegi-gray-dark">
+                                        {den !== undefined ? den.valor.toLocaleString('es-MX') : "—"}
+                                      </td>
+                                      <td key={`${serie.nombre}-${año}-res`} className="p-2 text-right font-medium text-inegi-blue-dark">
+                                        {res !== undefined ? res.valor.toFixed(2) : "—"}
+                                      </td>
+                                    </>
                                   );
                                 })}
                               </tr>
