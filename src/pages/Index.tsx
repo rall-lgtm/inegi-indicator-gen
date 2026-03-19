@@ -1418,9 +1418,10 @@ const Index = () => {
                     return (
                       <Card className="border-inegi-blue-medium/20">
                         <CardHeader className="bg-inegi-blue-light">
-                          <CardTitle className="text-inegi-blue-dark">{grafico.titulo}</CardTitle>
+                          <CardTitle className="text-inegi-blue-dark">Gráfico</CardTitle>
+                          <p className="text-sm text-inegi-gray-medium">{grafico.titulo}</p>
                           {grafico.subtitulo && (
-                            <p className="text-sm text-inegi-gray-medium">{grafico.subtitulo}</p>
+                            <p className="text-xs text-inegi-gray-medium">{grafico.subtitulo}</p>
                           )}
                         </CardHeader>
                         <CardContent className="pt-4">
