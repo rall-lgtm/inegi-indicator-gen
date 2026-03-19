@@ -1566,12 +1566,12 @@ const Index = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
 
-                      {/* ODS */}
-                      {fichaMetodologica.ficha.alineacion.ods && fichaMetodologica.ficha.alineacion.ods.length > 0 && (
-                        <div>
-                          <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
-                            Objetivos de Desarrollo Sostenible (ODS)
-                          </p>
+                      {/* ODS — siempre visible */}
+                      <div>
+                        <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
+                          Objetivos de Desarrollo Sostenible (ODS)
+                        </p>
+                        {fichaMetodologica.ficha.alineacion.ods && fichaMetodologica.ficha.alineacion.ods.length > 0 ? (
                           <div className="pl-2 space-y-3">
                             {fichaMetodologica.ficha.alineacion.ods.map((ods, idx) => (
                               <div key={idx} className={idx > 0 ? "pt-3 border-t border-inegi-blue-medium/10" : ""}>
@@ -1589,15 +1589,17 @@ const Index = () => {
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <p className="text-sm text-inegi-gray-medium pl-2 italic">Sin alineación específica detectada</p>
+                        )}
+                      </div>
 
-                      {/* MDEA */}
-                      {fichaMetodologica.ficha.alineacion.mdea && fichaMetodologica.ficha.alineacion.mdea.length > 0 && (
-                        <div className="pt-2 border-t border-inegi-blue-medium/20">
-                          <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
-                            Marco de Desarrollo Estadístico Ambiental (MDEA)
-                          </p>
+                      {/* MDEA — siempre visible */}
+                      <div className="pt-2 border-t border-inegi-blue-medium/20">
+                        <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
+                          Marco de Desarrollo Estadístico Ambiental (MDEA)
+                        </p>
+                        {fichaMetodologica.ficha.alineacion.mdea && fichaMetodologica.ficha.alineacion.mdea.length > 0 ? (
                           <div className="pl-2 space-y-3">
                             {fichaMetodologica.ficha.alineacion.mdea.map((mdea, idx) => (
                               <div key={idx} className={idx > 0 ? "pt-3 border-t border-inegi-blue-medium/10" : ""}>
@@ -1623,10 +1625,12 @@ const Index = () => {
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <p className="text-sm text-inegi-gray-medium pl-2 italic">Sin alineación específica detectada</p>
+                        )}
+                      </div>
 
-                      {/* PND */}
+                      {/* PND — siempre visible */}
                       {fichaMetodologica.ficha.alineacion.pnd && (
                         <div className="pt-2 border-t border-inegi-blue-medium/20">
                           <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
