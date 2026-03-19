@@ -149,16 +149,18 @@ type FichaMetodologica = {
     };
     limitaciones: string[];
     alineacion: {
-      ods: { 
-        numero: string; 
-        nombre: string;
+      ods?: Array<{
+        objetivo: string;
         meta: string;
-      };
-      mdea: { 
+        indicador?: string;
+      }>;
+      mdea?: Array<{
         componente: string;
         subcomponente: string;
         topico: string;
-      };
+        estadistica1?: string;
+        estadistica2?: string;
+      }>;
       pnd?: {
         eje: string;
         objetivo: string;
