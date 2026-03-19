@@ -171,7 +171,15 @@ type FichaMetodologica = {
   visualizacion?: {
     tabla_datos: {
       años: number[];
-      series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+      series: Array<{
+        nombre: string;
+        color: string;
+        columnas: {
+          numerador:   { label: string; datos: Array<{ año: number; valor: number }> };
+          denominador: { label: string; datos: Array<{ año: number; valor: number }> };
+          resultado:   { label: string; datos: Array<{ año: number; valor: number }> };
+        };
+      }>;
       notas?: string[];
     };
     grafico: {
@@ -1341,30 +1349,48 @@ const Index = () => {
                   {fichaMetodologica.visualizacion?.tabla_datos && (
                     <Card className="border-inegi-blue-medium/20">
                       <CardHeader className="bg-inegi-blue-light">
-                        <CardTitle className="text-inegi-blue-dark">Datos de Referencia</CardTitle>
+                        <CardTitle className="text-inegi-blue-dark">Tabla de Datos</CardTitle>
                       </CardHeader>
                       <CardContent className="pt-4 overflow-x-auto">
                         <table className="w-full text-sm border-collapse">
                           <thead>
                             <tr className="bg-inegi-blue-dark text-white">
                               <th className="p-2 text-left font-semibold">Año</th>
-                              {fichaMetodologica.visualizacion.tabla_datos.series.map((serie) => (
-                                <th key={serie.nombre} className="p-2 text-right font-semibold">
-                                  {serie.nombre}
-                                </th>
+                              {fichaMetodologica.visualizacion!.tabla_datos.series.map((serie) => (
+                                <>
+                                  <th key={`${serie.nombre}-num`} className="p-2 text-right font-semibold text-xs">
+                                    {serie.columnas.numerador.label}
+                                  </th>
+                                  <th key={`${serie.nombre}-den`} className="p-2 text-right font-semibold text-xs">
+                                    {serie.columnas.denominador.label}
+                                  </th>
+                                  <th key={`${serie.nombre}-res`} className="p-2 text-right font-semibold">
+                                    {serie.columnas.resultado.label}
+                                  </th>
+                                </>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
-                            {fichaMetodologica.visualizacion.tabla_datos.años.map((año, idx) => (
+                            {fichaMetodologica.visualizacion!.tabla_datos.años.map((año, idx) => (
                               <tr key={año} className={idx % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
                                 <td className="p-2 font-medium text-inegi-blue-dark">{año}</td>
                                 {fichaMetodologica.visualizacion!.tabla_datos.series.map((serie) => {
-                                  const punto = serie.datos.find((d) => d.año === año);
+                                  const num = serie.columnas.numerador.datos.find((d) => d.año === año);
+                                  const den = serie.columnas.denominador.datos.find((d) => d.año === año);
+                                  const res = serie.columnas.resultado.datos.find((d) => d.año === año);
                                   return (
-                                    <td key={serie.nombre} className="p-2 text-right text-inegi-gray-dark">
-                                      {punto !== undefined ? punto.valor.toFixed(2) : "—"}
-                                    </td>
+                                    <>
+                                      <td key={`${serie.nombre}-${año}-num`} className="p-2 text-right text-inegi-gray-dark">
+                                        {num !== undefined ? num.valor.toLocaleString('es-MX') : "—"}
+                                      </td>
+                                      <td key={`${serie.nombre}-${año}-den`} className="p-2 text-right text-inegi-gray-dark">
+                                        {den !== undefined ? den.valor.toLocaleString('es-MX') : "—"}
+                                      </td>
+                                      <td key={`${serie.nombre}-${año}-res`} className="p-2 text-right font-medium text-inegi-blue-dark">
+                                        {res !== undefined ? res.valor.toFixed(2) : "—"}
+                                      </td>
+                                    </>
                                   );
                                 })}
                               </tr>
@@ -1392,9 +1418,10 @@ const Index = () => {
                     return (
                       <Card className="border-inegi-blue-medium/20">
                         <CardHeader className="bg-inegi-blue-light">
-                          <CardTitle className="text-inegi-blue-dark">{grafico.titulo}</CardTitle>
+                          <CardTitle className="text-inegi-blue-dark">Gráfico</CardTitle>
+                          <p className="text-sm text-inegi-gray-medium">{grafico.titulo}</p>
                           {grafico.subtitulo && (
-                            <p className="text-sm text-inegi-gray-medium">{grafico.subtitulo}</p>
+                            <p className="text-xs text-inegi-gray-medium">{grafico.subtitulo}</p>
                           )}
                         </CardHeader>
                         <CardContent className="pt-4">
@@ -1539,12 +1566,12 @@ const Index = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
 
-                      {/* ODS */}
-                      {fichaMetodologica.ficha.alineacion.ods && fichaMetodologica.ficha.alineacion.ods.length > 0 && (
-                        <div>
-                          <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
-                            Objetivos de Desarrollo Sostenible (ODS)
-                          </p>
+                      {/* ODS — siempre visible */}
+                      <div>
+                        <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
+                          Objetivos de Desarrollo Sostenible (ODS)
+                        </p>
+                        {fichaMetodologica.ficha.alineacion.ods && fichaMetodologica.ficha.alineacion.ods.length > 0 ? (
                           <div className="pl-2 space-y-3">
                             {fichaMetodologica.ficha.alineacion.ods.map((ods, idx) => (
                               <div key={idx} className={idx > 0 ? "pt-3 border-t border-inegi-blue-medium/10" : ""}>
@@ -1562,15 +1589,17 @@ const Index = () => {
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <p className="text-sm text-inegi-gray-medium pl-2 italic">Sin alineación específica detectada</p>
+                        )}
+                      </div>
 
-                      {/* MDEA */}
-                      {fichaMetodologica.ficha.alineacion.mdea && fichaMetodologica.ficha.alineacion.mdea.length > 0 && (
-                        <div className="pt-2 border-t border-inegi-blue-medium/20">
-                          <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
-                            Marco de Desarrollo Estadístico Ambiental (MDEA)
-                          </p>
+                      {/* MDEA — siempre visible */}
+                      <div className="pt-2 border-t border-inegi-blue-medium/20">
+                        <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
+                          Marco de Desarrollo Estadístico Ambiental (MDEA)
+                        </p>
+                        {fichaMetodologica.ficha.alineacion.mdea && fichaMetodologica.ficha.alineacion.mdea.length > 0 ? (
                           <div className="pl-2 space-y-3">
                             {fichaMetodologica.ficha.alineacion.mdea.map((mdea, idx) => (
                               <div key={idx} className={idx > 0 ? "pt-3 border-t border-inegi-blue-medium/10" : ""}>
@@ -1596,10 +1625,12 @@ const Index = () => {
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <p className="text-sm text-inegi-gray-medium pl-2 italic">Sin alineación específica detectada</p>
+                        )}
+                      </div>
 
-                      {/* PND */}
+                      {/* PND — siempre visible */}
                       {fichaMetodologica.ficha.alineacion.pnd && (
                         <div className="pt-2 border-t border-inegi-blue-medium/20">
                           <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
