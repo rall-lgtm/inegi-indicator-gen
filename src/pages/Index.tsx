@@ -171,7 +171,15 @@ type FichaMetodologica = {
   visualizacion?: {
     tabla_datos: {
       años: number[];
-      series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+      series: Array<{
+        nombre: string;
+        color: string;
+        columnas: {
+          numerador:   { label: string; datos: Array<{ año: number; valor: number }> };
+          denominador: { label: string; datos: Array<{ año: number; valor: number }> };
+          resultado:   { label: string; datos: Array<{ año: number; valor: number }> };
+        };
+      }>;
       notas?: string[];
     };
     grafico: {
