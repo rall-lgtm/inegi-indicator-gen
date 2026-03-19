@@ -25,7 +25,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle, ShadingType, AlignmentType } from "docx";
 import { saveAs } from "file-saver";
 
 // Tipos de respuesta de la API
@@ -718,6 +718,135 @@ const Index = () => {
               }),
             ] : []),
             new Paragraph({ text: "", spacing: { after: 200 } }),
+            // Tabla de datos
+            ...(fichaMetodologica.visualizacion?.tabla_datos ? (() => {
+              const td = fichaMetodologica.visualizacion!.tabla_datos;
+              const cellBorder = { style: BorderStyle.SINGLE, size: 1, color: "999999" };
+              const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
+              const cellMargins = { top: 40, bottom: 40, left: 80, right: 80 };
+              // Build columns: Año + per series (num, den, res)
+              const colCount = 1 + td.series.length * 3;
+              const yearColW = 1200;
+              const dataColW = Math.floor((9360 - yearColW) / (td.series.length * 3));
+              const columnWidths = [yearColW, ...Array(colCount - 1).fill(dataColW)];
+              const headerCells = [
+                new TableCell({
+                  borders: cellBorders, margins: cellMargins,
+                  width: { size: yearColW, type: WidthType.DXA },
+                  shading: { fill: "003D6B", type: ShadingType.CLEAR },
+                  children: [new Paragraph({ children: [new TextRun({ text: "Año", bold: true, color: "FFFFFF", size: 20 })] })],
+                }),
+                ...td.series.flatMap((serie) => [
+                  new TableCell({
+                    borders: cellBorders, margins: cellMargins,
+                    width: { size: dataColW, type: WidthType.DXA },
+                    shading: { fill: "003D6B", type: ShadingType.CLEAR },
+                    children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: serie.columnas.numerador.label, bold: true, color: "FFFFFF", size: 16 })] })],
+                  }),
+                  new TableCell({
+                    borders: cellBorders, margins: cellMargins,
+                    width: { size: dataColW, type: WidthType.DXA },
+                    shading: { fill: "003D6B", type: ShadingType.CLEAR },
+                    children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: serie.columnas.denominador.label, bold: true, color: "FFFFFF", size: 16 })] })],
+                  }),
+                  new TableCell({
+                    borders: cellBorders, margins: cellMargins,
+                    width: { size: dataColW, type: WidthType.DXA },
+                    shading: { fill: "003D6B", type: ShadingType.CLEAR },
+                    children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: serie.columnas.resultado.label, bold: true, color: "FFFFFF", size: 18 })] })],
+                  }),
+                ]),
+              ];
+              const dataRows = td.años.map((año, idx) => {
+                const fill = idx % 2 === 0 ? "FFFFFF" : "E8F0FE";
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      borders: cellBorders, margins: cellMargins,
+                      width: { size: yearColW, type: WidthType.DXA },
+                      shading: { fill, type: ShadingType.CLEAR },
+                      children: [new Paragraph({ children: [new TextRun({ text: String(año), bold: true, size: 20 })] })],
+                    }),
+                    ...td.series.flatMap((serie) => {
+                      const num = serie.columnas.numerador.datos.find(d => d.año === año);
+                      const den = serie.columnas.denominador.datos.find(d => d.año === año);
+                      const res = serie.columnas.resultado.datos.find(d => d.año === año);
+                      return [
+                        new TableCell({
+                          borders: cellBorders, margins: cellMargins,
+                          width: { size: dataColW, type: WidthType.DXA },
+                          shading: { fill, type: ShadingType.CLEAR },
+                          children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: num !== undefined ? num.valor.toLocaleString('es-MX') : "—", size: 20 })] })],
+                        }),
+                        new TableCell({
+                          borders: cellBorders, margins: cellMargins,
+                          width: { size: dataColW, type: WidthType.DXA },
+                          shading: { fill, type: ShadingType.CLEAR },
+                          children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: den !== undefined ? den.valor.toLocaleString('es-MX') : "—", size: 20 })] })],
+                        }),
+                        new TableCell({
+                          borders: cellBorders, margins: cellMargins,
+                          width: { size: dataColW, type: WidthType.DXA },
+                          shading: { fill, type: ShadingType.CLEAR },
+                          children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: res !== undefined ? res.valor.toFixed(2) : "—", bold: true, size: 20 })] })],
+                        }),
+                      ];
+                    }),
+                  ],
+                });
+              });
+              return [
+                new Paragraph({
+                  text: "Tabla de Datos",
+                  heading: HeadingLevel.HEADING_2,
+                }),
+                new Table({
+                  width: { size: 9360, type: WidthType.DXA },
+                  columnWidths,
+                  rows: [
+                    new TableRow({ children: headerCells }),
+                    ...dataRows,
+                  ],
+                }),
+                ...(td.notas?.map(nota => new Paragraph({
+                  children: [new TextRun({ text: nota, italics: true, size: 18, color: "666666" })],
+                  spacing: { after: 100 },
+                })) || []),
+                new Paragraph({ text: "", spacing: { after: 200 } }),
+              ];
+            })() : []),
+            // Gráfico (nota referencial)
+            ...(fichaMetodologica.visualizacion?.grafico ? [
+              new Paragraph({
+                text: "Gráfico",
+                heading: HeadingLevel.HEADING_2,
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: fichaMetodologica.visualizacion.grafico.titulo, bold: true }),
+                ],
+                spacing: { after: 100 },
+              }),
+              ...(fichaMetodologica.visualizacion.grafico.subtitulo ? [
+                new Paragraph({
+                  children: [new TextRun({ text: fichaMetodologica.visualizacion.grafico.subtitulo, italics: true, color: "666666" })],
+                  spacing: { after: 100 },
+                }),
+              ] : []),
+              new Paragraph({
+                children: [new TextRun({ text: `Tipo de gráfico: ${fichaMetodologica.visualizacion.grafico.tipo === "barras" ? "Barras" : "Líneas"}`, italics: true })],
+                spacing: { after: 100 },
+              }),
+              new Paragraph({
+                children: [new TextRun({ text: "(El gráfico interactivo está disponible en la aplicación web)", italics: true, color: "999999" })],
+                spacing: { after: 200 },
+              }),
+              ...(fichaMetodologica.visualizacion.grafico.notas?.map(nota => new Paragraph({
+                children: [new TextRun({ text: nota, italics: true, size: 18, color: "666666" })],
+                spacing: { after: 100 },
+              })) || []),
+              new Paragraph({ text: "", spacing: { after: 200 } }),
+            ] : []),
             // Limitaciones
             ...(ficha.limitaciones && ficha.limitaciones.length > 0 ? [
               new Paragraph({
@@ -737,46 +866,95 @@ const Index = () => {
               text: "Alineación con Marcos Internacionales",
               heading: HeadingLevel.HEADING_2,
             }),
-            ...(ficha.alineacion?.ods?.map((ods, idx) => [
-              new Paragraph({
-                children: [
-                  new TextRun({ text: `ODS: `, bold: true }),
-                  new TextRun({ text: ods.objetivo }),
-                ],
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Meta: ", bold: true }),
-                  new TextRun({ text: ods.meta }),
-                ],
-                spacing: { after: 200 },
-              }),
-            ]).flat() || []),
-            ...(ficha.alineacion?.mdea?.map((mdea) => [
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "MDEA Componente: ", bold: true }),
-                  new TextRun({ text: mdea.componente }),
-                ],
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Subcomponente: ", bold: true }),
-                  new TextRun({ text: mdea.subcomponente }),
-                ],
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Tópico: ", bold: true }),
-                  new TextRun({ text: mdea.topico }),
-                ],
-                spacing: { after: 200 },
-              }),
-            ]).flat() || []),
+            // ODS
+            new Paragraph({
+              children: [new TextRun({ text: "Objetivos de Desarrollo Sostenible (ODS)", bold: true, size: 22 })],
+              spacing: { after: 100 },
+            }),
+            ...(ficha.alineacion?.ods && ficha.alineacion.ods.length > 0
+              ? ficha.alineacion.ods.flatMap((ods) => [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: `ODS: `, bold: true }),
+                      new TextRun({ text: ods.objetivo }),
+                    ],
+                  }),
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: "Meta: ", bold: true }),
+                      new TextRun({ text: ods.meta }),
+                    ],
+                  }),
+                  ...(ods.indicador && ods.indicador !== '-' ? [
+                    new Paragraph({
+                      children: [
+                        new TextRun({ text: "Indicador: ", bold: true }),
+                        new TextRun({ text: ods.indicador }),
+                      ],
+                    }),
+                  ] : []),
+                  new Paragraph({ text: "", spacing: { after: 100 } }),
+                ])
+              : [new Paragraph({
+                  children: [new TextRun({ text: "Sin alineación específica detectada", italics: true, color: "666666" })],
+                  spacing: { after: 100 },
+                })]),
+            // MDEA
+            new Paragraph({
+              children: [new TextRun({ text: "Marco de Desarrollo Estadístico Ambiental (MDEA)", bold: true, size: 22 })],
+              spacing: { before: 200, after: 100 },
+            }),
+            ...(ficha.alineacion?.mdea && ficha.alineacion.mdea.length > 0
+              ? ficha.alineacion.mdea.flatMap((mdea) => [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: "Componente: ", bold: true }),
+                      new TextRun({ text: mdea.componente }),
+                    ],
+                  }),
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: "Subcomponente: ", bold: true }),
+                      new TextRun({ text: mdea.subcomponente }),
+                    ],
+                  }),
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: "Tópico: ", bold: true }),
+                      new TextRun({ text: mdea.topico }),
+                    ],
+                  }),
+                  ...(mdea.estadistica1 && mdea.estadistica1 !== '-' ? [
+                    new Paragraph({
+                      children: [
+                        new TextRun({ text: "Estadística 1: ", bold: true }),
+                        new TextRun({ text: mdea.estadistica1 }),
+                      ],
+                    }),
+                  ] : []),
+                  ...(mdea.estadistica2 && mdea.estadistica2 !== '-' ? [
+                    new Paragraph({
+                      children: [
+                        new TextRun({ text: "Estadística 2: ", bold: true }),
+                        new TextRun({ text: mdea.estadistica2 }),
+                      ],
+                    }),
+                  ] : []),
+                  new Paragraph({ text: "", spacing: { after: 100 } }),
+                ])
+              : [new Paragraph({
+                  children: [new TextRun({ text: "Sin alineación específica detectada", italics: true, color: "666666" })],
+                  spacing: { after: 100 },
+                })]),
+            // PND
             ...(ficha.alineacion?.pnd ? [
               new Paragraph({
+                children: [new TextRun({ text: "Plan Nacional de Desarrollo (PND)", bold: true, size: 22 })],
+                spacing: { before: 200, after: 100 },
+              }),
+              new Paragraph({
                 children: [
-                  new TextRun({ text: "PND Eje: ", bold: true }),
+                  new TextRun({ text: "Eje: ", bold: true }),
                   new TextRun({ text: ficha.alineacion.pnd.eje }),
                 ],
               }),
