@@ -1161,16 +1161,11 @@ const Index = () => {
                       <div>
                         <p className="font-medium text-sm mb-1 text-inegi-blue-dark">Sugerencia</p>
                         <p className="text-sm text-inegi-gray-medium">
-                          Intenta con otra variable que tenga al menos <span className="font-semibold text-inegi-blue-dark">{response.error.detalles.anios_requeridos} años</span> de datos históricos para generar indicadores válidos según el Catálogo Nacional de Indicadores de INEGI.
+                          Intenta con otra variable que cuente con al menos <span className="font-semibold text-inegi-blue-dark">dos años de datos históricos</span>.
                         </p>
                       </div>
                     </div>
                   </div>
-
-                  <Button onClick={handleNuevaVariable} className="w-full bg-inegi-blue-medium hover:bg-inegi-blue-dark" variant="default">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Probar otra variable
-                  </Button>
                 </CardContent>
               </Card>
             )}
