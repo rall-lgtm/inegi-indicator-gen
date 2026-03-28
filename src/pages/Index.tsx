@@ -1121,10 +1121,10 @@ const Index = () => {
 
             {/* Error de temporalidad */}
             {response.tipo === "error_temporalidad" && (
-              <Card className="border-inegi-gold border-2 shadow-xl">
-                <CardHeader className="bg-amber-50">
+              <Card className="border-l-4 border-l-inegi-blue-medium shadow-xl">
+                <CardHeader>
                   <div className="flex items-start gap-4">
-                    <AlertCircle className="w-8 h-8 text-inegi-gold flex-shrink-0 mt-1" />
+                    <AlertCircle className="w-8 h-8 text-inegi-blue-medium flex-shrink-0 mt-1" />
                     <div className="flex-1">
                       <CardTitle className="text-inegi-blue-dark text-xl">
                         {response.error.mensaje}
