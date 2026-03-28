@@ -1238,15 +1238,18 @@ const Index = () => {
                               </div>
                       <Button
                                 onClick={() => handleSeleccionar(propuesta)}
-                                disabled={loadingPropuestaId !== null}
+                                disabled={loadingPropuestaId !== null || loadingMasOpciones}
                                 className="w-full bg-inegi-gold hover:bg-[#D4A004] text-inegi-gray-dark font-semibold"
                               >
                                 {loadingPropuestaId === propuesta.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                    Generando ficha metodológica...
+                                  </>
                                 ) : (
                                   <>
                                     <CheckCircle className="w-4 h-4 mr-2" />
-                                    Elegir esta propuesta
+                                    Generar ficha metodológica
                                   </>
                                 )}
                               </Button>
