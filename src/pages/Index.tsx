@@ -218,6 +218,7 @@ const Index = () => {
   const [mostrarInputPersonalizado, setMostrarInputPersonalizado] = useState(false);
   const [errorValidacion, setErrorValidacion] = useState<ErrorValidacion | null>(null);
   const [loadingPropuestaId, setLoadingPropuestaId] = useState<number | null>(null);
+  const [loadingMasOpciones, setLoadingMasOpciones] = useState(false);
   const [variableInfo, setVariableInfo] = useState<PropuestasIniciales["variable"] | null>(null);
   const { toast } = useToast();
 
@@ -392,7 +393,12 @@ const Index = () => {
   };
 
   const handleMasOpciones = async () => {
-    await enviarConsulta("mas_opciones");
+    setLoadingMasOpciones(true);
+    try {
+      await enviarConsulta("mas_opciones");
+    } finally {
+      setLoadingMasOpciones(false);
+    }
   };
 
   const handlePersonalizado = async () => {
@@ -532,6 +538,7 @@ const Index = () => {
     setErrorValidacion(null);
     setVariableInfo(null);
     setLoadingPropuestaId(null);
+    setLoadingMasOpciones(false);
     // Si venía por URL, navegar a la raíz
     if (idFromUrl) {
       navigate('/');
@@ -1027,6 +1034,9 @@ const Index = () => {
                 <div>
                   <p className="text-sm text-inegi-gray-medium">Variable en consulta</p>
                   <p className="text-lg font-semibold text-inegi-blue-medium">{idFromUrl.toUpperCase()}</p>
+                  {loading && !response && (
+                    <p className="text-sm text-inegi-gray-medium mt-1">Analizando variable y generando propuestas de indicadores...</p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -1234,15 +1244,18 @@ const Index = () => {
                               </div>
                       <Button
                                 onClick={() => handleSeleccionar(propuesta)}
-                                disabled={loadingPropuestaId !== null}
+                                disabled={loadingPropuestaId !== null || loadingMasOpciones}
                                 className="w-full bg-inegi-gold hover:bg-[#D4A004] text-inegi-gray-dark font-semibold"
                               >
                                 {loadingPropuestaId === propuesta.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                    Generando ficha metodológica...
+                                  </>
                                 ) : (
                                   <>
                                     <CheckCircle className="w-4 h-4 mr-2" />
-                                    Elegir esta propuesta
+                                    Generar ficha metodológica
                                   </>
                                 )}
                               </Button>
@@ -1276,17 +1289,22 @@ const Index = () => {
                   {!mostrandoTodas ? (
                     <Button
                       onClick={handleMasOpciones}
-                      disabled={loading}
+                      disabled={loading || loadingPropuestaId !== null || loadingMasOpciones}
                       variant="outline"
                       className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
                       size="lg"
                     >
-                      {loading ? (
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      {loadingMasOpciones ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Generando propuestas adicionales...
+                        </>
                       ) : (
-                        <RefreshCw className="w-5 h-5 mr-2" />
+                        <>
+                          <RefreshCw className="w-5 h-5 mr-2" />
+                          Generar más propuestas
+                        </>
                       )}
-                      Generar más propuestas
                     </Button>
                   ) : (
                     <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
