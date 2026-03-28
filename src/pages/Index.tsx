@@ -1178,7 +1178,7 @@ const Index = () => {
                       <div>
                         <p className="font-medium text-sm mb-1 text-inegi-blue-dark">Sugerencia</p>
                         <p className="text-sm text-inegi-gray-medium">
-                          Intenta con otra variable que cuente con al menos <span className="font-semibold text-inegi-blue-dark">dos años de datos históricos</span>.
+                          {response.error.sugerencia}
                         </p>
                       </div>
                     </div>
