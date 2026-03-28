@@ -1318,7 +1318,7 @@ const Index = () => {
                             </CardContent>
                           </Card>
                         </TooltipTrigger>
-                        {(propuesta.objetivo || propuesta.importancia) && (
+                        {(propuesta.objetivo || propuesta.importancia || propuesta.razon_seleccion) && (
                           <TooltipContent className="max-w-md p-4 space-y-3 bg-white border-inegi-blue-medium" side="top">
                             {propuesta.objetivo && (
                               <div>
@@ -1330,6 +1330,12 @@ const Index = () => {
                               <div>
                                 <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Importancia:</p>
                                 <p className="text-sm text-inegi-gray-medium">{propuesta.importancia}</p>
+                              </div>
+                            )}
+                            {propuesta.razon_seleccion && (
+                              <div>
+                                <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Por qué se seleccionó:</p>
+                                <p className="text-sm text-inegi-gray-medium">{propuesta.razon_seleccion}</p>
                               </div>
                             )}
                           </TooltipContent>
