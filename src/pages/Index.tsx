@@ -43,6 +43,7 @@ type ErrorTemporalidad = {
     codigo: string;
     mensaje: string;
     razon: string;
+    sugerencia: string;
     detalles: {
       anios_requeridos: number;
       anios_disponibles: number;
@@ -53,6 +54,10 @@ type ErrorTemporalidad = {
     nombre: string;
     totalAnios: number;
     años: number[];
+    proceso?: {
+      estatus: string;
+      proceso: string;
+    };
   };
 };
 
