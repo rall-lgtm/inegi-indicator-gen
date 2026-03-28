@@ -1130,7 +1130,14 @@ const Index = () => {
                         {response.error.mensaje}
                       </CardTitle>
                       <CardDescription className="text-inegi-gray-medium mt-2">
-                        {response.error.razon}
+                        {response.variable.proceso?.proceso
+                          ? response.error.razon.split(response.variable.proceso.proceso).map((part, i, arr) =>
+                              i < arr.length - 1 ? (
+                                <span key={i}>{part}<strong className="text-inegi-blue-medium">{response.variable.proceso?.proceso}</strong></span>
+                              ) : <span key={i}>{part}</span>
+                            )
+                          : response.error.razon
+                        }
                       </CardDescription>
                     </div>
                   </div>
