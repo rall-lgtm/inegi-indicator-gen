@@ -1028,6 +1028,9 @@ const Index = () => {
                 <div>
                   <p className="text-sm text-inegi-gray-medium">Variable en consulta</p>
                   <p className="text-lg font-semibold text-inegi-blue-medium">{idFromUrl.toUpperCase()}</p>
+                  {loading && !response && (
+                    <p className="text-sm text-inegi-gray-medium mt-1">Analizando variable y generando propuestas de indicadores...</p>
+                  )}
                 </div>
               </div>
             </CardContent>
