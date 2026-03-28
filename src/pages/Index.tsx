@@ -1245,7 +1245,7 @@ const Index = () => {
                                     <CardTitle className="text-lg leading-tight text-inegi-blue-dark">
                                       {propuesta.nombre}
                                     </CardTitle>
-                                    {(propuesta.objetivo || propuesta.importancia) && (
+                                    {(propuesta.objetivo || propuesta.importancia || propuesta.razon_seleccion) && (
                                       <Info className="h-4 w-4 text-inegi-blue-medium flex-shrink-0" />
                                     )}
                                   </div>
