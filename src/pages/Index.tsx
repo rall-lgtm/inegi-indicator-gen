@@ -1256,6 +1256,44 @@ const Index = () => {
                               </div>
                             </CardHeader>
                             <CardContent className="space-y-3">
+                              {propuesta.viabilidad && (
+                                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100 flex-wrap">
+                                  <span className="text-xs text-gray-500">Viabilidad</span>
+                                  <div className="flex gap-1">
+                                    {[1, 2, 3].map(i => (
+                                      <div key={i} className={`w-2.5 h-2.5 rounded-full ${
+                                        propuesta.viabilidad!.nivel === "Alta" ? "bg-green-600" :
+                                        propuesta.viabilidad!.nivel === "Media" && i <= 2 ? "bg-amber-500" :
+                                        propuesta.viabilidad!.nivel === "Baja" && i === 1 ? "bg-red-500" : "bg-gray-200"
+                                      }`} />
+                                    ))}
+                                  </div>
+                                  <span className={`text-xs font-medium ${
+                                    propuesta.viabilidad!.nivel === "Alta" ? "text-green-700" :
+                                    propuesta.viabilidad!.nivel === "Media" ? "text-amber-600" : "text-red-600"
+                                  }`}>
+                                    {propuesta.viabilidad!.nivel}
+                                  </span>
+                                  <div className="flex gap-1 ml-auto flex-wrap">
+                                    {([
+                                      { key: "microdatos", label: "Microdatos" },
+                                      { key: "tabulados", label: "Tabulados" },
+                                      { key: "datosAbiertos", label: "Datos abiertos" }
+                                    ] as const).map(f => (
+                                      <span key={f.key} className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                        propuesta.viabilidad!.fuentes[f.key]
+                                          ? "bg-green-100 text-green-800"
+                                          : "bg-gray-100 text-gray-400"
+                                      }`}>
+                                        {f.label}
+                                      </span>
+                                    ))}
+                                  </div>
+                                  {propuesta.viabilidad.nota && (
+                                    <p className="w-full text-[10px] text-amber-600 mt-0.5">{propuesta.viabilidad.nota}</p>
+                                  )}
+                                </div>
+                              )}
                               <div className="flex gap-2">
                                 <Badge className="bg-inegi-blue-dark text-white">{propuesta.enfoque}</Badge>
                                 <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-medium">{propuesta.tipo}</Badge>
