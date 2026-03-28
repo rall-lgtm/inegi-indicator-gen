@@ -393,7 +393,12 @@ const Index = () => {
   };
 
   const handleMasOpciones = async () => {
-    await enviarConsulta("mas_opciones");
+    setLoadingMasOpciones(true);
+    try {
+      await enviarConsulta("mas_opciones");
+    } finally {
+      setLoadingMasOpciones(false);
+    }
   };
 
   const handlePersonalizado = async () => {
