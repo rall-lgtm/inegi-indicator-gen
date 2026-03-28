@@ -43,6 +43,7 @@ type ErrorTemporalidad = {
     codigo: string;
     mensaje: string;
     razon: string;
+    sugerencia: string;
     detalles: {
       anios_requeridos: number;
       anios_disponibles: number;
@@ -53,6 +54,10 @@ type ErrorTemporalidad = {
     nombre: string;
     totalAnios: number;
     años: number[];
+    proceso?: {
+      estatus: string;
+      proceso: string;
+    };
   };
 };
 
@@ -1033,7 +1038,10 @@ const Index = () => {
                 )}
                 <div>
                   <p className="text-sm text-inegi-gray-medium">Variable en consulta</p>
-                  <p className="text-lg font-semibold text-inegi-blue-medium">{idFromUrl.toUpperCase()}</p>
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <p className="text-lg font-semibold text-inegi-blue-medium">{idFromUrl.toUpperCase()}</p>
+                    <p className="text-sm text-inegi-gray-dark">{response?.tipo === "error_temporalidad" ? response.variable.nombre : ""}</p>
+                  </div>
                   {loading && !response && (
                     <p className="text-sm text-inegi-gray-medium mt-1">Analizando variable y generando propuestas de indicadores...</p>
                   )}
@@ -1113,16 +1121,23 @@ const Index = () => {
 
             {/* Error de temporalidad */}
             {response.tipo === "error_temporalidad" && (
-              <Card className="border-inegi-gold border-2 shadow-xl">
-                <CardHeader className="bg-amber-50">
+              <Card className="border-l-4 border-l-inegi-blue-medium shadow-xl">
+                <CardHeader>
                   <div className="flex items-start gap-4">
-                    <AlertCircle className="w-8 h-8 text-inegi-gold flex-shrink-0 mt-1" />
+                    <AlertCircle className="w-8 h-8 text-inegi-blue-medium flex-shrink-0 mt-1" />
                     <div className="flex-1">
                       <CardTitle className="text-inegi-blue-dark text-xl">
                         {response.error.mensaje}
                       </CardTitle>
                       <CardDescription className="text-inegi-gray-medium mt-2">
-                        {response.error.razon}
+                        {response.variable.proceso?.proceso
+                          ? response.error.razon.split(response.variable.proceso.proceso).map((part, i, arr) =>
+                              i < arr.length - 1 ? (
+                                <span key={i}>{part}<strong className="text-inegi-blue-medium">{response.variable.proceso?.proceso}</strong></span>
+                              ) : <span key={i}>{part}</span>
+                            )
+                          : response.error.razon
+                        }
                       </CardDescription>
                     </div>
                   </div>
@@ -1130,18 +1145,10 @@ const Index = () => {
                 <CardContent className="pt-6 space-y-4">
                   {/* Información de la variable */}
                   <div className="bg-inegi-blue-light rounded-lg p-4 space-y-3">
-                    <h3 className="font-semibold text-base text-inegi-blue-dark">Variable consultada</h3>
-                    <div className="space-y-1">
-                      <p className="text-sm">
-                        <span className="font-semibold text-inegi-blue-medium">{response.variable.idVar}</span>
-                      </p>
-                      <p className="text-sm text-inegi-gray-medium">
-                        {response.variable.nombre}
-                      </p>
-                    </div>
+                    <p className="text-xs text-inegi-gray-medium uppercase tracking-wider mb-2">Disponibilidad de datos</p>
                     
                     {/* Años disponibles vs requeridos */}
-                    <div className="flex items-center gap-2 pt-2 border-t border-inegi-blue-medium/20">
+                    <div className="flex items-center gap-2">
                       <Badge variant="outline" className="bg-amber-100 border-inegi-gold text-amber-900 font-semibold">
                         Disponibles: {response.error.detalles.anios_disponibles} año(s)
                       </Badge>
@@ -1171,7 +1178,7 @@ const Index = () => {
                       <div>
                         <p className="font-medium text-sm mb-1 text-inegi-blue-dark">Sugerencia</p>
                         <p className="text-sm text-inegi-gray-medium">
-                          Intenta con otra variable que cuente con al menos <span className="font-semibold text-inegi-blue-dark">dos años de datos históricos</span>.
+                          {response.error.sugerencia}
                         </p>
                       </div>
                     </div>
