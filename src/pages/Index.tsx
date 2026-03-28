@@ -1145,18 +1145,10 @@ const Index = () => {
                 <CardContent className="pt-6 space-y-4">
                   {/* Información de la variable */}
                   <div className="bg-inegi-blue-light rounded-lg p-4 space-y-3">
-                    <h3 className="font-semibold text-base text-inegi-blue-dark">Variable consultada</h3>
-                    <div className="space-y-1">
-                      <p className="text-sm">
-                        <span className="font-semibold text-inegi-blue-medium">{response.variable.idVar}</span>
-                      </p>
-                      <p className="text-sm text-inegi-gray-medium">
-                        {response.variable.nombre}
-                      </p>
-                    </div>
+                    <p className="text-xs text-inegi-gray-medium uppercase tracking-wider mb-2">Disponibilidad de datos</p>
                     
                     {/* Años disponibles vs requeridos */}
-                    <div className="flex items-center gap-2 pt-2 border-t border-inegi-blue-medium/20">
+                    <div className="flex items-center gap-2">
                       <Badge variant="outline" className="bg-amber-100 border-inegi-gold text-amber-900 font-semibold">
                         Disponibles: {response.error.detalles.anios_disponibles} año(s)
                       </Badge>
