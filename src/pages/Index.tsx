@@ -1283,17 +1283,22 @@ const Index = () => {
                   {!mostrandoTodas ? (
                     <Button
                       onClick={handleMasOpciones}
-                      disabled={loading}
+                      disabled={loading || loadingPropuestaId !== null || loadingMasOpciones}
                       variant="outline"
                       className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
                       size="lg"
                     >
-                      {loading ? (
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      {loadingMasOpciones ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Generando propuestas adicionales...
+                        </>
                       ) : (
-                        <RefreshCw className="w-5 h-5 mr-2" />
+                        <>
+                          <RefreshCw className="w-5 h-5 mr-2" />
+                          Generar más propuestas
+                        </>
                       )}
-                      Generar más propuestas
                     </Button>
                   ) : (
                     <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
