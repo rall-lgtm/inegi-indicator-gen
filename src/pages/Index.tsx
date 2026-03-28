@@ -1038,7 +1038,10 @@ const Index = () => {
                 )}
                 <div>
                   <p className="text-sm text-inegi-gray-medium">Variable en consulta</p>
-                  <p className="text-lg font-semibold text-inegi-blue-medium">{idFromUrl.toUpperCase()}</p>
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <p className="text-lg font-semibold text-inegi-blue-medium">{idFromUrl.toUpperCase()}</p>
+                    <p className="text-sm text-inegi-gray-dark">{response?.tipo === "error_temporalidad" ? response.variable.nombre : ""}</p>
+                  </div>
                   {loading && !response && (
                     <p className="text-sm text-inegi-gray-medium mt-1">Analizando variable y generando propuestas de indicadores...</p>
                   )}
