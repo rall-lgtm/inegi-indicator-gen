@@ -218,6 +218,7 @@ const Index = () => {
   const [mostrarInputPersonalizado, setMostrarInputPersonalizado] = useState(false);
   const [errorValidacion, setErrorValidacion] = useState<ErrorValidacion | null>(null);
   const [loadingPropuestaId, setLoadingPropuestaId] = useState<number | null>(null);
+  const [loadingMasOpciones, setLoadingMasOpciones] = useState(false);
   const [variableInfo, setVariableInfo] = useState<PropuestasIniciales["variable"] | null>(null);
   const { toast } = useToast();
 
