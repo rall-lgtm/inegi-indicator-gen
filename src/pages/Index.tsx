@@ -96,6 +96,17 @@ type PropuestaIndicador = {
   descripcion: string;
   objetivo?: string;
   importancia?: string;
+  enfoque_id?: string;
+  razon_seleccion?: string;
+  viabilidad?: {
+    nivel: "Alta" | "Media" | "Baja";
+    fuentes: {
+      microdatos: boolean;
+      tabulados: boolean;
+      datosAbiertos: boolean;
+    };
+    nota?: string;
+  };
 };
 
 type PropuestasIniciales = {
