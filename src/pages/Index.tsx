@@ -1312,6 +1312,13 @@ const Index = () => {
               const propuestasAdicionalesArr = propuestasAcumuladas.slice(numPropuestasIniciales);
               const enfoquesInicialesIds = new Set(propuestasIniciales.map(p => p.enfoque_id).filter(Boolean));
               const enfoquesAdicionalesIds = new Set(propuestasAdicionalesArr.map(p => p.enfoque_id).filter(Boolean));
+              // Map enfoque_id -> proposal number (1-based)
+              const enfoqueToPropuesta: Record<string, number> = {};
+              propuestasAcumuladas.forEach((p, i) => {
+                if (p.enfoque_id && !enfoqueToPropuesta[p.enfoque_id]) {
+                  enfoqueToPropuesta[p.enfoque_id] = i + 1;
+                }
+              });
 
               const renderCard = (propuesta: PropuestaIndicador, index: number, isInicial: boolean = true) => (
                 <Card
