@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2, FileDown, Sparkles, PenLine, Check } from "lucide-react";
+import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2, FileDown, Sparkles, PenLine, Check, RotateCcw } from "lucide-react";
 import { ResponsiveContainer, LineChart, BarChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,17 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle, ShadingType, AlignmentType } from "docx";
 import { saveAs } from "file-saver";
 
@@ -250,6 +261,7 @@ const Index = () => {
   const [loadingMasOpciones, setLoadingMasOpciones] = useState(false);
   const [variableInfo, setVariableInfo] = useState<PropuestasIniciales["variable"] | null>(null);
   const [numPropuestasIniciales, setNumPropuestasIniciales] = useState(0);
+  const [loadingRegenerando, setLoadingRegenerando] = useState(false);
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
@@ -555,6 +567,35 @@ const Index = () => {
       });
     } finally {
       setLoadingPropuestaId(null);
+    }
+  };
+
+  const handleRegenerar = async () => {
+    setLoadingRegenerando(true);
+    try {
+      // 1. Limpiar caché
+      const cacheRes = await fetch("https://n8n.fmoreno.com.mx/webhook/limpiar-cache", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idVar: idVar.toUpperCase() || idFromUrl?.toUpperCase() }),
+      });
+      const cacheData = await cacheRes.json();
+      if (!cacheData.success) {
+        toast({ title: "Error", description: "No se pudo limpiar el caché", variant: "destructive" });
+        return;
+      }
+      // 2. Regenerar propuestas iniciales
+      setPropuestasAcumuladas([]);
+      setMostrandoTodas(false);
+      setNumPropuestasIniciales(0);
+      setFichaMetodologica(null);
+      setErrorValidacion(null);
+      await enviarConsulta("iniciar");
+      toast({ title: "Regenerado", description: "Las propuestas iniciales se han regenerado correctamente." });
+    } catch (error) {
+      toast({ title: "Error", description: "No se pudo regenerar las propuestas", variant: "destructive" });
+    } finally {
+      setLoadingRegenerando(false);
     }
   };
 
@@ -1341,30 +1382,69 @@ const Index = () => {
 
               return (
                 <div className="animate-fade-in">
-                  {/* Info de la variable */}
+                  {/* Primera sección: Variable en consulta */}
                   {variableInfo && propuestasAcumuladas.length > 0 && (
-                    <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in mb-6">
-                      <CardContent className="pt-6">
-                        <div className="space-y-2">
+                    <>
+                      <div className="flex items-center justify-between mb-4 animate-fade-in">
+                        <div className="flex items-center gap-2">
                           <p className="text-xs text-inegi-gray-medium uppercase tracking-wider">Variable en consulta</p>
-                          <p className="text-sm font-semibold text-inegi-blue-dark">{idVar || idFromUrl?.toUpperCase()}</p>
-                          <h3 className="text-xl font-bold text-inegi-blue-dark">
-                            {variableInfo.nombre}
-                          </h3>
-                          <p className="text-inegi-gray-medium">{variableInfo.definicion}</p>
-                          <div className="flex flex-wrap gap-2 mt-4">
-                            <Badge className="bg-inegi-blue-dark text-white">{variableInfo.tema}</Badge>
-                            <Badge className="bg-inegi-blue-medium text-white">{variableInfo.subtema}</Badge>
-                            <Badge className="bg-inegi-green text-white">
-                              {variableInfo.totalAnios} años disponibles
-                            </Badge>
-                            <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-dark">
-                              {variableInfo.años.join(", ")}
-                            </Badge>
-                          </div>
+                          <span className="text-sm font-medium text-inegi-blue-medium">
+                            {idVar || idFromUrl?.toUpperCase()} — {variableInfo.nombre}
+                          </span>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={loadingRegenerando || loading}
+                              className="border-inegi-blue-medium/30 text-inegi-blue-medium hover:bg-inegi-blue-light"
+                            >
+                              {loadingRegenerando ? (
+                                <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                              ) : (
+                                <RotateCcw className="w-4 h-4 mr-1" />
+                              )}
+                              Regenerar
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>¿Regenerar propuestas?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                ¿Regenerar propuestas para {idVar || idFromUrl?.toUpperCase()}? Se eliminarán las propuestas guardadas.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleRegenerar} className="bg-inegi-blue-medium hover:bg-inegi-blue-dark">
+                                Regenerar
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+
+                      {/* Segunda sección: Definición */}
+                      <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in mb-6">
+                        <CardContent className="pt-6">
+                          <div className="space-y-2">
+                            <p className="text-xs text-inegi-gray-medium uppercase tracking-wider">Definición</p>
+                            <p className="text-inegi-gray-medium">{variableInfo.definicion}</p>
+                            <div className="flex flex-wrap gap-2 mt-4">
+                              <Badge className="bg-inegi-blue-dark text-white">{variableInfo.tema}</Badge>
+                              <Badge className="bg-inegi-blue-medium text-white">{variableInfo.subtema}</Badge>
+                              <Badge className="bg-inegi-green text-white">
+                                {variableInfo.totalAnios} años disponibles
+                              </Badge>
+                              <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-dark">
+                                {variableInfo.años.join(", ")}
+                              </Badge>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </>
                   )}
 
                   {/* Sidebar fijo a la izquierda de la página */}
