@@ -1299,7 +1299,7 @@ const Index = () => {
               const enfoquesInicialesIds = new Set(propuestasIniciales.map(p => p.enfoque_id).filter(Boolean));
               const enfoquesAdicionalesIds = new Set(propuestasAdicionalesArr.map(p => p.enfoque_id).filter(Boolean));
 
-              const renderCard = (propuesta: PropuestaIndicador, index: number) => (
+              const renderCard = (propuesta: PropuestaIndicador, index: number, isInicial: boolean = true) => (
                 <Card
                   key={propuesta.id}
                   className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-inegi-blue-medium/10 animate-fade-in"
