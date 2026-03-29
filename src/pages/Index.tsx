@@ -584,12 +584,13 @@ const Index = () => {
         toast({ title: "Error", description: "No se pudo limpiar el caché", variant: "destructive" });
         return;
       }
-      // 2. Regenerar propuestas iniciales
+      // 2. Resetear UI al estado de carga inicial
       setPropuestasAcumuladas([]);
       setMostrandoTodas(false);
       setNumPropuestasIniciales(0);
       setFichaMetodologica(null);
       setErrorValidacion(null);
+      setResponse(null);
       await enviarConsulta("iniciar");
       toast({ title: "Regenerado", description: "Las propuestas iniciales se han regenerado correctamente." });
     } catch (error) {
