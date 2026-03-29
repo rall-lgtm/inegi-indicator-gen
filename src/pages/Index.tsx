@@ -1549,7 +1549,7 @@ const Index = () => {
                               <div className="flex-1 h-px bg-inegi-blue-medium/15" />
                             </div>
                             <div className="grid gap-4 md:grid-cols-2">
-                              {propuestasAdicionalesArr.map((propuesta, index) => renderCard(propuesta, index + numPropuestasIniciales))}
+                              {propuestasAdicionalesArr.map((propuesta, index) => renderCard(propuesta, index + numPropuestasIniciales, false))}
                             </div>
                           </>
                         )}
