@@ -1216,300 +1216,413 @@ const Index = () => {
             )}
 
             {/* Propuestas */}
-            {(response.tipo === "propuestas_iniciales" || response.tipo === "propuestas_adicionales") && (
-              <div className="space-y-6 animate-fade-in">
-                {/* Info de la variable */}
-                {variableInfo && propuestasAcumuladas.length > 0 && (
-                  <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in">
-                    <CardContent className="pt-6">
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-inegi-blue-dark">
-                          {variableInfo.nombre}
-                        </h3>
-                        <p className="text-inegi-gray-medium">{variableInfo.definicion}</p>
-                        <div className="flex flex-wrap gap-2 mt-4">
-                          <Badge className="bg-inegi-blue-dark text-white">{variableInfo.tema}</Badge>
-                          <Badge className="bg-inegi-blue-medium text-white">{variableInfo.subtema}</Badge>
-                          <Badge className="bg-inegi-green text-white">
-                            {variableInfo.totalAnios} años disponibles
-                          </Badge>
-                          <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-dark">
-                            {variableInfo.años.join(", ")}
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+            {(response.tipo === "propuestas_iniciales" || response.tipo === "propuestas_adicionales") && (() => {
+              const propuestasIniciales = propuestasAcumuladas.slice(0, numPropuestasIniciales);
+              const propuestasAdicionalesArr = propuestasAcumuladas.slice(numPropuestasIniciales);
+              const enfoquesInicialesIds = new Set(propuestasIniciales.map(p => p.enfoque_id).filter(Boolean));
+              const enfoquesAdicionalesIds = new Set(propuestasAdicionalesArr.map(p => p.enfoque_id).filter(Boolean));
 
-                {/* Grid de propuestas */}
-                <TooltipProvider>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {propuestasAcumuladas.map((propuesta, index) => (
-                      <Card
-                        key={propuesta.id}
-                        className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-inegi-blue-medium/10 animate-fade-in"
-                        style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'backwards' }}
-                      >
-                        <CardHeader>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="w-8 h-8 rounded-full bg-inegi-blue-medium text-white flex items-center justify-center font-bold">
-                                  {propuesta.id}
-                                </div>
-                                <CardTitle className="text-lg leading-tight text-inegi-blue-dark">
-                                  {propuesta.nombre}
-                                </CardTitle>
-                                {(propuesta.objetivo || propuesta.importancia || propuesta.razon_seleccion) && (
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Info className="h-4 w-4 text-inegi-blue-medium flex-shrink-0 cursor-pointer" />
-                                    </TooltipTrigger>
-                                    <TooltipContent className="max-w-md p-4 space-y-3 bg-white border-inegi-blue-medium" side="top">
-                                      {propuesta.objetivo && (
-                                        <div>
-                                          <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Objetivo:</p>
-                                          <p className="text-sm text-inegi-gray-medium">{propuesta.objetivo}</p>
-                                        </div>
-                                      )}
-                                      {propuesta.importancia && (
-                                        <div>
-                                          <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Importancia:</p>
-                                          <p className="text-sm text-inegi-gray-medium">{propuesta.importancia}</p>
-                                        </div>
-                                      )}
-                                      {propuesta.razon_seleccion && (
-                                        <div>
-                                          <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Por qué se seleccionó:</p>
-                                          <p className="text-sm text-inegi-gray-medium">{propuesta.razon_seleccion}</p>
-                                        </div>
-                                      )}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                )}
-                              </div>
-                                  <CardDescription className="mt-2 text-inegi-gray-medium">
-                                    {propuesta.descripcion}
-                                  </CardDescription>
-                                </div>
-                              </div>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                              {propuesta.viabilidad && (
-                                <div className="flex flex-col gap-2">
-                                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100">
-                                    <span className="text-xs text-gray-500">Viabilidad</span>
-                                    <div className="flex gap-1">
-                                      {[1, 2, 3].map(i => (
-                                        <div key={i} className={`w-2.5 h-2.5 rounded-full ${
-                                          propuesta.viabilidad!.nivel === "Alta" ? "bg-green-600" :
-                                          propuesta.viabilidad!.nivel === "Media" && i <= 2 ? "bg-amber-500" :
-                                          propuesta.viabilidad!.nivel === "Baja" && i === 1 ? "bg-red-500" : "bg-gray-200"
-                                        }`} />
-                                      ))}
-                                    </div>
-                                    <span className={`text-xs font-medium ${
-                                      propuesta.viabilidad!.nivel === "Alta" ? "text-green-700" :
-                                      propuesta.viabilidad!.nivel === "Media" ? "text-amber-600" : "text-red-600"
-                                    }`}>
-                                      {propuesta.viabilidad!.nivel}
-                                    </span>
+              const renderCard = (propuesta: PropuestaIndicador, index: number) => (
+                <Card
+                  key={propuesta.id}
+                  className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-inegi-blue-medium/10 animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'backwards' }}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-full bg-inegi-blue-medium text-white flex items-center justify-center font-bold text-sm">
+                            {propuesta.id}
+                          </div>
+                          <CardTitle className="text-lg leading-tight text-inegi-blue-dark">
+                            {propuesta.nombre}
+                          </CardTitle>
+                          {(propuesta.objetivo || propuesta.importancia || propuesta.razon_seleccion) && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Info className="h-4 w-4 text-inegi-blue-medium flex-shrink-0 cursor-pointer" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-md p-4 space-y-3 bg-white border-inegi-blue-medium" side="top">
+                                {propuesta.objetivo && (
+                                  <div>
+                                    <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Objetivo:</p>
+                                    <p className="text-sm text-inegi-gray-medium">{propuesta.objetivo}</p>
                                   </div>
-                                  {(propuesta.viabilidad!.nivel === "Media" || propuesta.viabilidad!.nivel === "Baja") && (
-                                    <p className={`text-[11px] px-3 py-2 rounded-lg border-l-2 leading-snug ${
-                                      propuesta.viabilidad!.nivel === "Media"
-                                        ? "bg-amber-50 text-amber-800 border-amber-400"
-                                        : "bg-red-50 text-red-800 border-red-400"
-                                    }`}>
-                                      {propuesta.viabilidad!.nota
-                                        ? propuesta.viabilidad!.nota
-                                        : propuesta.viabilidad!.nivel === "Media"
-                                          ? "Se puede construir con las fuentes disponibles, pero considera las limitaciones antes de continuar."
-                                          : "No es posible construirlo con las fuentes actuales disponibles para esta variable."
-                                      }
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                              <div className="flex gap-2">
-                                <Badge className="bg-inegi-blue-dark text-white">{propuesta.enfoque}</Badge>
-                                <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-medium">{propuesta.tipo}</Badge>
-                              </div>
-                      <Button
-                                onClick={() => handleSeleccionar(propuesta)}
-                                disabled={loadingPropuestaId !== null || loadingMasOpciones}
-                                className="w-full bg-inegi-gold hover:bg-[#D4A004] text-inegi-gray-dark font-semibold"
-                              >
-                                {loadingPropuestaId === propuesta.id ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                    Generando ficha metodológica...
-                                  </>
-                                ) : (
-                                  <>
-                                    <CheckCircle className="w-4 h-4 mr-2" />
-                                    Generar ficha metodológica
-                                  </>
                                 )}
-                              </Button>
-                            </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TooltipProvider>
-
-                {/* Botones de acción */}
-                <div className="space-y-4">
-                  {/* Ver más opciones */}
-                  {!mostrandoTodas ? (
+                                {propuesta.importancia && (
+                                  <div>
+                                    <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Importancia:</p>
+                                    <p className="text-sm text-inegi-gray-medium">{propuesta.importancia}</p>
+                                  </div>
+                                )}
+                                {propuesta.razon_seleccion && (
+                                  <div>
+                                    <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Por qué se seleccionó:</p>
+                                    <p className="text-sm text-inegi-gray-medium">{propuesta.razon_seleccion}</p>
+                                  </div>
+                                )}
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                        <CardDescription className="mt-2 text-inegi-gray-medium">
+                          {propuesta.descripcion}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {propuesta.viabilidad && (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100">
+                          <span className="text-xs text-gray-500">Viabilidad</span>
+                          <div className="flex gap-1">
+                            {[1, 2, 3].map(i => (
+                              <div key={i} className={`w-2.5 h-2.5 rounded-full ${
+                                propuesta.viabilidad!.nivel === "Alta" ? "bg-green-600" :
+                                propuesta.viabilidad!.nivel === "Media" && i <= 2 ? "bg-amber-500" :
+                                propuesta.viabilidad!.nivel === "Baja" && i === 1 ? "bg-red-500" : "bg-gray-200"
+                              }`} />
+                            ))}
+                          </div>
+                          <span className={`text-xs font-medium ${
+                            propuesta.viabilidad!.nivel === "Alta" ? "text-green-700" :
+                            propuesta.viabilidad!.nivel === "Media" ? "text-amber-600" : "text-red-600"
+                          }`}>
+                            {propuesta.viabilidad!.nivel}
+                          </span>
+                        </div>
+                        {(propuesta.viabilidad!.nivel === "Media" || propuesta.viabilidad!.nivel === "Baja") && (
+                          <p className={`text-[11px] px-3 py-2 rounded-lg border-l-2 leading-snug ${
+                            propuesta.viabilidad!.nivel === "Media"
+                              ? "bg-amber-50 text-amber-800 border-amber-400"
+                              : "bg-red-50 text-red-800 border-red-400"
+                          }`}>
+                            {propuesta.viabilidad!.nota
+                              ? propuesta.viabilidad!.nota
+                              : propuesta.viabilidad!.nivel === "Media"
+                                ? "Se puede construir con las fuentes disponibles, pero considera las limitaciones antes de continuar."
+                                : "No es posible construirlo con las fuentes actuales disponibles para esta variable."
+                            }
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    <div className="flex gap-2 flex-wrap">
+                      {propuesta.enfoque_id && (
+                        <Badge variant="outline" className="border-inegi-blue-dark text-inegi-blue-dark font-bold text-xs">
+                          {propuesta.enfoque_id}
+                        </Badge>
+                      )}
+                      <Badge className="bg-inegi-blue-dark text-white">{propuesta.enfoque}</Badge>
+                      <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-medium">{propuesta.tipo}</Badge>
+                    </div>
                     <Button
-                      onClick={handleMasOpciones}
-                      disabled={loading || loadingPropuestaId !== null || loadingMasOpciones}
-                      variant="outline"
-                      className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
-                      size="lg"
+                      onClick={() => handleSeleccionar(propuesta)}
+                      disabled={loadingPropuestaId !== null || loadingMasOpciones}
+                      className="w-full bg-inegi-gold hover:bg-[#D4A004] text-inegi-gray-dark font-semibold"
                     >
-                      {loadingMasOpciones ? (
+                      {loadingPropuestaId === propuesta.id ? (
                         <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Generando propuestas adicionales...
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          Generando ficha metodológica...
                         </>
                       ) : (
                         <>
-                          <RefreshCw className="w-5 h-5 mr-2" />
-                          Generar más propuestas
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Generar ficha metodológica
                         </>
                       )}
                     </Button>
-                  ) : (
-                    <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
-                      <p className="text-sm text-inegi-blue-dark">✅ 8 propuestas generadas. Selecciona del 1 al 8</p>
-                    </div>
+                  </CardContent>
+                </Card>
+              );
+
+              return (
+                <div className="animate-fade-in">
+                  {/* Info de la variable */}
+                  {variableInfo && propuestasAcumuladas.length > 0 && (
+                    <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in mb-6">
+                      <CardContent className="pt-6">
+                        <div className="space-y-2">
+                          <p className="text-xs text-inegi-gray-medium uppercase tracking-wider">Variable en consulta</p>
+                          <p className="text-sm font-semibold text-inegi-blue-dark">{idVar || idFromUrl?.toUpperCase()}</p>
+                          <h3 className="text-xl font-bold text-inegi-blue-dark">
+                            {variableInfo.nombre}
+                          </h3>
+                          <p className="text-inegi-gray-medium">{variableInfo.definicion}</p>
+                          <div className="flex flex-wrap gap-2 mt-4">
+                            <Badge className="bg-inegi-blue-dark text-white">{variableInfo.tema}</Badge>
+                            <Badge className="bg-inegi-blue-medium text-white">{variableInfo.subtema}</Badge>
+                            <Badge className="bg-inegi-green text-white">
+                              {variableInfo.totalAnios} años disponibles
+                            </Badge>
+                            <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-dark">
+                              {variableInfo.años.join(", ")}
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
 
-                  {/* Propuesta Personalizada */}
-                  <Card className="border-inegi-green/30 bg-gradient-to-r from-inegi-green/5 to-inegi-blue-light">
-                    <CardContent className="pt-4 pb-4">
-                      {!mostrarInputPersonalizado ? (
-                        <Button
-                          onClick={() => setMostrarInputPersonalizado(true)}
-                          variant="outline"
-                          className="w-full border-inegi-green text-inegi-green hover:bg-inegi-green hover:text-white"
-                          size="lg"
-                        >
-                          <Sparkles className="w-5 h-5 mr-2" />
-                          Crear Propuesta Personalizada
-                        </Button>
-                      ) : (
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2 text-inegi-green">
-                            <PenLine className="w-5 h-5" />
-                            <h4 className="font-semibold">Propuesta Personalizada</h4>
+                  {/* Two-column layout: sidebar + proposals */}
+                  <div className="flex gap-6 items-start">
+                    {/* Sidebar — Catálogo de enfoques */}
+                    <div className="hidden lg:block w-[220px] flex-shrink-0 sticky top-20 self-start">
+                      <div className="bg-white rounded-lg border border-inegi-blue-medium/10 shadow-sm p-4 space-y-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-inegi-gray-medium">
+                          Catálogo de enfoques
+                        </p>
+                        {/* Leyenda */}
+                        <div className="space-y-1 text-[11px] text-inegi-gray-medium">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-inegi-green inline-block" />
+                            Inicial (1–4)
                           </div>
-                          <p className="text-sm text-inegi-gray-medium">
-                            Escribe el nombre del indicador que deseas crear. El sistema generará automáticamente la descripción y ficha metodológica.
-                          </p>
-                          <div className="flex gap-2">
-                            <Input
-                              type="text"
-                              placeholder="Ej: Tasa de reciclaje de residuos sólidos"
-                              value={nombrePersonalizado}
-                              onChange={(e) => {
-                                setNombrePersonalizado(e.target.value);
-                                if (errorValidacion) setErrorValidacion(null);
-                              }}
-                              disabled={loading}
-                              className="flex-1 border-inegi-green/30 focus:border-inegi-green focus:ring-inegi-green"
-                            />
-                            <Button
-                              onClick={handlePersonalizado}
-                              disabled={loading || nombrePersonalizado.trim().length < 3}
-                              className="bg-inegi-green hover:bg-inegi-green/90 text-white"
-                            >
-                              {loading ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <>
-                                  <Sparkles className="w-4 h-4 mr-2" />
-                                  Generar
-                                </>
-                              )}
-                            </Button>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-inegi-blue-medium inline-block" />
+                            Adicional (5–8)
                           </div>
-                          
-                          {/* Error de validación */}
-                          {errorValidacion && (
-                            <Card className="border-red-300 bg-red-50">
-                              <CardHeader className="pb-2">
-                                <CardTitle className="text-red-700 text-base flex items-center gap-2">
-                                  <AlertCircle className="w-5 h-5" />
-                                  {errorValidacion.error.codigo.replace(/_/g, ' ')}
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-3 text-sm">
-                                <p className="text-red-700 font-medium">{errorValidacion.error.mensaje}</p>
-                                
-                                <div className="space-y-1">
-                                  <p className="text-inegi-gray-dark"><span className="font-semibold">Nombre recibido:</span> {errorValidacion.error.nombre_recibido}</p>
-                                  <p className="text-inegi-gray-medium">{errorValidacion.error.razon}</p>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-gray-300 inline-block" />
+                            Disponible
+                          </div>
+                        </div>
+                        {/* Chips */}
+                        <div className="space-y-1.5">
+                          {CATALOGO_ENFOQUES.map((enfoque) => {
+                            const isInicial = enfoquesInicialesIds.has(enfoque.id);
+                            const isAdicional = enfoquesAdicionalesIds.has(enfoque.id);
+                            const isGenerado = isInicial || isAdicional;
+                            return (
+                              <div
+                                key={enfoque.id}
+                                className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                                  isInicial
+                                    ? "bg-inegi-green/10 border border-inegi-green/30"
+                                    : isAdicional
+                                    ? "bg-inegi-blue-medium/10 border border-inegi-blue-medium/30"
+                                    : "bg-gray-50 border border-gray-100 opacity-50"
+                                }`}
+                              >
+                                <span className={`font-bold flex-shrink-0 ${
+                                  isInicial ? "text-inegi-green" : isAdicional ? "text-inegi-blue-medium" : "text-gray-400"
+                                }`}>
+                                  {enfoque.id}
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                  <p className={`font-semibold leading-tight truncate ${
+                                    isGenerado ? "text-inegi-blue-dark" : "text-gray-400"
+                                  }`}>
+                                    {enfoque.nombre}
+                                  </p>
+                                  <p className={`text-[10px] leading-tight truncate ${
+                                    isGenerado ? "text-inegi-gray-medium" : "text-gray-300"
+                                  }`}>
+                                    {enfoque.descripcion}
+                                  </p>
+                                </div>
+                                {isGenerado && (
+                                  <Check className={`w-3.5 h-3.5 flex-shrink-0 ${
+                                    isInicial ? "text-inegi-green" : "text-inegi-blue-medium"
+                                  }`} />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Main content — proposals grid */}
+                    <div className="flex-1 min-w-0 space-y-6">
+                      <TooltipProvider>
+                        {/* Propuestas iniciales */}
+                        {propuestasIniciales.length > 0 && (
+                          <>
+                            <div className="flex items-center gap-3 mb-4">
+                              <p className="text-xs font-semibold uppercase tracking-widest text-inegi-gray-medium">
+                                Propuestas iniciales
+                              </p>
+                              <div className="flex-1 h-px bg-inegi-blue-medium/15" />
+                            </div>
+                            <div className="grid gap-4 md:grid-cols-2">
+                              {propuestasIniciales.map((propuesta, index) => renderCard(propuesta, index))}
+                            </div>
+                          </>
+                        )}
+
+                        {/* Propuestas adicionales */}
+                        {propuestasAdicionalesArr.length > 0 && (
+                          <>
+                            <div className="flex items-center gap-3 mt-8 mb-4">
+                              <p className="text-xs font-semibold uppercase tracking-widest text-inegi-gray-medium">
+                                Propuestas adicionales
+                              </p>
+                              <div className="flex-1 h-px bg-inegi-blue-medium/15" />
+                            </div>
+                            <div className="grid gap-4 md:grid-cols-2">
+                              {propuestasAdicionalesArr.map((propuesta, index) => renderCard(propuesta, index + numPropuestasIniciales))}
+                            </div>
+                          </>
+                        )}
+                      </TooltipProvider>
+
+                      {/* Botones de acción */}
+                      <div className="space-y-4">
+                        {!mostrandoTodas ? (
+                          <Button
+                            onClick={handleMasOpciones}
+                            disabled={loading || loadingPropuestaId !== null || loadingMasOpciones}
+                            variant="outline"
+                            className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
+                            size="lg"
+                          >
+                            {loadingMasOpciones ? (
+                              <>
+                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                Generando propuestas adicionales...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw className="w-5 h-5 mr-2" />
+                                Generar más propuestas
+                              </>
+                            )}
+                          </Button>
+                        ) : (
+                          <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
+                            <p className="text-sm text-inegi-blue-dark">✅ 8 propuestas generadas. Selecciona del 1 al 8</p>
+                          </div>
+                        )}
+
+                        {/* Propuesta Personalizada */}
+                        <Card className="border-inegi-green/30 bg-gradient-to-r from-inegi-green/5 to-inegi-blue-light">
+                          <CardContent className="pt-4 pb-4">
+                            {!mostrarInputPersonalizado ? (
+                              <Button
+                                onClick={() => setMostrarInputPersonalizado(true)}
+                                variant="outline"
+                                className="w-full border-inegi-green text-inegi-green hover:bg-inegi-green hover:text-white"
+                                size="lg"
+                              >
+                                <Sparkles className="w-5 h-5 mr-2" />
+                                Crear Propuesta Personalizada
+                              </Button>
+                            ) : (
+                              <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-inegi-green">
+                                  <PenLine className="w-5 h-5" />
+                                  <h4 className="font-semibold">Propuesta Personalizada</h4>
+                                </div>
+                                <p className="text-sm text-inegi-gray-medium">
+                                  Escribe el nombre del indicador que deseas crear. El sistema generará automáticamente la descripción y ficha metodológica.
+                                </p>
+                                <div className="flex gap-2">
+                                  <Input
+                                    type="text"
+                                    placeholder="Ej: Tasa de reciclaje de residuos sólidos"
+                                    value={nombrePersonalizado}
+                                    onChange={(e) => {
+                                      setNombrePersonalizado(e.target.value);
+                                      if (errorValidacion) setErrorValidacion(null);
+                                    }}
+                                    disabled={loading}
+                                    className="flex-1 border-inegi-green/30 focus:border-inegi-green focus:ring-inegi-green"
+                                  />
+                                  <Button
+                                    onClick={handlePersonalizado}
+                                    disabled={loading || nombrePersonalizado.trim().length < 3}
+                                    className="bg-inegi-green hover:bg-inegi-green/90 text-white"
+                                  >
+                                    {loading ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <>
+                                        <Sparkles className="w-4 h-4 mr-2" />
+                                        Generar
+                                      </>
+                                    )}
+                                  </Button>
                                 </div>
                                 
-                                {errorValidacion.error.sugerencias && errorValidacion.error.sugerencias.length > 0 && (
-                                  <div className="space-y-1">
-                                    <p className="font-semibold text-inegi-gray-dark">Sugerencias:</p>
-                                    <ul className="list-none space-y-1 text-inegi-gray-medium">
-                                      {errorValidacion.error.sugerencias.map((sugerencia, idx) => (
-                                        <li key={idx} className={idx === 0 ? "" : "pl-2"}>{sugerencia}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
+                                {/* Error de validación */}
+                                {errorValidacion && (
+                                  <Card className="border-red-300 bg-red-50">
+                                    <CardHeader className="pb-2">
+                                      <CardTitle className="text-red-700 text-base flex items-center gap-2">
+                                        <AlertCircle className="w-5 h-5" />
+                                        {errorValidacion.error.codigo.replace(/_/g, ' ')}
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-3 text-sm">
+                                      <p className="text-red-700 font-medium">{errorValidacion.error.mensaje}</p>
+                                      
+                                      <div className="space-y-1">
+                                        <p className="text-inegi-gray-dark"><span className="font-semibold">Nombre recibido:</span> {errorValidacion.error.nombre_recibido}</p>
+                                        <p className="text-inegi-gray-medium">{errorValidacion.error.razon}</p>
+                                      </div>
+                                      
+                                      {errorValidacion.error.sugerencias && errorValidacion.error.sugerencias.length > 0 && (
+                                        <div className="space-y-1">
+                                          <p className="font-semibold text-inegi-gray-dark">Sugerencias:</p>
+                                          <ul className="list-none space-y-1 text-inegi-gray-medium">
+                                            {errorValidacion.error.sugerencias.map((sugerencia, idx) => (
+                                              <li key={idx} className={idx === 0 ? "" : "pl-2"}>{sugerencia}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                      
+                                      {errorValidacion.error.ejemplos_contextuales && errorValidacion.error.ejemplos_contextuales.length > 0 && (
+                                        <div className="space-y-1">
+                                          <p className="font-semibold text-inegi-gray-dark">Ejemplos contextuales:</p>
+                                          <ul className="list-disc list-inside space-y-1 text-inegi-gray-medium">
+                                            {errorValidacion.error.ejemplos_contextuales.map((ejemplo, idx) => (
+                                              <li key={idx}>{ejemplo}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                      
+                                      {errorValidacion.variable && (
+                                        <div className="pt-2 border-t border-red-200">
+                                          <p className="text-xs text-inegi-gray-medium">
+                                            Variable: <span className="font-medium">{errorValidacion.variable.nombre}</span> ({errorValidacion.variable.idVar})
+                                          </p>
+                                          <p className="text-xs text-inegi-gray-medium">
+                                            Tema: {errorValidacion.variable.tema} / {errorValidacion.variable.subtema}
+                                          </p>
+                                        </div>
+                                      )}
+                                    </CardContent>
+                                  </Card>
                                 )}
                                 
-                                {errorValidacion.error.ejemplos_contextuales && errorValidacion.error.ejemplos_contextuales.length > 0 && (
-                                  <div className="space-y-1">
-                                    <p className="font-semibold text-inegi-gray-dark">Ejemplos contextuales:</p>
-                                    <ul className="list-disc list-inside space-y-1 text-inegi-gray-medium">
-                                      {errorValidacion.error.ejemplos_contextuales.map((ejemplo, idx) => (
-                                        <li key={idx}>{ejemplo}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )}
-                                
-                                {errorValidacion.variable && (
-                                  <div className="pt-2 border-t border-red-200">
-                                    <p className="text-xs text-inegi-gray-medium">
-                                      Variable: <span className="font-medium">{errorValidacion.variable.nombre}</span> ({errorValidacion.variable.idVar})
-                                    </p>
-                                    <p className="text-xs text-inegi-gray-medium">
-                                      Tema: {errorValidacion.variable.tema} / {errorValidacion.variable.subtema}
-                                    </p>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-                          )}
-                          
-                          <Button
-                            onClick={() => {
-                              setMostrarInputPersonalizado(false);
-                              setNombrePersonalizado("");
-                              setErrorValidacion(null);
-                            }}
-                            variant="ghost"
-                            size="sm"
-                            className="text-inegi-gray-medium hover:text-inegi-blue-dark"
-                          >
-                            Cancelar
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                                <Button
+                                  onClick={() => {
+                                    setMostrarInputPersonalizado(false);
+                                    setNombrePersonalizado("");
+                                    setErrorValidacion(null);
+                                  }}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-inegi-gray-medium hover:text-inegi-blue-dark"
+                                >
+                                  Cancelar
+                                </Button>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
           </div>
         )}
