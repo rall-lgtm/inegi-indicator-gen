@@ -1315,33 +1315,6 @@ const Index = () => {
                           <CardTitle className="text-lg leading-tight text-inegi-blue-dark">
                             {propuesta.nombre}
                           </CardTitle>
-                          {(propuesta.objetivo || propuesta.importancia || propuesta.razon_seleccion) && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Info className="h-4 w-4 text-inegi-blue-medium flex-shrink-0 cursor-pointer" />
-                              </TooltipTrigger>
-                              <TooltipContent className="max-w-md p-4 space-y-3 bg-white border-inegi-blue-medium" side="top">
-                                {propuesta.objetivo && (
-                                  <div>
-                                    <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Objetivo:</p>
-                                    <p className="text-sm text-inegi-gray-medium">{propuesta.objetivo}</p>
-                                  </div>
-                                )}
-                                {propuesta.importancia && (
-                                  <div>
-                                    <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Importancia:</p>
-                                    <p className="text-sm text-inegi-gray-medium">{propuesta.importancia}</p>
-                                  </div>
-                                )}
-                                {propuesta.razon_seleccion && (
-                                  <div>
-                                    <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Por qué se seleccionó:</p>
-                                    <p className="text-sm text-inegi-gray-medium">{propuesta.razon_seleccion}</p>
-                                  </div>
-                                )}
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
                         </div>
                         <CardDescription className="mt-2 text-inegi-gray-medium">
                           {propuesta.descripcion}
