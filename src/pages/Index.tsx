@@ -1367,77 +1367,75 @@ const Index = () => {
                     </Card>
                   )}
 
-                  {/* Two-column layout: sidebar + proposals */}
-                  <div className="flex gap-6 items-start">
-                    {/* Sidebar — Catálogo de enfoques */}
-                    <div className="hidden lg:block w-[220px] flex-shrink-0 sticky top-20 self-start">
-                      <div className="bg-white rounded-lg border border-inegi-blue-medium/10 shadow-sm p-4 space-y-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-inegi-gray-medium">
-                          Catálogo de enfoques
-                        </p>
-                        {/* Leyenda */}
-                        <div className="space-y-1 text-[11px] text-inegi-gray-medium">
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-inegi-green inline-block" />
-                            Inicial (1–4)
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-inegi-blue-medium inline-block" />
-                            Adicional (5–8)
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-gray-300 inline-block" />
-                            Disponible
-                          </div>
+                  {/* Sidebar fijo a la izquierda de la página */}
+                  <div className="hidden lg:block fixed left-0 top-20 w-[220px] z-40 h-[calc(100vh-5rem)] overflow-y-auto p-3">
+                    <div className="bg-white rounded-lg border border-inegi-blue-medium/10 shadow-sm p-4 space-y-4">
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-inegi-gray-medium">
+                        Catálogo de enfoques
+                      </p>
+                      {/* Leyenda */}
+                      <div className="space-y-1 text-[11px] text-inegi-gray-medium">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-inegi-green inline-block" />
+                          Inicial (1–4)
                         </div>
-                        {/* Chips */}
-                        <div className="space-y-1.5">
-                          {CATALOGO_ENFOQUES.map((enfoque) => {
-                            const isInicial = enfoquesInicialesIds.has(enfoque.id);
-                            const isAdicional = enfoquesAdicionalesIds.has(enfoque.id);
-                            const isGenerado = isInicial || isAdicional;
-                            return (
-                              <div
-                                key={enfoque.id}
-                                className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs transition-colors ${
-                                  isInicial
-                                    ? "bg-inegi-green/10 border border-inegi-green/30"
-                                    : isAdicional
-                                    ? "bg-inegi-blue-medium/10 border border-inegi-blue-medium/30"
-                                    : "bg-gray-50 border border-gray-100 opacity-50"
-                                }`}
-                              >
-                                <span className={`font-bold flex-shrink-0 ${
-                                  isInicial ? "text-inegi-green" : isAdicional ? "text-inegi-blue-medium" : "text-gray-400"
-                                }`}>
-                                  {enfoque.id}
-                                </span>
-                                <div className="flex-1 min-w-0">
-                                  <p className={`font-semibold leading-tight truncate ${
-                                    isGenerado ? "text-inegi-blue-dark" : "text-gray-400"
-                                  }`}>
-                                    {enfoque.nombre}
-                                  </p>
-                                  <p className={`text-[10px] leading-tight truncate ${
-                                    isGenerado ? "text-inegi-gray-medium" : "text-gray-300"
-                                  }`}>
-                                    {enfoque.descripcion}
-                                  </p>
-                                </div>
-                                {isGenerado && (
-                                  <Check className={`w-3.5 h-3.5 flex-shrink-0 ${
-                                    isInicial ? "text-inegi-green" : "text-inegi-blue-medium"
-                                  }`} />
-                                )}
-                              </div>
-                            );
-                          })}
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-inegi-blue-medium inline-block" />
+                          Adicional (5–8)
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-gray-300 inline-block" />
+                          Disponible
                         </div>
                       </div>
+                      {/* Chips */}
+                      <div className="space-y-1.5">
+                        {CATALOGO_ENFOQUES.map((enfoque) => {
+                          const isInicial = enfoquesInicialesIds.has(enfoque.id);
+                          const isAdicional = enfoquesAdicionalesIds.has(enfoque.id);
+                          const isGenerado = isInicial || isAdicional;
+                          return (
+                            <div
+                              key={enfoque.id}
+                              className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                                isInicial
+                                  ? "bg-inegi-green/10 border border-inegi-green/30"
+                                  : isAdicional
+                                  ? "bg-inegi-blue-medium/10 border border-inegi-blue-medium/30"
+                                  : "bg-gray-50 border border-gray-100 opacity-50"
+                              }`}
+                            >
+                              <span className={`font-bold flex-shrink-0 ${
+                                isInicial ? "text-inegi-green" : isAdicional ? "text-inegi-blue-medium" : "text-gray-400"
+                              }`}>
+                                {enfoque.id}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <p className={`font-semibold leading-tight truncate ${
+                                  isGenerado ? "text-inegi-blue-dark" : "text-gray-400"
+                                }`}>
+                                  {enfoque.nombre}
+                                </p>
+                                <p className={`text-[10px] leading-tight truncate ${
+                                  isGenerado ? "text-inegi-gray-medium" : "text-gray-300"
+                                }`}>
+                                  {enfoque.descripcion}
+                                </p>
+                              </div>
+                              {isGenerado && (
+                                <Check className={`w-3.5 h-3.5 flex-shrink-0 ${
+                                  isInicial ? "text-inegi-green" : "text-inegi-blue-medium"
+                                }`} />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
+                  </div>
 
-                    {/* Main content — proposals grid */}
-                    <div className="flex-1 min-w-0 space-y-6">
+                  {/* Main content — proposals grid (full width) */}
+                  <div className="space-y-6">
                       <TooltipProvider>
                         {/* Propuestas iniciales */}
                         {propuestasIniciales.length > 0 && (
