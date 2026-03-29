@@ -1482,48 +1482,107 @@ const Index = () => {
                         </div>
                       </div>
                       {/* Chips */}
+                      <TooltipProvider delayDuration={200}>
                       <div className="space-y-1.5">
                         {CATALOGO_ENFOQUES.map((enfoque) => {
                           const isInicial = enfoquesInicialesIds.has(enfoque.id);
                           const isAdicional = enfoquesAdicionalesIds.has(enfoque.id);
                           const isGenerado = isInicial || isAdicional;
+                          const detalle = CATALOGO_ENFOQUES_DETALLE[enfoque.id];
+                          const propNum = enfoqueToPropuesta[enfoque.id];
                           return (
-                            <div
-                              key={enfoque.id}
-                              className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs transition-colors ${
-                                isInicial
-                                  ? "bg-inegi-green/10 border border-inegi-green/30"
-                                  : isAdicional
-                                  ? "bg-inegi-blue-medium/10 border border-inegi-blue-medium/30"
-                                  : "bg-gray-50 border border-gray-100 opacity-50"
-                              }`}
-                            >
-                              <span className={`font-bold flex-shrink-0 ${
-                                isInicial ? "text-inegi-green" : isAdicional ? "text-inegi-blue-medium" : "text-gray-400"
-                              }`}>
-                                {enfoque.id}
-                              </span>
-                              <div className="flex-1 min-w-0">
-                                <p className={`font-semibold leading-tight truncate ${
-                                  isGenerado ? "text-inegi-blue-dark" : "text-gray-400"
-                                }`}>
-                                  {enfoque.nombre}
-                                </p>
-                                <p className={`text-[10px] leading-tight truncate ${
-                                  isGenerado ? "text-inegi-gray-medium" : "text-gray-300"
-                                }`}>
-                                  {enfoque.descripcion}
-                                </p>
-                              </div>
-                              {isGenerado && (
-                                <Check className={`w-3.5 h-3.5 flex-shrink-0 ${
-                                  isInicial ? "text-inegi-green" : "text-inegi-blue-medium"
-                                }`} />
-                              )}
-                            </div>
+                            <Tooltip key={enfoque.id}>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
+                                    isInicial
+                                      ? "bg-inegi-green/10 border border-inegi-green/30"
+                                      : isAdicional
+                                      ? "bg-inegi-blue-medium/10 border border-inegi-blue-medium/30"
+                                      : "bg-gray-50 border border-gray-100 opacity-50"
+                                  }`}
+                                >
+                                  <span className={`font-bold flex-shrink-0 ${
+                                    isInicial ? "text-inegi-green" : isAdicional ? "text-inegi-blue-medium" : "text-gray-400"
+                                  }`}>
+                                    {enfoque.id}
+                                  </span>
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`font-semibold leading-tight truncate ${
+                                      isGenerado ? "text-inegi-blue-dark" : "text-gray-400"
+                                    }`}>
+                                      {enfoque.nombre}
+                                    </p>
+                                    <p className={`text-[10px] leading-tight truncate ${
+                                      isGenerado ? "text-inegi-gray-medium" : "text-gray-300"
+                                    }`}>
+                                      {enfoque.descripcion}
+                                    </p>
+                                  </div>
+                                  {isGenerado && (
+                                    <Check className={`w-3.5 h-3.5 flex-shrink-0 ${
+                                      isInicial ? "text-inegi-green" : "text-inegi-blue-medium"
+                                    }`} />
+                                  )}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="right" className="w-72 p-0 bg-white border border-gray-200 shadow-xl rounded-lg overflow-hidden" sideOffset={8}>
+                                <div className="p-3 space-y-2.5">
+                                  {/* Header: badge ID + nombre completo */}
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span
+                                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold"
+                                      style={{
+                                        backgroundColor: isInicial ? "#EAF3DE" : isAdicional ? "#E6F1FB" : "#F3F4F6",
+                                        color: isInicial ? "#27500A" : isAdicional ? "#0C447C" : "#6B7280",
+                                      }}
+                                    >
+                                      {enfoque.id}
+                                    </span>
+                                    <span className="text-sm font-semibold text-gray-800">{detalle?.nombreCompleto}</span>
+                                  </div>
+                                  {/* Qué mide */}
+                                  <div>
+                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-0.5">Qué mide</p>
+                                    <p className="text-xs text-gray-600 leading-relaxed">{detalle?.queMide}</p>
+                                  </div>
+                                  {/* Requiere */}
+                                  <div>
+                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-0.5">Requiere</p>
+                                    <p className="text-xs text-gray-600 leading-relaxed">{detalle?.requiere}</p>
+                                  </div>
+                                  {/* Estado */}
+                                  <div className="pt-1.5 border-t border-gray-100">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1">Estado</p>
+                                    {isInicial ? (
+                                      <span
+                                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                                        style={{ backgroundColor: "#EAF3DE", color: "#27500A" }}
+                                      >
+                                        <Check className="w-3 h-3" />
+                                        Generado en propuesta {propNum}
+                                      </span>
+                                    ) : isAdicional ? (
+                                      <span
+                                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                                        style={{ backgroundColor: "#E6F1FB", color: "#0C447C" }}
+                                      >
+                                        <Check className="w-3 h-3" />
+                                        Generado en propuesta {propNum}
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-gray-100 text-gray-500">
+                                        Disponible
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
                           );
                         })}
                       </div>
+                      </TooltipProvider>
                     </div>
                   </div>
 
