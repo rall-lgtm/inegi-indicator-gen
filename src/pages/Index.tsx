@@ -134,6 +134,19 @@ const CATALOGO_ENFOQUES = [
   { id: "E10", nombre: "Tasa acumulada", descripcion: "Cambio total" },
 ];
 
+const CATALOGO_ENFOQUES_DETALLE: Record<string, { nombreCompleto: string; queMide: string; requiere: string }> = {
+  E1: { nombreCompleto: "Proporción/Cobertura", queMide: "El porcentaje de casos que presentan un atributo respecto al total del universo.", requiere: "Variable categórica o binaria con conteo de ocurrencias y total del universo." },
+  E2: { nombreCompleto: "Evolución temporal", queMide: "El cambio porcentual de una variable entre períodos consecutivos.", requiere: "Serie de tiempo con al menos 2 años de datos comparables." },
+  E3: { nombreCompleto: "Comparativo geográfico", queMide: "Las diferencias en la ocurrencia de un fenómeno entre regiones o entidades.", requiere: "Desagregación geográfica por entidad, municipio o zona." },
+  E4: { nombreCompleto: "Comparativo por categoría", queMide: "La distribución de un fenómeno cruzado con otra variable categórica.", requiere: "Desgloses por categorías adicionales en tabulados o microdatos." },
+  E5: { nombreCompleto: "Brecha socioeconómica", queMide: "Las diferencias en la ocurrencia entre grupos de distinto nivel socioeconómico.", requiere: "Variable de ingreso, decil o nivel socioeconómico disponible." },
+  E6: { nombreCompleto: "Brecha sexo/edad", queMide: "Las diferencias en la ocurrencia entre grupos de sexo o rangos de edad.", requiere: "Desagregación por sexo y/o edad en tabulados o microdatos." },
+  E7: { nombreCompleto: "Intensidad/magnitud", queMide: "El promedio o volumen del fenómeno por unidad de análisis.", requiere: "Variable numérica continua o conteo de eventos por unidad." },
+  E8: { nombreCompleto: "Composición", queMide: "La estructura porcentual interna de un fenómeno según sus categorías.", requiere: "Variable con múltiples categorías excluyentes que sumen el total." },
+  E9: { nombreCompleto: "Concentración", queMide: "El grado en que un fenómeno se concentra en un subgrupo específico.", requiere: "Datos desagregados por subgrupo con posibilidad de calcular índices de concentración." },
+  E10: { nombreCompleto: "Tasa de cambio acumulada", queMide: "El cambio porcentual total entre dos puntos temporales distantes.", requiere: "Serie de tiempo con al menos dos puntos temporales comparables." },
+};
+
 type PropuestasIniciales = {
   tipo: "propuestas_iniciales";
   advertencia_ambiental?: AdvertenciaAmbiental;
