@@ -1388,12 +1388,26 @@ const Index = () => {
                     )}
                     <div className="flex gap-2 flex-wrap">
                       {propuesta.enfoque_id && (
-                        <Badge variant="outline" className="border-inegi-blue-dark text-inegi-blue-dark font-bold text-xs">
+                        <Badge
+                          variant="outline"
+                          className={`font-bold text-xs ${
+                            isInicial
+                              ? "bg-[#EAF3DE] text-[#27500A] border-[#EAF3DE]"
+                              : "bg-[#E6F1FB] text-[#0C447C] border-[#E6F1FB]"
+                          }`}
+                        >
                           {propuesta.enfoque_id}
                         </Badge>
                       )}
-                      <Badge className="bg-inegi-blue-dark text-white">{propuesta.enfoque}</Badge>
-                      <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-medium">{propuesta.tipo}</Badge>
+                      <Badge
+                        className={`${
+                          isInicial
+                            ? "bg-[#EAF3DE] text-[#27500A]"
+                            : "bg-[#E6F1FB] text-[#0C447C]"
+                        }`}
+                      >
+                        {propuesta.tipo}
+                      </Badge>
                     </div>
                     <Button
                       onClick={() => handleSeleccionar(propuesta)}
