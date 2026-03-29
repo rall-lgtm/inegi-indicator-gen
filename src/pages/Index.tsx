@@ -109,6 +109,19 @@ type PropuestaIndicador = {
   };
 };
 
+const CATALOGO_ENFOQUES = [
+  { id: "E1", nombre: "Proporción", descripcion: "% con el evento" },
+  { id: "E2", nombre: "Evolución temporal", descripcion: "Cambio entre períodos" },
+  { id: "E3", nombre: "Comp. geográfico", descripcion: "Diferencias por región" },
+  { id: "E4", nombre: "Comp. por categoría", descripcion: "Entre categorías" },
+  { id: "E5", nombre: "Brecha socioecon.", descripcion: "Por ingreso o decil" },
+  { id: "E6", nombre: "Brecha sexo/edad", descripcion: "Hombre vs mujer" },
+  { id: "E7", nombre: "Intensidad", descripcion: "Promedio per cápita" },
+  { id: "E8", nombre: "Composición", descripcion: "Estructura porcentual" },
+  { id: "E9", nombre: "Concentración", descripcion: "En subgrupo" },
+  { id: "E10", nombre: "Tasa acumulada", descripcion: "Cambio total" },
+];
+
 type PropuestasIniciales = {
   tipo: "propuestas_iniciales";
   advertencia_ambiental?: AdvertenciaAmbiental;
