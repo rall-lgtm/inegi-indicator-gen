@@ -1299,7 +1299,7 @@ const Index = () => {
               const enfoquesInicialesIds = new Set(propuestasIniciales.map(p => p.enfoque_id).filter(Boolean));
               const enfoquesAdicionalesIds = new Set(propuestasAdicionalesArr.map(p => p.enfoque_id).filter(Boolean));
 
-              const renderCard = (propuesta: PropuestaIndicador, index: number) => (
+              const renderCard = (propuesta: PropuestaIndicador, index: number, isInicial: boolean = true) => (
                 <Card
                   key={propuesta.id}
                   className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-inegi-blue-medium/10 animate-fade-in"
@@ -1388,12 +1388,26 @@ const Index = () => {
                     )}
                     <div className="flex gap-2 flex-wrap">
                       {propuesta.enfoque_id && (
-                        <Badge variant="outline" className="border-inegi-blue-dark text-inegi-blue-dark font-bold text-xs">
+                        <Badge
+                          variant="outline"
+                          className={`font-bold text-xs ${
+                            isInicial
+                              ? "bg-[#EAF3DE] text-[#27500A] border-[#EAF3DE]"
+                              : "bg-[#E6F1FB] text-[#0C447C] border-[#E6F1FB]"
+                          }`}
+                        >
                           {propuesta.enfoque_id}
                         </Badge>
                       )}
-                      <Badge className="bg-inegi-blue-dark text-white">{propuesta.enfoque}</Badge>
-                      <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-medium">{propuesta.tipo}</Badge>
+                      <Badge
+                        className={`${
+                          isInicial
+                            ? "bg-[#EAF3DE] text-[#27500A]"
+                            : "bg-[#E6F1FB] text-[#0C447C]"
+                        }`}
+                      >
+                        {propuesta.tipo}
+                      </Badge>
                     </div>
                     <Button
                       onClick={() => handleSeleccionar(propuesta)}
@@ -1520,7 +1534,7 @@ const Index = () => {
                               <div className="flex-1 h-px bg-inegi-blue-medium/15" />
                             </div>
                             <div className="grid gap-4 md:grid-cols-2">
-                              {propuestasIniciales.map((propuesta, index) => renderCard(propuesta, index))}
+                              {propuestasIniciales.map((propuesta, index) => renderCard(propuesta, index, true))}
                             </div>
                           </>
                         )}
@@ -1535,7 +1549,7 @@ const Index = () => {
                               <div className="flex-1 h-px bg-inegi-blue-medium/15" />
                             </div>
                             <div className="grid gap-4 md:grid-cols-2">
-                              {propuestasAdicionalesArr.map((propuesta, index) => renderCard(propuesta, index + numPropuestasIniciales))}
+                              {propuestasAdicionalesArr.map((propuesta, index) => renderCard(propuesta, index + numPropuestasIniciales, false))}
                             </div>
                           </>
                         )}
