@@ -571,6 +571,7 @@ const Index = () => {
     setVariableInfo(null);
     setLoadingPropuestaId(null);
     setLoadingMasOpciones(false);
+    setNumPropuestasIniciales(0);
     // Si venía por URL, navegar a la raíz
     if (idFromUrl) {
       navigate('/');
