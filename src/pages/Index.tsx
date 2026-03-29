@@ -1102,20 +1102,55 @@ const Index = () => {
         {idFromUrl ? (
           <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium">
             <CardContent className="py-4">
-              <div className="flex items-center gap-3">
-                {loading && !response && (
-                  <Loader2 className="w-5 h-5 animate-spin text-inegi-blue-medium" />
-                )}
-                <div>
-                  <p className="text-sm text-inegi-gray-medium">Variable en consulta</p>
-                  <div className="flex items-baseline gap-3 flex-wrap">
-                    <p className="text-lg font-semibold text-inegi-blue-medium">{idFromUrl.toUpperCase()}</p>
-                    <p className="text-sm text-inegi-gray-dark">{response?.tipo === "error_temporalidad" ? response.variable.nombre : ""}</p>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  {(loading && !response) || loadingRegenerando ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-inegi-blue-medium" />
+                  ) : null}
+                  <div>
+                    <p className="text-sm text-inegi-gray-medium">Variable en consulta</p>
+                    <div className="flex items-baseline gap-3 flex-wrap">
+                      <p className="text-lg font-semibold text-inegi-blue-medium">
+                        {idFromUrl.toUpperCase()}
+                        {variableInfo ? ` — ${variableInfo.nombre}` : (response?.tipo === "error_temporalidad" ? ` — ${response.variable.nombre}` : "")}
+                      </p>
+                    </div>
+                    {(loading && !response) || loadingRegenerando ? (
+                      <p className="text-sm text-inegi-gray-medium mt-1">
+                        {loadingRegenerando ? "Regenerando propuestas de indicadores..." : "Analizando variable y generando propuestas de indicadores..."}
+                      </p>
+                    ) : null}
                   </div>
-                  {loading && !response && (
-                    <p className="text-sm text-inegi-gray-medium mt-1">Analizando variable y generando propuestas de indicadores...</p>
-                  )}
                 </div>
+                {variableInfo && propuestasAcumuladas.length > 0 && !loadingRegenerando && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={loadingRegenerando || loading}
+                        className="border-inegi-blue-medium/30 text-inegi-blue-medium hover:bg-inegi-blue-light shrink-0"
+                      >
+                        <RotateCcw className="w-4 h-4 mr-1" />
+                        Regenerar
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>¿Regenerar propuestas?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          ¿Regenerar propuestas para {idVar || idFromUrl?.toUpperCase()}? Se eliminarán las propuestas guardadas.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleRegenerar} className="bg-inegi-blue-medium hover:bg-inegi-blue-dark">
+                          Regenerar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
               </div>
             </CardContent>
           </Card>
