@@ -1384,15 +1384,15 @@ const Index = () => {
                       </Badge>
                     </div>
                     {propuesta.razon_seleccion && (
-                      <div className="rounded-md bg-secondary px-3 py-2">
-                        <p className="text-xs text-muted-foreground font-medium mb-1">¿Por qué este enfoque?</p>
-                        <p className="text-xs text-muted-foreground">{propuesta.razon_seleccion}</p>
+                      <div className="rounded-md bg-[#E8F4F8] border-l-3 border-[#0066B3] px-3 py-2.5">
+                        <p className="text-xs font-semibold text-[#00447C] uppercase mb-1">¿Por qué este enfoque?</p>
+                        <p className="text-xs text-[#333333] leading-relaxed">{propuesta.razon_seleccion}</p>
                       </div>
                     )}
                     {propuesta.formula && (
-                      <div className="rounded-md bg-secondary border-l-2 border-muted-foreground/30 px-3 py-2">
-                        <p className="text-xs text-muted-foreground font-medium mb-1">Fórmula:</p>
-                        <p className="text-xs font-mono text-foreground">{propuesta.formula}</p>
+                      <div className="rounded-md bg-[#F5F5F5] border border-[#E0E0E0] px-3 py-2.5">
+                        <p className="text-xs font-semibold text-[#666666] mb-1">Fórmula:</p>
+                        <p className="text-sm font-mono text-[#333333]">{propuesta.formula}</p>
                       </div>
                     )}
                     <Button
