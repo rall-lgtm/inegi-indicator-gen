@@ -1418,69 +1418,26 @@ const Index = () => {
 
               return (
                 <div className="animate-fade-in">
-                  {/* Primera sección: Variable en consulta */}
+                  {/* Sección: Definición */}
                   {variableInfo && propuestasAcumuladas.length > 0 && (
-                    <>
-                      <div className="flex items-center justify-between mb-4 animate-fade-in">
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs text-inegi-gray-medium uppercase tracking-wider">Variable en consulta</p>
-                          <span className="text-sm font-medium text-inegi-blue-medium">
-                            {idVar || idFromUrl?.toUpperCase()} — {variableInfo.nombre}
-                          </span>
-                        </div>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              disabled={loadingRegenerando || loading}
-                              className="border-inegi-blue-medium/30 text-inegi-blue-medium hover:bg-inegi-blue-light"
-                            >
-                              {loadingRegenerando ? (
-                                <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                              ) : (
-                                <RotateCcw className="w-4 h-4 mr-1" />
-                              )}
-                              Regenerar
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>¿Regenerar propuestas?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                ¿Regenerar propuestas para {idVar || idFromUrl?.toUpperCase()}? Se eliminarán las propuestas guardadas.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={handleRegenerar} className="bg-inegi-blue-medium hover:bg-inegi-blue-dark">
-                                Regenerar
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-
-                      {/* Segunda sección: Definición */}
-                      <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in mb-6">
-                        <CardContent className="pt-6">
-                          <div className="space-y-2">
-                            <p className="text-xs text-inegi-gray-medium uppercase tracking-wider">Definición</p>
-                            <p className="text-inegi-gray-medium">{variableInfo.definicion}</p>
-                            <div className="flex flex-wrap gap-2 mt-4">
-                              <Badge className="bg-inegi-blue-dark text-white">{variableInfo.tema}</Badge>
-                              <Badge className="bg-inegi-blue-medium text-white">{variableInfo.subtema}</Badge>
-                              <Badge className="bg-inegi-green text-white">
-                                {variableInfo.totalAnios} años disponibles
-                              </Badge>
-                              <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-dark">
-                                {variableInfo.años.join(", ")}
-                              </Badge>
-                            </div>
+                    <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in mb-6">
+                      <CardContent className="pt-6">
+                        <div className="space-y-2">
+                          <p className="text-xs text-inegi-gray-medium uppercase tracking-wider">Definición</p>
+                          <p className="text-inegi-gray-dark font-semibold">{variableInfo.definicion}</p>
+                          <div className="flex flex-wrap gap-2 mt-4">
+                            <Badge className="bg-inegi-blue-dark text-white">{variableInfo.tema}</Badge>
+                            <Badge className="bg-inegi-blue-medium text-white">{variableInfo.subtema}</Badge>
+                            <Badge className="bg-inegi-green text-white">
+                              {variableInfo.totalAnios} años disponibles
+                            </Badge>
+                            <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-dark">
+                              {variableInfo.años.join(", ")}
+                            </Badge>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </>
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
 
                   {/* Sidebar fijo a la izquierda de la página */}
