@@ -1229,26 +1229,49 @@ const Index = () => {
                 <TooltipProvider>
                   <div className="grid gap-4 md:grid-cols-2">
                     {propuestasAcumuladas.map((propuesta, index) => (
-                      <Tooltip key={propuesta.id}>
-                        <TooltipTrigger asChild>
-                          <Card
-                            className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-inegi-blue-medium/10 cursor-help animate-fade-in"
-                            style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'backwards' }}
-                          >
-                            <CardHeader>
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-8 h-8 rounded-full bg-inegi-blue-medium text-white flex items-center justify-center font-bold">
-                                      {propuesta.id}
-                                    </div>
-                                    <CardTitle className="text-lg leading-tight text-inegi-blue-dark">
-                                      {propuesta.nombre}
-                                    </CardTitle>
-                                    {(propuesta.objetivo || propuesta.importancia || propuesta.razon_seleccion) && (
-                                      <Info className="h-4 w-4 text-inegi-blue-medium flex-shrink-0" />
-                                    )}
-                                  </div>
+                      <Card
+                        key={propuesta.id}
+                        className="shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-inegi-blue-medium/10 animate-fade-in"
+                        style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'backwards' }}
+                      >
+                        <CardHeader>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-8 h-8 rounded-full bg-inegi-blue-medium text-white flex items-center justify-center font-bold">
+                                  {propuesta.id}
+                                </div>
+                                <CardTitle className="text-lg leading-tight text-inegi-blue-dark">
+                                  {propuesta.nombre}
+                                </CardTitle>
+                                {(propuesta.objetivo || propuesta.importancia || propuesta.razon_seleccion) && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-4 w-4 text-inegi-blue-medium flex-shrink-0 cursor-pointer" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-md p-4 space-y-3 bg-white border-inegi-blue-medium" side="top">
+                                      {propuesta.objetivo && (
+                                        <div>
+                                          <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Objetivo:</p>
+                                          <p className="text-sm text-inegi-gray-medium">{propuesta.objetivo}</p>
+                                        </div>
+                                      )}
+                                      {propuesta.importancia && (
+                                        <div>
+                                          <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Importancia:</p>
+                                          <p className="text-sm text-inegi-gray-medium">{propuesta.importancia}</p>
+                                        </div>
+                                      )}
+                                      {propuesta.razon_seleccion && (
+                                        <div>
+                                          <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Por qué se seleccionó:</p>
+                                          <p className="text-sm text-inegi-gray-medium">{propuesta.razon_seleccion}</p>
+                                        </div>
+                                      )}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
                                   <CardDescription className="mt-2 text-inegi-gray-medium">
                                     {propuesta.descripcion}
                                   </CardDescription>
@@ -1314,31 +1337,7 @@ const Index = () => {
                                 )}
                               </Button>
                             </CardContent>
-                          </Card>
-                        </TooltipTrigger>
-                        {(propuesta.objetivo || propuesta.importancia || propuesta.razon_seleccion) && (
-                          <TooltipContent className="max-w-md p-4 space-y-3 bg-white border-inegi-blue-medium" side="top">
-                            {propuesta.objetivo && (
-                              <div>
-                                <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Objetivo:</p>
-                                <p className="text-sm text-inegi-gray-medium">{propuesta.objetivo}</p>
-                              </div>
-                            )}
-                            {propuesta.importancia && (
-                              <div>
-                                <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Importancia:</p>
-                                <p className="text-sm text-inegi-gray-medium">{propuesta.importancia}</p>
-                              </div>
-                            )}
-                            {propuesta.razon_seleccion && (
-                              <div>
-                                <p className="font-semibold text-sm mb-1 text-inegi-blue-dark">Por qué se seleccionó:</p>
-                                <p className="text-sm text-inegi-gray-medium">{propuesta.razon_seleccion}</p>
-                              </div>
-                            )}
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
+                      </Card>
                     ))}
                   </div>
                 </TooltipProvider>
