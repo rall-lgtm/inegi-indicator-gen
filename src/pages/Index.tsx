@@ -1257,40 +1257,38 @@ const Index = () => {
                             </CardHeader>
                             <CardContent className="space-y-3">
                               {propuesta.viabilidad && (
-                                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100 flex-wrap">
-                                  <span className="text-xs text-gray-500">Viabilidad</span>
-                                  <div className="flex gap-1">
-                                    {[1, 2, 3].map(i => (
-                                      <div key={i} className={`w-2.5 h-2.5 rounded-full ${
-                                        propuesta.viabilidad!.nivel === "Alta" ? "bg-green-600" :
-                                        propuesta.viabilidad!.nivel === "Media" && i <= 2 ? "bg-amber-500" :
-                                        propuesta.viabilidad!.nivel === "Baja" && i === 1 ? "bg-red-500" : "bg-gray-200"
-                                      }`} />
-                                    ))}
+                                <div className="flex flex-col gap-2">
+                                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100">
+                                    <span className="text-xs text-gray-500">Viabilidad</span>
+                                    <div className="flex gap-1">
+                                      {[1, 2, 3].map(i => (
+                                        <div key={i} className={`w-2.5 h-2.5 rounded-full ${
+                                          propuesta.viabilidad!.nivel === "Alta" ? "bg-green-600" :
+                                          propuesta.viabilidad!.nivel === "Media" && i <= 2 ? "bg-amber-500" :
+                                          propuesta.viabilidad!.nivel === "Baja" && i === 1 ? "bg-red-500" : "bg-gray-200"
+                                        }`} />
+                                      ))}
+                                    </div>
+                                    <span className={`text-xs font-medium ${
+                                      propuesta.viabilidad!.nivel === "Alta" ? "text-green-700" :
+                                      propuesta.viabilidad!.nivel === "Media" ? "text-amber-600" : "text-red-600"
+                                    }`}>
+                                      {propuesta.viabilidad!.nivel}
+                                    </span>
                                   </div>
-                                  <span className={`text-xs font-medium ${
-                                    propuesta.viabilidad!.nivel === "Alta" ? "text-green-700" :
-                                    propuesta.viabilidad!.nivel === "Media" ? "text-amber-600" : "text-red-600"
-                                  }`}>
-                                    {propuesta.viabilidad!.nivel}
-                                  </span>
-                                  <div className="flex gap-1 ml-auto flex-wrap">
-                                    {([
-                                      { key: "microdatos", label: "Microdatos" },
-                                      { key: "tabulados", label: "Tabulados" },
-                                      { key: "datosAbiertos", label: "Datos abiertos" }
-                                    ] as const).map(f => (
-                                      <span key={f.key} className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                                        propuesta.viabilidad!.fuentes[f.key]
-                                          ? "bg-green-100 text-green-800"
-                                          : "bg-gray-100 text-gray-400"
-                                      }`}>
-                                        {f.label}
-                                      </span>
-                                    ))}
-                                  </div>
-                                  {propuesta.viabilidad.nota && (
-                                    <p className="w-full text-[10px] text-amber-600 mt-0.5">{propuesta.viabilidad.nota}</p>
+                                  {(propuesta.viabilidad!.nivel === "Media" || propuesta.viabilidad!.nivel === "Baja") && (
+                                    <p className={`text-[11px] px-3 py-2 rounded-lg border-l-2 leading-snug ${
+                                      propuesta.viabilidad!.nivel === "Media"
+                                        ? "bg-amber-50 text-amber-800 border-amber-400"
+                                        : "bg-red-50 text-red-800 border-red-400"
+                                    }`}>
+                                      {propuesta.viabilidad!.nota
+                                        ? propuesta.viabilidad!.nota
+                                        : propuesta.viabilidad!.nivel === "Media"
+                                          ? "Se puede construir con las fuentes disponibles, pero considera las limitaciones antes de continuar."
+                                          : "No es posible construirlo con las fuentes actuales disponibles para esta variable."
+                                      }
+                                    </p>
                                   )}
                                 </div>
                               )}
