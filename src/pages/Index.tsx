@@ -570,6 +570,35 @@ const Index = () => {
     }
   };
 
+  const handleRegenerar = async () => {
+    setLoadingRegenerando(true);
+    try {
+      // 1. Limpiar caché
+      const cacheRes = await fetch("https://n8n.fmoreno.com.mx/webhook/limpiar-cache", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idVar: idVar.toUpperCase() || idFromUrl?.toUpperCase() }),
+      });
+      const cacheData = await cacheRes.json();
+      if (!cacheData.success) {
+        toast({ title: "Error", description: "No se pudo limpiar el caché", variant: "destructive" });
+        return;
+      }
+      // 2. Regenerar propuestas iniciales
+      setPropuestasAcumuladas([]);
+      setMostrandoTodas(false);
+      setNumPropuestasIniciales(0);
+      setFichaMetodologica(null);
+      setErrorValidacion(null);
+      await enviarConsulta("iniciar");
+      toast({ title: "Regenerado", description: "Las propuestas iniciales se han regenerado correctamente." });
+    } catch (error) {
+      toast({ title: "Error", description: "No se pudo regenerar las propuestas", variant: "destructive" });
+    } finally {
+      setLoadingRegenerando(false);
+    }
+  };
+
   const handleNuevaVariable = () => {
     setIdVar("");
     setResponse(null);
