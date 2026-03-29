@@ -312,6 +312,7 @@ const Index = () => {
             setResponse(data);
             if (data.tipo === 'propuestas_iniciales' && data.propuestas) {
               setPropuestasAcumuladas(data.propuestas);
+              setNumPropuestasIniciales(data.propuestas.length);
               setVariableInfo(data.variable);
             }
           } catch (error) {
