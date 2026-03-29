@@ -118,6 +118,7 @@ type PropuestaIndicador = {
     };
     nota?: string;
   };
+  formula?: string;
 };
 
 const CATALOGO_ENFOQUES = [
