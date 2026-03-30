@@ -1660,7 +1660,7 @@ const Index = () => {
                           </Button>
                         ) : (
                           <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
-                            <p className="text-sm text-inegi-blue-dark">✅ 8 propuestas generadas. Selecciona del 1 al 8</p>
+                            <p className="text-sm text-inegi-blue-dark">✅ {propuestasAcumuladas.length} propuestas generadas. Selecciona del 1 al {propuestasAcumuladas.length}</p>
                           </div>
                         )}
 
