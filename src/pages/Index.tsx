@@ -109,6 +109,7 @@ type PropuestaIndicador = {
   importancia?: string;
   enfoque_id?: string;
   razon_seleccion?: string;
+  variantes?: string[];
   viabilidad?: {
     nivel: "Alta" | "Media" | "Baja";
     fuentes: {
