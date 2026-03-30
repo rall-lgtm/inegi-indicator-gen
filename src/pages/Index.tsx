@@ -109,6 +109,7 @@ type PropuestaIndicador = {
   importancia?: string;
   enfoque_id?: string;
   razon_seleccion?: string;
+  variantes?: string[];
   viabilidad?: {
     nivel: "Alta" | "Media" | "Baja";
     fuentes: {
@@ -125,26 +126,26 @@ const CATALOGO_ENFOQUES = [
   { id: "E1", nombre: "Proporción", descripcion: "% con el evento" },
   { id: "E2", nombre: "Evolución temporal", descripcion: "Cambio entre períodos" },
   { id: "E3", nombre: "Comp. geográfico", descripcion: "Diferencias por región" },
-  { id: "E4", nombre: "Comp. por categoría", descripcion: "Entre categorías" },
-  { id: "E5", nombre: "Brecha socioecon.", descripcion: "Por ingreso o decil" },
+  { id: "E4", nombre: "Tasa acumulada", descripcion: "Cambio total del período" },
+  { id: "E5", nombre: "Comp. por categoría", descripcion: "Entre categorías" },
   { id: "E6", nombre: "Brecha sexo/edad", descripcion: "Hombre vs mujer" },
-  { id: "E7", nombre: "Intensidad", descripcion: "Promedio per cápita" },
-  { id: "E8", nombre: "Composición", descripcion: "Estructura porcentual" },
-  { id: "E9", nombre: "Concentración", descripcion: "En subgrupo" },
-  { id: "E10", nombre: "Tasa acumulada", descripcion: "Cambio total" },
+  { id: "E7", nombre: "Brecha socioecon.", descripcion: "Por ingreso o decil" },
+  { id: "E8", nombre: "Concentración", descripcion: "En subgrupo o territorio" },
+  { id: "E9", nombre: "Composición", descripcion: "Estructura porcentual" },
+  { id: "E10", nombre: "Intensidad", descripcion: "Promedio per cápita" },
 ];
 
 const CATALOGO_ENFOQUES_DETALLE: Record<string, { nombreCompleto: string; queMide: string; requiere: string }> = {
-  E1: { nombreCompleto: "Proporción/Cobertura", queMide: "El porcentaje de casos que presentan un atributo respecto al total del universo.", requiere: "Variable categórica o binaria con conteo de ocurrencias y total del universo." },
+  E1: { nombreCompleto: "Proporción/Cobertura", queMide: "El porcentaje de casos que presentan un atributo respecto al total del universo.", requiere: "Variable categórica o binaria con clasificaciones definidas y total del universo." },
   E2: { nombreCompleto: "Evolución temporal", queMide: "El cambio porcentual de una variable entre períodos consecutivos.", requiere: "Serie de tiempo con al menos 2 años de datos comparables." },
-  E3: { nombreCompleto: "Comparativo geográfico", queMide: "Las diferencias en la ocurrencia de un fenómeno entre regiones o entidades.", requiere: "Desagregación geográfica por entidad, municipio o zona." },
-  E4: { nombreCompleto: "Comparativo por categoría", queMide: "La distribución de un fenómeno cruzado con otra variable categórica.", requiere: "Desgloses por categorías adicionales en tabulados o microdatos." },
-  E5: { nombreCompleto: "Brecha socioeconómica", queMide: "Las diferencias en la ocurrencia entre grupos de distinto nivel socioeconómico.", requiere: "Variable de ingreso, decil o nivel socioeconómico disponible." },
-  E6: { nombreCompleto: "Brecha sexo/edad", queMide: "Las diferencias en la ocurrencia entre grupos de sexo o rangos de edad.", requiere: "Desagregación por sexo y/o edad en tabulados o microdatos." },
-  E7: { nombreCompleto: "Intensidad/magnitud", queMide: "El promedio o volumen del fenómeno por unidad de análisis.", requiere: "Variable numérica continua o conteo de eventos por unidad." },
-  E8: { nombreCompleto: "Composición", queMide: "La estructura porcentual interna de un fenómeno según sus categorías.", requiere: "Variable con múltiples categorías excluyentes que sumen el total." },
-  E9: { nombreCompleto: "Concentración", queMide: "El grado en que un fenómeno se concentra en un subgrupo específico.", requiere: "Datos desagregados por subgrupo con posibilidad de calcular índices de concentración." },
-  E10: { nombreCompleto: "Tasa de cambio acumulada", queMide: "El cambio porcentual total entre dos puntos temporales distantes.", requiere: "Serie de tiempo con al menos dos puntos temporales comparables." },
+  E3: { nombreCompleto: "Comparativo geográfico", queMide: "Las diferencias en la ocurrencia de un fenómeno entre regiones o entidades.", requiere: "Desagregación geográfica en tabulados o microdatos con tabla ITER o RESAGEB." },
+  E4: { nombreCompleto: "Tasa de cambio acumulada", queMide: "El cambio porcentual total entre el año más antiguo y el más reciente de la serie.", requiere: "Serie de tiempo con al menos 3 años de datos comparables." },
+  E5: { nombreCompleto: "Comparativo por categoría", queMide: "La distribución de un fenómeno cruzado con otra variable categórica.", requiere: "Variable con 3 o más clasificaciones, o desglose por categorías en tabulados." },
+  E6: { nombreCompleto: "Brecha sexo/edad", queMide: "Las diferencias en la ocurrencia entre grupos de sexo o rangos de edad.", requiere: "Universo que incluya personas, o desglose por sexo/edad en tabulados o microdatos de personas." },
+  E7: { nombreCompleto: "Brecha socioeconómica", queMide: "Las diferencias en la ocurrencia entre grupos de distinto nivel socioeconómico.", requiere: "Desglose por ingreso o decil en tabulados, o microdatos de hogares disponibles." },
+  E8: { nombreCompleto: "Concentración", queMide: "El grado en que un fenómeno se concentra en un subgrupo o territorio específico.", requiere: "Desagregación geográfica en tabulados o microdatos con tabla ITER o RESAGEB." },
+  E9: { nombreCompleto: "Composición", queMide: "La estructura porcentual interna de un fenómeno según sus categorías.", requiere: "Variable con múltiples categorías (3 o más) excluyentes que sumen el total." },
+  E10: { nombreCompleto: "Intensidad/magnitud", queMide: "El promedio, total o valor per cápita del fenómeno por unidad de análisis.", requiere: "Variable numérica continua, sin clasificaciones categóricas definidas." },
 };
 
 type PropuestasIniciales = {
@@ -1409,6 +1410,21 @@ const Index = () => {
                         <p className="text-xs text-[#333333] leading-relaxed">{propuesta.razon_seleccion}</p>
                       </div>
                     )}
+                    {propuesta.variantes && propuesta.variantes.length > 0 && (
+                      <div className="rounded-md bg-[#F0F7FF] border border-[#C5DCEF] px-3 py-2.5">
+                        <p className="text-xs font-semibold text-[#00447C] uppercase mb-1.5">Variantes disponibles</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {propuesta.variantes.map((variante, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-white border border-[#C5DCEF] text-[#185FA5]"
+                            >
+                              {variante}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {propuesta.formula && (
                       <div className="rounded-md bg-[#F5F5F5] border border-[#E0E0E0] px-3 py-2.5">
                         <p className="text-xs font-semibold text-[#666666] mb-1">Fórmula:</p>
@@ -1470,11 +1486,11 @@ const Index = () => {
                       <div className="space-y-1 text-[11px] text-inegi-gray-medium">
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-inegi-green inline-block" />
-                          Inicial (1–4)
+                          Inicial
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-inegi-blue-medium inline-block" />
-                          Adicional (5–8)
+                          Adicional
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-gray-300 inline-block" />
@@ -1644,7 +1660,7 @@ const Index = () => {
                           </Button>
                         ) : (
                           <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
-                            <p className="text-sm text-inegi-blue-dark">✅ 8 propuestas generadas. Selecciona del 1 al 8</p>
+                            <p className="text-sm text-inegi-blue-dark">✅ {propuestasAcumuladas.length} propuestas generadas. Selecciona del 1 al {propuestasAcumuladas.length}</p>
                           </div>
                         )}
 
