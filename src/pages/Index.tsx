@@ -1486,11 +1486,11 @@ const Index = () => {
                       <div className="space-y-1 text-[11px] text-inegi-gray-medium">
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-inegi-green inline-block" />
-                          Inicial (1–4)
+                          Inicial
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-inegi-blue-medium inline-block" />
-                          Adicional (5–8)
+                          Adicional
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-gray-300 inline-block" />
