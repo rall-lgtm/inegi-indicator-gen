@@ -1410,6 +1410,21 @@ const Index = () => {
                         <p className="text-xs text-[#333333] leading-relaxed">{propuesta.razon_seleccion}</p>
                       </div>
                     )}
+                    {propuesta.variantes && propuesta.variantes.length > 0 && (
+                      <div className="rounded-md bg-[#F0F7FF] border border-[#C5DCEF] px-3 py-2.5">
+                        <p className="text-xs font-semibold text-[#00447C] uppercase mb-1.5">Variantes disponibles</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {propuesta.variantes.map((variante, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-white border border-[#C5DCEF] text-[#185FA5]"
+                            >
+                              {variante}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {propuesta.formula && (
                       <div className="rounded-md bg-[#F5F5F5] border border-[#E0E0E0] px-3 py-2.5">
                         <p className="text-xs font-semibold text-[#666666] mb-1">Fórmula:</p>
