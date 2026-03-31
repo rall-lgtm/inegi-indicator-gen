@@ -1043,29 +1043,31 @@ const Index = () => {
                   spacing: { after: 100 },
                 })]),
             // PND
-            ...(ficha.alineacion?.pnd ? [
+            ...(ficha.alineacion?.pnd && ficha.alineacion.pnd.length > 0 ? [
               new Paragraph({
                 children: [new TextRun({ text: "Plan Nacional de Desarrollo (PND)", bold: true, size: 22 })],
                 spacing: { before: 200, after: 100 },
               }),
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Eje: ", bold: true }),
-                  new TextRun({ text: ficha.alineacion.pnd.eje }),
-                ],
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Objetivo: ", bold: true }),
-                  new TextRun({ text: ficha.alineacion.pnd.objetivo }),
-                ],
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Estrategia: ", bold: true }),
-                  new TextRun({ text: ficha.alineacion.pnd.estrategia }),
-                ],
-              }),
+              ...ficha.alineacion.pnd.flatMap((pnd) => [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: "Eje: ", bold: true }),
+                    new TextRun({ text: pnd.eje }),
+                  ],
+                }),
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: "Objetivo: ", bold: true }),
+                    new TextRun({ text: pnd.objetivo }),
+                  ],
+                }),
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: "Estrategia: ", bold: true }),
+                    new TextRun({ text: pnd.estrategia }),
+                  ],
+                }),
+              ]),
             ] : []),
             new Paragraph({
               text: `Generado el ${new Date().toLocaleDateString("es-MX")}`,
