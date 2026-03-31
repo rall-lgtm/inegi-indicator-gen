@@ -1463,32 +1463,47 @@ const Index = () => {
                         <div className="flex flex-wrap gap-1.5">
                           {propuesta.variantes.map((variante, idx) => {
                             const esUsada = variante === propuesta.variante_usada;
-                            return (
-                              <span
-                                key={idx}
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                                  esUsada
-                                    ? "bg-[#185FA5] text-white border-[#185FA5]"
-                                    : "bg-white text-[#185FA5] border-[#C5DCEF]"
-                                }`}
-                              >
-                                {esUsada && (
-                                  <svg
-                                    className="w-3 h-3 flex-shrink-0"
-                                    viewBox="0 0 12 12"
-                                    fill="none"
-                                  >
-                                    <path
-                                      d="M2 6l3 3 5-5"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
+                            const varianteKey = `${propuesta.id}-${variante}`;
+                            const estaCargando = loadingVarianteKey === varianteKey;
+
+                            if (esUsada) {
+                              return (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#185FA5] text-white border border-[#185FA5]"
+                                >
+                                  <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 12 12" fill="none">
+                                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
-                                )}
-                                {variante}
-                              </span>
+                                  {variante}
+                                </span>
+                              );
+                            }
+
+                            return (
+                              <TooltipProvider key={idx}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      onClick={() => handleSeleccionarVariante(propuesta, variante)}
+                                      disabled={loadingPropuestaId !== null || loadingMasOpciones || loadingVarianteKey !== null}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-white text-[#185FA5] border border-[#C5DCEF] hover:bg-[#185FA5] hover:text-white hover:border-[#185FA5] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      {estaCargando ? (
+                                        <Loader2 className="w-3 h-3 animate-spin flex-shrink-0" />
+                                      ) : (
+                                        <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 12 12" fill="none">
+                                          <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                        </svg>
+                                      )}
+                                      {variante}
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs">
+                                    Generar ficha con variante "{variante}"
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             );
                           })}
                         </div>
