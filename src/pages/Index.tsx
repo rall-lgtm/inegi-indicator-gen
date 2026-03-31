@@ -229,26 +229,20 @@ type FichaMetodologica = {
     };
   };
   visualizacion?: {
-    tabla_datos: {
-      años: number[];
-      series: Array<{
-        nombre: string;
-        color: string;
-        columnas: {
-          numerador:   { label: string; datos: Array<{ año: number; valor: number }> };
-          denominador: { label: string; datos: Array<{ año: number; valor: number }> };
-          resultado:   { label: string; datos: Array<{ año: number; valor: number }> };
-        };
-      }>;
-      notas?: string[];
+    tabla: {
+      tipo: string;
+      columnas: Array<{ key: string; label: string; tipo: "texto" | "numero" | "porcentaje" | "entero" }>;
+      filas: Array<Record<string, any>>;
+      notas: string[];
     };
     grafico: {
-      tipo: "lineas" | "barras" | "lineas_multiples";
+      tipo: "lineas" | "barras" | "barras_horizontales" | "barras_agrupadas" | "barras_apiladas_100" | "pie";
       titulo: string;
       subtitulo?: string;
-      eje_x: { label: string; valores: number[] };
-      eje_y: { label: string; min: number; max: number };
-      series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+      eje_x: { label: string; valores: any[] };
+      eje_y: { label: string; min: number | null; max: number | null };
+      series: Array<{ nombre: string; color: string; datos: Array<{ x: any; y: number | null }> }>;
+      leyenda: { posicion: string; visible: boolean };
       notas?: string[];
     };
   };
