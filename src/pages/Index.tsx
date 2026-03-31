@@ -930,7 +930,7 @@ const Index = () => {
                 }),
               ] : []),
               new Paragraph({
-                children: [new TextRun({ text: `Tipo de gráfico: ${fichaMetodologica.visualizacion.grafico.tipo === "barras" ? "Barras" : "Líneas"}`, italics: true })],
+                children: [new TextRun({ text: `Tipo de gráfico: ${grafico.tipo}`, italics: true })],
                 spacing: { after: 100 },
               }),
               new Paragraph({
