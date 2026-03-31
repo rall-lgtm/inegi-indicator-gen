@@ -637,6 +637,7 @@ const Index = () => {
     setLoadingPropuestaId(null);
     setLoadingMasOpciones(false);
     setNumPropuestasIniciales(0);
+    setEnfoquesPermitidos([]);
     // Si venía por URL, navegar a la raíz
     if (idFromUrl) {
       navigate('/');
