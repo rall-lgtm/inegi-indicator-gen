@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2, FileDown, Sparkles, PenLine, Check, RotateCcw } from "lucide-react";
-import { ResponsiveContainer, LineChart, BarChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend } from "recharts";
+import { ResponsiveContainer, LineChart, BarChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, PieChart, Pie, Cell } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -229,26 +229,20 @@ type FichaMetodologica = {
     };
   };
   visualizacion?: {
-    tabla_datos: {
-      años: number[];
-      series: Array<{
-        nombre: string;
-        color: string;
-        columnas: {
-          numerador:   { label: string; datos: Array<{ año: number; valor: number }> };
-          denominador: { label: string; datos: Array<{ año: number; valor: number }> };
-          resultado:   { label: string; datos: Array<{ año: number; valor: number }> };
-        };
-      }>;
-      notas?: string[];
+    tabla: {
+      tipo: string;
+      columnas: Array<{ key: string; label: string; tipo: "texto" | "numero" | "porcentaje" | "entero" }>;
+      filas: Array<Record<string, any>>;
+      notas: string[];
     };
     grafico: {
-      tipo: "lineas" | "barras" | "lineas_multiples";
+      tipo: "lineas" | "barras" | "barras_horizontales" | "barras_agrupadas" | "barras_apiladas_100" | "pie";
       titulo: string;
       subtitulo?: string;
-      eje_x: { label: string; valores: number[] };
-      eje_y: { label: string; min: number; max: number };
-      series: Array<{ nombre: string; color: string; datos: Array<{ año: number; valor: number }> }>;
+      eje_x: { label: string; valores: any[] };
+      eje_y: { label: string; min: number | null; max: number | null };
+      series: Array<{ nombre: string; color: string; datos: Array<{ x: any; y: number | null }> }>;
+      leyenda: { posicion: string; visible: boolean };
       notas?: string[];
     };
   };
@@ -861,80 +855,40 @@ const Index = () => {
             ] : []),
             new Paragraph({ text: "", spacing: { after: 200 } }),
             // Tabla de datos
-            ...(fichaMetodologica.visualizacion?.tabla_datos ? (() => {
-              const td = fichaMetodologica.visualizacion!.tabla_datos;
+            ...(fichaMetodologica.visualizacion?.tabla ? (() => {
+              const tb = fichaMetodologica.visualizacion!.tabla;
               const cellBorder = { style: BorderStyle.SINGLE, size: 1, color: "999999" };
               const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
               const cellMargins = { top: 40, bottom: 40, left: 80, right: 80 };
-              // Build columns: Año + per series (num, den, res)
-              const colCount = 1 + td.series.length * 3;
-              const yearColW = 1200;
-              const dataColW = Math.floor((9360 - yearColW) / (td.series.length * 3));
-              const columnWidths = [yearColW, ...Array(colCount - 1).fill(dataColW)];
-              const headerCells = [
+              const colCount = tb.columnas.length;
+              const colW = Math.floor(9360 / colCount);
+              const columnWidths = Array(colCount).fill(colW);
+              const headerCells = tb.columnas.map(col =>
                 new TableCell({
                   borders: cellBorders, margins: cellMargins,
-                  width: { size: yearColW, type: WidthType.DXA },
+                  width: { size: colW, type: WidthType.DXA },
                   shading: { fill: "003D6B", type: ShadingType.CLEAR },
-                  children: [new Paragraph({ children: [new TextRun({ text: "Año", bold: true, color: "FFFFFF", size: 20 })] })],
-                }),
-                ...td.series.flatMap((serie) => [
-                  new TableCell({
-                    borders: cellBorders, margins: cellMargins,
-                    width: { size: dataColW, type: WidthType.DXA },
-                    shading: { fill: "003D6B", type: ShadingType.CLEAR },
-                    children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: serie.columnas.numerador.label, bold: true, color: "FFFFFF", size: 16 })] })],
-                  }),
-                  new TableCell({
-                    borders: cellBorders, margins: cellMargins,
-                    width: { size: dataColW, type: WidthType.DXA },
-                    shading: { fill: "003D6B", type: ShadingType.CLEAR },
-                    children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: serie.columnas.denominador.label, bold: true, color: "FFFFFF", size: 16 })] })],
-                  }),
-                  new TableCell({
-                    borders: cellBorders, margins: cellMargins,
-                    width: { size: dataColW, type: WidthType.DXA },
-                    shading: { fill: "003D6B", type: ShadingType.CLEAR },
-                    children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: serie.columnas.resultado.label, bold: true, color: "FFFFFF", size: 18 })] })],
-                  }),
-                ]),
-              ];
-              const dataRows = td.años.map((año, idx) => {
+                  children: [new Paragraph({ alignment: col.tipo === "texto" ? AlignmentType.LEFT : AlignmentType.RIGHT, children: [new TextRun({ text: col.label, bold: true, color: "FFFFFF", size: 18 })] })],
+                })
+              );
+              const dataRows = tb.filas.map((fila, idx) => {
                 const fill = idx % 2 === 0 ? "FFFFFF" : "E8F0FE";
                 return new TableRow({
-                  children: [
-                    new TableCell({
+                  children: tb.columnas.map(col => {
+                    const val = fila[col.key];
+                    let text = "—";
+                    if (val !== null && val !== undefined) {
+                      if (col.tipo === "porcentaje") text = Number(val).toFixed(2) + "%";
+                      else if (col.tipo === "numero") text = Number(val).toLocaleString('es-MX');
+                      else text = String(val);
+                    }
+                    return new TableCell({
                       borders: cellBorders, margins: cellMargins,
-                      width: { size: yearColW, type: WidthType.DXA },
+                      width: { size: colW, type: WidthType.DXA },
                       shading: { fill, type: ShadingType.CLEAR },
-                      children: [new Paragraph({ children: [new TextRun({ text: String(año), bold: true, size: 20 })] })],
-                    }),
-                    ...td.series.flatMap((serie) => {
-                      const num = serie.columnas.numerador.datos.find(d => d.año === año);
-                      const den = serie.columnas.denominador.datos.find(d => d.año === año);
-                      const res = serie.columnas.resultado.datos.find(d => d.año === año);
-                      return [
-                        new TableCell({
-                          borders: cellBorders, margins: cellMargins,
-                          width: { size: dataColW, type: WidthType.DXA },
-                          shading: { fill, type: ShadingType.CLEAR },
-                          children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: num !== undefined ? num.valor.toLocaleString('es-MX') : "—", size: 20 })] })],
-                        }),
-                        new TableCell({
-                          borders: cellBorders, margins: cellMargins,
-                          width: { size: dataColW, type: WidthType.DXA },
-                          shading: { fill, type: ShadingType.CLEAR },
-                          children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: den !== undefined ? den.valor.toLocaleString('es-MX') : "—", size: 20 })] })],
-                        }),
-                        new TableCell({
-                          borders: cellBorders, margins: cellMargins,
-                          width: { size: dataColW, type: WidthType.DXA },
-                          shading: { fill, type: ShadingType.CLEAR },
-                          children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: res !== undefined ? res.valor.toFixed(2) : "—", bold: true, size: 20 })] })],
-                        }),
-                      ];
-                    }),
-                  ],
+                      children: [new Paragraph({ alignment: col.tipo === "texto" ? AlignmentType.LEFT : AlignmentType.RIGHT, children: [new TextRun({ text, size: 20 })] })],
+                    });
+                  }),
                 });
               });
               return [
@@ -950,7 +904,7 @@ const Index = () => {
                     ...dataRows,
                   ],
                 }),
-                ...(td.notas?.map(nota => new Paragraph({
+                ...(tb.notas?.map(nota => new Paragraph({
                   children: [new TextRun({ text: nota, italics: true, size: 18, color: "666666" })],
                   spacing: { after: 100 },
                 })) || []),
@@ -976,7 +930,7 @@ const Index = () => {
                 }),
               ] : []),
               new Paragraph({
-                children: [new TextRun({ text: `Tipo de gráfico: ${fichaMetodologica.visualizacion.grafico.tipo === "barras" ? "Barras" : "Líneas"}`, italics: true })],
+                children: [new TextRun({ text: `Tipo de gráfico: ${fichaMetodologica.visualizacion.grafico.tipo}`, italics: true })],
                 spacing: { after: 100 },
               }),
               new Paragraph({
@@ -1987,60 +1941,72 @@ const Index = () => {
                   </Card>
 
                   {/* Tabla de datos */}
-                  {fichaMetodologica.visualizacion?.tabla_datos && (
+                  {fichaMetodologica.visualizacion?.tabla && (
                     <Card className="border-inegi-blue-medium/20">
                       <CardHeader className="bg-inegi-blue-light">
                         <CardTitle className="text-inegi-blue-dark">Tabla de Datos</CardTitle>
                       </CardHeader>
                       <CardContent className="pt-4 overflow-x-auto">
-                        <table className="w-full text-sm border-collapse">
-                          <thead>
-                            <tr className="bg-inegi-blue-dark text-white">
-                              <th className="p-2 text-left font-semibold">Año</th>
-                              {fichaMetodologica.visualizacion!.tabla_datos.series.map((serie) => (
-                                <>
-                                  <th key={`${serie.nombre}-num`} className="p-2 text-right font-semibold text-xs">
-                                    {serie.columnas.numerador.label}
-                                  </th>
-                                  <th key={`${serie.nombre}-den`} className="p-2 text-right font-semibold text-xs">
-                                    {serie.columnas.denominador.label}
-                                  </th>
-                                  <th key={`${serie.nombre}-res`} className="p-2 text-right font-semibold">
-                                    {serie.columnas.resultado.label}
-                                  </th>
-                                </>
+                        {(() => {
+                          const tb = fichaMetodologica.visualizacion!.tabla;
+                          const esGeo = tb.tipo === "geografico_entidad" || tb.tipo === "geografico_municipal";
+                          return (
+                            <>
+                              <table className="w-full text-sm border-collapse">
+                                <thead>
+                                  <tr className="bg-inegi-blue-dark text-white">
+                                    {tb.columnas.map((col) => (
+                                      <th key={col.key} className={`p-2 font-semibold ${col.tipo === "texto" ? "text-left" : "text-right"}`}>
+                                        {col.label}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {tb.filas.map((fila, idx) => (
+                                    <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
+                                      {tb.columnas.map((col, colIdx) => {
+                                        const val = fila[col.key];
+                                        const isNull = val === null || val === undefined;
+
+                                        // Geographic: first col = ranking (small gray), second col = bold name
+                                        if (esGeo && colIdx === 0) {
+                                          return <td key={col.key} className="p-2 text-xs text-inegi-gray-medium">{isNull ? "—" : val}</td>;
+                                        }
+                                        if (esGeo && colIdx === 1) {
+                                          return <td key={col.key} className="p-2 font-semibold text-inegi-gray-dark">{isNull ? "—" : val}</td>;
+                                        }
+
+                                        if (isNull) {
+                                          return <td key={col.key} className={`p-2 ${col.tipo === "texto" ? "text-left" : "text-right"}`}>—</td>;
+                                        }
+
+                                        if (col.tipo === "porcentaje") {
+                                          const numVal = Number(val);
+                                          return (
+                                            <td key={col.key} className={`p-2 text-right font-medium ${numVal < 0 ? "text-red-600" : "text-inegi-blue-dark"}`}>
+                                              {numVal.toFixed(2)}%
+                                            </td>
+                                          );
+                                        }
+                                        if (col.tipo === "numero") {
+                                          return <td key={col.key} className="p-2 text-right text-inegi-gray-dark">{Number(val).toLocaleString('es-MX')}</td>;
+                                        }
+                                        if (col.tipo === "entero") {
+                                          return <td key={col.key} className="p-2 text-right text-inegi-gray-dark">{val}</td>;
+                                        }
+                                        return <td key={col.key} className="p-2 text-left text-inegi-gray-dark">{val}</td>;
+                                      })}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                              {tb.notas?.map((nota, i) => (
+                                <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
                               ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {fichaMetodologica.visualizacion!.tabla_datos.años.map((año, idx) => (
-                              <tr key={año} className={idx % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
-                                <td className="p-2 font-medium text-inegi-blue-dark">{año}</td>
-                                {fichaMetodologica.visualizacion!.tabla_datos.series.map((serie) => {
-                                  const num = serie.columnas.numerador.datos.find((d) => d.año === año);
-                                  const den = serie.columnas.denominador.datos.find((d) => d.año === año);
-                                  const res = serie.columnas.resultado.datos.find((d) => d.año === año);
-                                  return (
-                                    <>
-                                      <td key={`${serie.nombre}-${año}-num`} className="p-2 text-right text-inegi-gray-dark">
-                                        {num !== undefined ? num.valor.toLocaleString('es-MX') : "—"}
-                                      </td>
-                                      <td key={`${serie.nombre}-${año}-den`} className="p-2 text-right text-inegi-gray-dark">
-                                        {den !== undefined ? den.valor.toLocaleString('es-MX') : "—"}
-                                      </td>
-                                      <td key={`${serie.nombre}-${año}-res`} className="p-2 text-right font-medium text-inegi-blue-dark">
-                                        {res !== undefined ? res.valor.toFixed(2) : "—"}
-                                      </td>
-                                    </>
-                                  );
-                                })}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                        {fichaMetodologica.visualizacion.tabla_datos.notas?.map((nota, i) => (
-                          <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
-                        ))}
+                            </>
+                          );
+                        })()}
                       </CardContent>
                     </Card>
                   )}
@@ -2048,47 +2014,127 @@ const Index = () => {
                   {/* Gráfico */}
                   {fichaMetodologica.visualizacion?.grafico && (() => {
                     const grafico = fichaMetodologica.visualizacion!.grafico;
-                    const chartData = grafico.eje_x.valores.map(año => ({
-                      año,
+                    const yDomain: [number | string, number | string] = [
+                      grafico.eje_y.min ?? 'auto',
+                      grafico.eje_y.max ?? 'auto'
+                    ];
+
+                    if (grafico.tipo === "pie") {
+                      const pieData = grafico.series.map(s => ({
+                        name: s.nombre,
+                        value: s.datos[0]?.y ?? 0,
+                        fill: s.color,
+                      }));
+                      return (
+                        <Card className="border-inegi-blue-medium/20">
+                          <CardHeader className="bg-inegi-blue-light">
+                            <CardTitle className="text-inegi-blue-dark">Gráfico</CardTitle>
+                            <p className="text-sm text-inegi-gray-medium">{grafico.titulo}</p>
+                            {grafico.subtitulo && <p className="text-xs text-inegi-gray-medium">{grafico.subtitulo}</p>}
+                          </CardHeader>
+                          <CardContent className="pt-4">
+                            <ResponsiveContainer width="100%" height={350}>
+                              <PieChart>
+                                <Pie
+                                  data={pieData}
+                                  dataKey="value"
+                                  nameKey="name"
+                                  cx="50%"
+                                  cy="50%"
+                                  outerRadius={120}
+                                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                                >
+                                  {pieData.map((entry, index) => (
+                                    <Cell key={index} fill={entry.fill} />
+                                  ))}
+                                </Pie>
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                              </PieChart>
+                            </ResponsiveContainer>
+                            {grafico.notas?.map((nota, i) => (
+                              <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
+                            ))}
+                          </CardContent>
+                        </Card>
+                      );
+                    }
+
+                    const chartData = grafico.series[0].datos.map((d, i) => ({
+                      x: d.x,
                       ...grafico.series.reduce((acc, s) => ({
                         ...acc,
-                        [s.nombre]: s.datos.find(d => d.año === año)?.valor ?? null
+                        [s.nombre]: s.datos[i]?.y ?? null
                       }), {} as Record<string, number | null>)
                     }));
-                    const ChartComponent = grafico.tipo === "barras" ? BarChart : LineChart;
+
+                    const chartHeight = grafico.tipo === "barras_horizontales"
+                      ? Math.max(400, chartData.length * 22)
+                      : 300;
+
                     return (
                       <Card className="border-inegi-blue-medium/20">
                         <CardHeader className="bg-inegi-blue-light">
                           <CardTitle className="text-inegi-blue-dark">Gráfico</CardTitle>
                           <p className="text-sm text-inegi-gray-medium">{grafico.titulo}</p>
-                          {grafico.subtitulo && (
-                            <p className="text-xs text-inegi-gray-medium">{grafico.subtitulo}</p>
-                          )}
+                          {grafico.subtitulo && <p className="text-xs text-inegi-gray-medium">{grafico.subtitulo}</p>}
                         </CardHeader>
                         <CardContent className="pt-4">
-                          <ResponsiveContainer width="100%" height={300}>
-                            <ChartComponent data={chartData}>
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="año" />
-                              <YAxis domain={[grafico.eje_y.min, grafico.eje_y.max]} />
-                              <RechartsTooltip />
-                              <Legend />
-                              {grafico.series.map((serie) =>
-                                grafico.tipo === "barras" ? (
+                          <ResponsiveContainer width="100%" height={chartHeight}>
+                            {grafico.tipo === "lineas" ? (
+                              <LineChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="x" />
+                                <YAxis domain={yDomain} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                {grafico.series.map((serie) => (
+                                  <Line key={serie.nombre} type="monotone" dataKey={serie.nombre} stroke={serie.color} strokeWidth={2} dot={{ r: 4 }} connectNulls />
+                                ))}
+                              </LineChart>
+                            ) : grafico.tipo === "barras_horizontales" ? (
+                              <BarChart data={chartData} layout="vertical" margin={{ left: 165, right: 30, top: 5, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis type="number" domain={[0, 100]} unit="%" />
+                                <YAxis type="category" dataKey="x" width={160} tick={{ fontSize: 11 }} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                <Bar dataKey={grafico.series[0].nombre} fill={grafico.series[0].color} radius={[0, 3, 3, 0]} />
+                              </BarChart>
+                            ) : grafico.tipo === "barras_apiladas_100" ? (
+                              <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="x" />
+                                <YAxis domain={yDomain} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                {grafico.series.map((serie) => (
+                                  <Bar key={serie.nombre} dataKey={serie.nombre} fill={serie.color} stackId="a" />
+                                ))}
+                              </BarChart>
+                            ) : grafico.tipo === "barras_agrupadas" ? (
+                              <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="x" />
+                                <YAxis domain={yDomain} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                {grafico.series.map((serie) => (
                                   <Bar key={serie.nombre} dataKey={serie.nombre} fill={serie.color} />
-                                ) : (
-                                  <Line
-                                    key={serie.nombre}
-                                    type="monotone"
-                                    dataKey={serie.nombre}
-                                    stroke={serie.color}
-                                    strokeWidth={2}
-                                    dot={{ r: 4 }}
-                                    connectNulls
-                                  />
-                                )
-                              )}
-                            </ChartComponent>
+                                ))}
+                              </BarChart>
+                            ) : (
+                              <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="x" />
+                                <YAxis domain={yDomain} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                {grafico.series.map((serie) => (
+                                  <Bar key={serie.nombre} dataKey={serie.nombre} fill={serie.color} />
+                                ))}
+                              </BarChart>
+                            )}
                           </ResponsiveContainer>
                           {grafico.notas?.map((nota, i) => (
                             <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
