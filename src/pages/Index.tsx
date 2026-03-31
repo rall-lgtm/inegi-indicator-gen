@@ -1926,15 +1926,107 @@ const Index = () => {
                       <CardTitle className="text-inegi-blue-dark">Fórmula de Cálculo</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <code className="block p-4 bg-white rounded-lg text-sm font-mono border border-inegi-blue-medium/20">
-                        {fichaMetodologica.ficha.formula}
-                      </code>
+                      {(() => {
+                        const formula = fichaMetodologica.ficha.formula;
+                        const detalle = fichaMetodologica.ficha.formula_detalle || {};
+
+                        // ── PATRÓN 1: Fracción simple (A / B) × 100
+                        const matchFraccion = formula.match(
+                          /^\((.+?)\s*\/\s*(.+?)\)\s*[×x\*]\s*100$/i
+                        );
+
+                        // ── PATRÓN 2: Variación porcentual ((A - B) / B) × 100
+                        const matchVariacion = formula.match(
+                          /^\(\((.+?)\s*[-−]\s*(.+?)\)\s*\/\s*(.+?)\)\s*[×x\*]\s*100$/i
+                        );
+
+                        // ── PATRÓN 3: Tasa acumulada CAGR con potencia ^
+                        const matchCagr = formula.match(
+                          /\^\s*\(?\s*1\s*\/\s*(.+?)\s*\)?/i
+                        );
+
+                        if (matchFraccion) {
+                          const [, numerador, denominador] = matchFraccion;
+                          return (
+                            <div className="flex flex-col items-center py-6 gap-2">
+                              <div className="flex items-center gap-4 text-inegi-blue-dark font-medium">
+                                <div className="flex flex-col items-center">
+                                  <span className="font-mono text-sm px-6 pb-2 border-b-2 border-inegi-blue-dark text-center">
+                                    {numerador.trim()}
+                                  </span>
+                                  <span className="font-mono text-sm px-6 pt-2 text-center">
+                                    {denominador.trim()}
+                                  </span>
+                                </div>
+                                <span className="text-xl font-bold">× 100</span>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        if (matchVariacion) {
+                          const [, aN, aN1, base] = matchVariacion;
+                          return (
+                            <div className="flex flex-col items-center py-6 gap-2">
+                              <div className="flex items-center gap-4 text-inegi-blue-dark font-medium">
+                                <div className="flex flex-col items-center">
+                                  <span className="font-mono text-sm px-6 pb-2 border-b-2 border-inegi-blue-dark text-center">
+                                    {aN.trim()} − {aN1.trim()}
+                                  </span>
+                                  <span className="font-mono text-sm px-6 pt-2 text-center">
+                                    {base.trim()}
+                                  </span>
+                                </div>
+                                <span className="text-xl font-bold">× 100</span>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        if (matchCagr) {
+                          const matchBase = formula.match(/\(\s*(.+?)\s*\/\s*(.+?)\s*\)\s*\^/i);
+                          const [, reciente, antiguo] = matchBase || [null, "Valor reciente", "Valor antiguo"];
+                          return (
+                            <div className="flex flex-col items-center py-6 gap-2">
+                              <div className="flex items-center gap-3 text-inegi-blue-dark font-medium flex-wrap justify-center">
+                                <span className="text-2xl">[</span>
+                                <div className="flex flex-col items-center">
+                                  <span className="font-mono text-sm px-4 pb-2 border-b-2 border-inegi-blue-dark text-center">
+                                    {reciente?.trim()}
+                                  </span>
+                                  <span className="font-mono text-sm px-4 pt-2 text-center">
+                                    {antiguo?.trim()}
+                                  </span>
+                                </div>
+                                <div className="flex flex-col justify-start">
+                                  <span className="font-mono text-xs text-inegi-blue-medium leading-none mb-1">
+                                    1 / n períodos
+                                  </span>
+                                  <span className="text-xl">]</span>
+                                </div>
+                                <span className="text-xl font-bold">− 1) × 100</span>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // ── FALLBACK: texto plano
+                        return (
+                          <code className="block p-4 bg-white rounded-lg text-sm font-mono border border-inegi-blue-medium/20 leading-relaxed">
+                            {formula}
+                          </code>
+                        );
+                      })()}
+
                       {fichaMetodologica.ficha.formula_detalle && Object.keys(fichaMetodologica.ficha.formula_detalle).length > 0 && (
                         <div className="space-y-2 pt-2">
                           <p className="text-sm font-semibold text-inegi-blue-dark">Donde:</p>
                           {Object.entries(fichaMetodologica.ficha.formula_detalle).map(([sigla, descripcion]) => (
                             <div key={sigla} className="text-sm text-inegi-gray-medium pl-2">
-                              <span className="font-mono font-semibold text-inegi-blue-medium">{sigla}</span> = {descripcion}
+                              <span className="font-mono font-semibold text-inegi-blue-medium">
+                                {sigla}
+                              </span>
+                              {" = "}{descripcion as string}
                             </div>
                           ))}
                         </div>
