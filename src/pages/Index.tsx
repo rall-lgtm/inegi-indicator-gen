@@ -152,6 +152,10 @@ const CATALOGO_ENFOQUES_DETALLE: Record<string, { nombreCompleto: string; queMid
 type PropuestasIniciales = {
   tipo: "propuestas_iniciales";
   advertencia_ambiental?: AdvertenciaAmbiental;
+  enfoques_evaluados?: {
+    permitidos: string[];
+    prohibidos: string[];
+  };
   variable: {
     idVar: string;
     nombre: string;
