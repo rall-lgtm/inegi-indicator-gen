@@ -347,6 +347,7 @@ const Index = () => {
               setPropuestasAcumuladas(data.propuestas);
               setNumPropuestasIniciales(data.propuestas.length);
               setVariableInfo(data.variable);
+              setEnfoquesPermitidos(data.enfoques_evaluados?.permitidos ?? []);
             }
           } catch (error) {
             toast({
