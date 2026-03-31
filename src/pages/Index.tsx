@@ -1941,60 +1941,72 @@ const Index = () => {
                   </Card>
 
                   {/* Tabla de datos */}
-                  {fichaMetodologica.visualizacion?.tabla_datos && (
+                  {fichaMetodologica.visualizacion?.tabla && (
                     <Card className="border-inegi-blue-medium/20">
                       <CardHeader className="bg-inegi-blue-light">
                         <CardTitle className="text-inegi-blue-dark">Tabla de Datos</CardTitle>
                       </CardHeader>
                       <CardContent className="pt-4 overflow-x-auto">
-                        <table className="w-full text-sm border-collapse">
-                          <thead>
-                            <tr className="bg-inegi-blue-dark text-white">
-                              <th className="p-2 text-left font-semibold">Año</th>
-                              {fichaMetodologica.visualizacion!.tabla_datos.series.map((serie) => (
-                                <>
-                                  <th key={`${serie.nombre}-num`} className="p-2 text-right font-semibold text-xs">
-                                    {serie.columnas.numerador.label}
-                                  </th>
-                                  <th key={`${serie.nombre}-den`} className="p-2 text-right font-semibold text-xs">
-                                    {serie.columnas.denominador.label}
-                                  </th>
-                                  <th key={`${serie.nombre}-res`} className="p-2 text-right font-semibold">
-                                    {serie.columnas.resultado.label}
-                                  </th>
-                                </>
+                        {(() => {
+                          const tb = fichaMetodologica.visualizacion!.tabla;
+                          const esGeo = tb.tipo === "geografico_entidad" || tb.tipo === "geografico_municipal";
+                          return (
+                            <>
+                              <table className="w-full text-sm border-collapse">
+                                <thead>
+                                  <tr className="bg-inegi-blue-dark text-white">
+                                    {tb.columnas.map((col) => (
+                                      <th key={col.key} className={`p-2 font-semibold ${col.tipo === "texto" ? "text-left" : "text-right"}`}>
+                                        {col.label}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {tb.filas.map((fila, idx) => (
+                                    <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
+                                      {tb.columnas.map((col, colIdx) => {
+                                        const val = fila[col.key];
+                                        const isNull = val === null || val === undefined;
+
+                                        // Geographic: first col = ranking (small gray), second col = bold name
+                                        if (esGeo && colIdx === 0) {
+                                          return <td key={col.key} className="p-2 text-xs text-inegi-gray-medium">{isNull ? "—" : val}</td>;
+                                        }
+                                        if (esGeo && colIdx === 1) {
+                                          return <td key={col.key} className="p-2 font-semibold text-inegi-gray-dark">{isNull ? "—" : val}</td>;
+                                        }
+
+                                        if (isNull) {
+                                          return <td key={col.key} className={`p-2 ${col.tipo === "texto" ? "text-left" : "text-right"}`}>—</td>;
+                                        }
+
+                                        if (col.tipo === "porcentaje") {
+                                          const numVal = Number(val);
+                                          return (
+                                            <td key={col.key} className={`p-2 text-right font-medium ${numVal < 0 ? "text-red-600" : "text-inegi-blue-dark"}`}>
+                                              {numVal.toFixed(2)}%
+                                            </td>
+                                          );
+                                        }
+                                        if (col.tipo === "numero") {
+                                          return <td key={col.key} className="p-2 text-right text-inegi-gray-dark">{Number(val).toLocaleString('es-MX')}</td>;
+                                        }
+                                        if (col.tipo === "entero") {
+                                          return <td key={col.key} className="p-2 text-right text-inegi-gray-dark">{val}</td>;
+                                        }
+                                        return <td key={col.key} className="p-2 text-left text-inegi-gray-dark">{val}</td>;
+                                      })}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                              {tb.notas?.map((nota, i) => (
+                                <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
                               ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {fichaMetodologica.visualizacion!.tabla_datos.años.map((año, idx) => (
-                              <tr key={año} className={idx % 2 === 0 ? "bg-white" : "bg-inegi-blue-light/30"}>
-                                <td className="p-2 font-medium text-inegi-blue-dark">{año}</td>
-                                {fichaMetodologica.visualizacion!.tabla_datos.series.map((serie) => {
-                                  const num = serie.columnas.numerador.datos.find((d) => d.año === año);
-                                  const den = serie.columnas.denominador.datos.find((d) => d.año === año);
-                                  const res = serie.columnas.resultado.datos.find((d) => d.año === año);
-                                  return (
-                                    <>
-                                      <td key={`${serie.nombre}-${año}-num`} className="p-2 text-right text-inegi-gray-dark">
-                                        {num !== undefined ? num.valor.toLocaleString('es-MX') : "—"}
-                                      </td>
-                                      <td key={`${serie.nombre}-${año}-den`} className="p-2 text-right text-inegi-gray-dark">
-                                        {den !== undefined ? den.valor.toLocaleString('es-MX') : "—"}
-                                      </td>
-                                      <td key={`${serie.nombre}-${año}-res`} className="p-2 text-right font-medium text-inegi-blue-dark">
-                                        {res !== undefined ? res.valor.toFixed(2) : "—"}
-                                      </td>
-                                    </>
-                                  );
-                                })}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                        {fichaMetodologica.visualizacion.tabla_datos.notas?.map((nota, i) => (
-                          <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
-                        ))}
+                            </>
+                          );
+                        })()}
                       </CardContent>
                     </Card>
                   )}
