@@ -855,80 +855,40 @@ const Index = () => {
             ] : []),
             new Paragraph({ text: "", spacing: { after: 200 } }),
             // Tabla de datos
-            ...(fichaMetodologica.visualizacion?.tabla_datos ? (() => {
-              const td = fichaMetodologica.visualizacion!.tabla_datos;
+            ...(fichaMetodologica.visualizacion?.tabla ? (() => {
+              const tb = fichaMetodologica.visualizacion!.tabla;
               const cellBorder = { style: BorderStyle.SINGLE, size: 1, color: "999999" };
               const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
               const cellMargins = { top: 40, bottom: 40, left: 80, right: 80 };
-              // Build columns: Año + per series (num, den, res)
-              const colCount = 1 + td.series.length * 3;
-              const yearColW = 1200;
-              const dataColW = Math.floor((9360 - yearColW) / (td.series.length * 3));
-              const columnWidths = [yearColW, ...Array(colCount - 1).fill(dataColW)];
-              const headerCells = [
+              const colCount = tb.columnas.length;
+              const colW = Math.floor(9360 / colCount);
+              const columnWidths = Array(colCount).fill(colW);
+              const headerCells = tb.columnas.map(col =>
                 new TableCell({
                   borders: cellBorders, margins: cellMargins,
-                  width: { size: yearColW, type: WidthType.DXA },
+                  width: { size: colW, type: WidthType.DXA },
                   shading: { fill: "003D6B", type: ShadingType.CLEAR },
-                  children: [new Paragraph({ children: [new TextRun({ text: "Año", bold: true, color: "FFFFFF", size: 20 })] })],
-                }),
-                ...td.series.flatMap((serie) => [
-                  new TableCell({
-                    borders: cellBorders, margins: cellMargins,
-                    width: { size: dataColW, type: WidthType.DXA },
-                    shading: { fill: "003D6B", type: ShadingType.CLEAR },
-                    children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: serie.columnas.numerador.label, bold: true, color: "FFFFFF", size: 16 })] })],
-                  }),
-                  new TableCell({
-                    borders: cellBorders, margins: cellMargins,
-                    width: { size: dataColW, type: WidthType.DXA },
-                    shading: { fill: "003D6B", type: ShadingType.CLEAR },
-                    children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: serie.columnas.denominador.label, bold: true, color: "FFFFFF", size: 16 })] })],
-                  }),
-                  new TableCell({
-                    borders: cellBorders, margins: cellMargins,
-                    width: { size: dataColW, type: WidthType.DXA },
-                    shading: { fill: "003D6B", type: ShadingType.CLEAR },
-                    children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: serie.columnas.resultado.label, bold: true, color: "FFFFFF", size: 18 })] })],
-                  }),
-                ]),
-              ];
-              const dataRows = td.años.map((año, idx) => {
+                  children: [new Paragraph({ alignment: col.tipo === "texto" ? AlignmentType.LEFT : AlignmentType.RIGHT, children: [new TextRun({ text: col.label, bold: true, color: "FFFFFF", size: 18 })] })],
+                })
+              );
+              const dataRows = tb.filas.map((fila, idx) => {
                 const fill = idx % 2 === 0 ? "FFFFFF" : "E8F0FE";
                 return new TableRow({
-                  children: [
-                    new TableCell({
+                  children: tb.columnas.map(col => {
+                    const val = fila[col.key];
+                    let text = "—";
+                    if (val !== null && val !== undefined) {
+                      if (col.tipo === "porcentaje") text = Number(val).toFixed(2) + "%";
+                      else if (col.tipo === "numero") text = Number(val).toLocaleString('es-MX');
+                      else text = String(val);
+                    }
+                    return new TableCell({
                       borders: cellBorders, margins: cellMargins,
-                      width: { size: yearColW, type: WidthType.DXA },
+                      width: { size: colW, type: WidthType.DXA },
                       shading: { fill, type: ShadingType.CLEAR },
-                      children: [new Paragraph({ children: [new TextRun({ text: String(año), bold: true, size: 20 })] })],
-                    }),
-                    ...td.series.flatMap((serie) => {
-                      const num = serie.columnas.numerador.datos.find(d => d.año === año);
-                      const den = serie.columnas.denominador.datos.find(d => d.año === año);
-                      const res = serie.columnas.resultado.datos.find(d => d.año === año);
-                      return [
-                        new TableCell({
-                          borders: cellBorders, margins: cellMargins,
-                          width: { size: dataColW, type: WidthType.DXA },
-                          shading: { fill, type: ShadingType.CLEAR },
-                          children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: num !== undefined ? num.valor.toLocaleString('es-MX') : "—", size: 20 })] })],
-                        }),
-                        new TableCell({
-                          borders: cellBorders, margins: cellMargins,
-                          width: { size: dataColW, type: WidthType.DXA },
-                          shading: { fill, type: ShadingType.CLEAR },
-                          children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: den !== undefined ? den.valor.toLocaleString('es-MX') : "—", size: 20 })] })],
-                        }),
-                        new TableCell({
-                          borders: cellBorders, margins: cellMargins,
-                          width: { size: dataColW, type: WidthType.DXA },
-                          shading: { fill, type: ShadingType.CLEAR },
-                          children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: res !== undefined ? res.valor.toFixed(2) : "—", bold: true, size: 20 })] })],
-                        }),
-                      ];
-                    }),
-                  ],
+                      children: [new Paragraph({ alignment: col.tipo === "texto" ? AlignmentType.LEFT : AlignmentType.RIGHT, children: [new TextRun({ text, size: 20 })] })],
+                    });
+                  }),
                 });
               });
               return [
@@ -944,7 +904,7 @@ const Index = () => {
                     ...dataRows,
                   ],
                 }),
-                ...(td.notas?.map(nota => new Paragraph({
+                ...(tb.notas?.map(nota => new Paragraph({
                   children: [new TextRun({ text: nota, italics: true, size: 18, color: "666666" })],
                   spacing: { after: 100 },
                 })) || []),
