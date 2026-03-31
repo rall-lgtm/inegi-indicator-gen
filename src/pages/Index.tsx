@@ -281,6 +281,7 @@ const Index = () => {
   const [loadingMasOpciones, setLoadingMasOpciones] = useState(false);
   const [variableInfo, setVariableInfo] = useState<PropuestasIniciales["variable"] | null>(null);
   const [numPropuestasIniciales, setNumPropuestasIniciales] = useState(0);
+  const [enfoquesPermitidos, setEnfoquesPermitidos] = useState<string[]>([]);
   const [loadingRegenerando, setLoadingRegenerando] = useState(false);
   const { toast } = useToast();
 
