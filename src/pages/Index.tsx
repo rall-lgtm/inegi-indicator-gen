@@ -2014,47 +2014,127 @@ const Index = () => {
                   {/* Gráfico */}
                   {fichaMetodologica.visualizacion?.grafico && (() => {
                     const grafico = fichaMetodologica.visualizacion!.grafico;
-                    const chartData = grafico.eje_x.valores.map(año => ({
-                      año,
+                    const yDomain: [number | string, number | string] = [
+                      grafico.eje_y.min ?? 'auto',
+                      grafico.eje_y.max ?? 'auto'
+                    ];
+
+                    if (grafico.tipo === "pie") {
+                      const pieData = grafico.series.map(s => ({
+                        name: s.nombre,
+                        value: s.datos[0]?.y ?? 0,
+                        fill: s.color,
+                      }));
+                      return (
+                        <Card className="border-inegi-blue-medium/20">
+                          <CardHeader className="bg-inegi-blue-light">
+                            <CardTitle className="text-inegi-blue-dark">Gráfico</CardTitle>
+                            <p className="text-sm text-inegi-gray-medium">{grafico.titulo}</p>
+                            {grafico.subtitulo && <p className="text-xs text-inegi-gray-medium">{grafico.subtitulo}</p>}
+                          </CardHeader>
+                          <CardContent className="pt-4">
+                            <ResponsiveContainer width="100%" height={350}>
+                              <PieChart>
+                                <Pie
+                                  data={pieData}
+                                  dataKey="value"
+                                  nameKey="name"
+                                  cx="50%"
+                                  cy="50%"
+                                  outerRadius={120}
+                                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                                >
+                                  {pieData.map((entry, index) => (
+                                    <Cell key={index} fill={entry.fill} />
+                                  ))}
+                                </Pie>
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                              </PieChart>
+                            </ResponsiveContainer>
+                            {grafico.notas?.map((nota, i) => (
+                              <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
+                            ))}
+                          </CardContent>
+                        </Card>
+                      );
+                    }
+
+                    const chartData = grafico.series[0].datos.map((d, i) => ({
+                      x: d.x,
                       ...grafico.series.reduce((acc, s) => ({
                         ...acc,
-                        [s.nombre]: s.datos.find(d => d.año === año)?.valor ?? null
+                        [s.nombre]: s.datos[i]?.y ?? null
                       }), {} as Record<string, number | null>)
                     }));
-                    const ChartComponent = grafico.tipo === "barras" ? BarChart : LineChart;
+
+                    const chartHeight = grafico.tipo === "barras_horizontales"
+                      ? Math.max(400, chartData.length * 22)
+                      : 300;
+
                     return (
                       <Card className="border-inegi-blue-medium/20">
                         <CardHeader className="bg-inegi-blue-light">
                           <CardTitle className="text-inegi-blue-dark">Gráfico</CardTitle>
                           <p className="text-sm text-inegi-gray-medium">{grafico.titulo}</p>
-                          {grafico.subtitulo && (
-                            <p className="text-xs text-inegi-gray-medium">{grafico.subtitulo}</p>
-                          )}
+                          {grafico.subtitulo && <p className="text-xs text-inegi-gray-medium">{grafico.subtitulo}</p>}
                         </CardHeader>
                         <CardContent className="pt-4">
-                          <ResponsiveContainer width="100%" height={300}>
-                            <ChartComponent data={chartData}>
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="año" />
-                              <YAxis domain={[grafico.eje_y.min, grafico.eje_y.max]} />
-                              <RechartsTooltip />
-                              <Legend />
-                              {grafico.series.map((serie) =>
-                                grafico.tipo === "barras" ? (
+                          <ResponsiveContainer width="100%" height={chartHeight}>
+                            {grafico.tipo === "lineas" ? (
+                              <LineChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="x" />
+                                <YAxis domain={yDomain} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                {grafico.series.map((serie) => (
+                                  <Line key={serie.nombre} type="monotone" dataKey={serie.nombre} stroke={serie.color} strokeWidth={2} dot={{ r: 4 }} connectNulls />
+                                ))}
+                              </LineChart>
+                            ) : grafico.tipo === "barras_horizontales" ? (
+                              <BarChart data={chartData} layout="vertical" margin={{ left: 165, right: 30, top: 5, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis type="number" domain={[0, 100]} unit="%" />
+                                <YAxis type="category" dataKey="x" width={160} tick={{ fontSize: 11 }} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                <Bar dataKey={grafico.series[0].nombre} fill={grafico.series[0].color} radius={[0, 3, 3, 0]} />
+                              </BarChart>
+                            ) : grafico.tipo === "barras_apiladas_100" ? (
+                              <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="x" />
+                                <YAxis domain={yDomain} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                {grafico.series.map((serie) => (
+                                  <Bar key={serie.nombre} dataKey={serie.nombre} fill={serie.color} stackId="a" />
+                                ))}
+                              </BarChart>
+                            ) : grafico.tipo === "barras_agrupadas" ? (
+                              <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="x" />
+                                <YAxis domain={yDomain} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                {grafico.series.map((serie) => (
                                   <Bar key={serie.nombre} dataKey={serie.nombre} fill={serie.color} />
-                                ) : (
-                                  <Line
-                                    key={serie.nombre}
-                                    type="monotone"
-                                    dataKey={serie.nombre}
-                                    stroke={serie.color}
-                                    strokeWidth={2}
-                                    dot={{ r: 4 }}
-                                    connectNulls
-                                  />
-                                )
-                              )}
-                            </ChartComponent>
+                                ))}
+                              </BarChart>
+                            ) : (
+                              <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="x" />
+                                <YAxis domain={yDomain} />
+                                <RechartsTooltip />
+                                {grafico.leyenda.visible && <Legend />}
+                                {grafico.series.map((serie) => (
+                                  <Bar key={serie.nombre} dataKey={serie.nombre} fill={serie.color} />
+                                ))}
+                              </BarChart>
+                            )}
                           </ResponsiveContainer>
                           {grafico.notas?.map((nota, i) => (
                             <p key={i} className="text-xs text-inegi-gray-medium italic mt-2">{nota}</p>
