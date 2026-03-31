@@ -419,6 +419,7 @@ const Index = () => {
         setPropuestasAcumuladas(data.propuestas || []);
         setNumPropuestasIniciales((data.propuestas || []).length);
         setVariableInfo(data.variable);
+        setEnfoquesPermitidos(data.enfoques_evaluados?.permitidos ?? []);
       }
       
       // Si son propuestas adicionales, acumular y marcar como todas mostradas
