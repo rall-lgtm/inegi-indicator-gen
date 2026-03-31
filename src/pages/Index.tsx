@@ -544,7 +544,7 @@ const Index = () => {
     }
   };
 
-  const handleSeleccionar = async (propuesta: PropuestaIndicador) => {
+  const handleSeleccionar = async (propuesta: PropuestaIndicador, varianteSeleccionada?: string) => {
     setLoadingPropuestaId(propuesta.id);
     try {
       const body = {
@@ -553,32 +553,24 @@ const Index = () => {
         accion: "seleccionar",
         propuestaId: propuesta.id,
         nombrePropuesta: propuesta.nombre,
+        varianteSeleccionada: varianteSeleccionada ?? propuesta.variante_usada ?? null,
       };
 
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) {
-        throw new Error("Error en la conexión con el servidor");
-      }
+      if (!res.ok) throw new Error("Error en la conexión con el servidor");
 
       const data = await res.json();
-      
-      // Parsear la respuesta que viene en el campo "output" como string con markdown
       let fichaData = data;
       if (data.output && typeof data.output === 'string') {
-        // Extraer el JSON del markdown code block
         const jsonMatch = data.output.match(/```json\s*([\s\S]*?)\s*```/);
-        if (jsonMatch && jsonMatch[1]) {
-          fichaData = JSON.parse(jsonMatch[1]);
-        }
+        if (jsonMatch && jsonMatch[1]) fichaData = JSON.parse(jsonMatch[1]);
       }
-      
+
       if (fichaData.tipo === "ficha_metodologica") {
         setFichaMetodologica(fichaData);
         setIsModalOpen(true);
@@ -591,6 +583,49 @@ const Index = () => {
       });
     } finally {
       setLoadingPropuestaId(null);
+    }
+  };
+
+  const handleSeleccionarVariante = async (propuesta: PropuestaIndicador, variante: string) => {
+    const key = `${propuesta.id}-${variante}`;
+    setLoadingVarianteKey(key);
+    try {
+      const body = {
+        idVar: idVar.toUpperCase(),
+        sessionId,
+        accion: "seleccionar",
+        propuestaId: propuesta.id,
+        nombrePropuesta: propuesta.nombre,
+        varianteSeleccionada: variante,
+      };
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) throw new Error("Error en la conexión con el servidor");
+
+      const data = await res.json();
+      let fichaData = data;
+      if (data.output && typeof data.output === 'string') {
+        const jsonMatch = data.output.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch && jsonMatch[1]) fichaData = JSON.parse(jsonMatch[1]);
+      }
+
+      if (fichaData.tipo === "ficha_metodologica") {
+        setFichaMetodologica(fichaData);
+        setIsModalOpen(true);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo generar la ficha para esta variante.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingVarianteKey(null);
     }
   };
 
