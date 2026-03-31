@@ -152,6 +152,10 @@ const CATALOGO_ENFOQUES_DETALLE: Record<string, { nombreCompleto: string; queMid
 type PropuestasIniciales = {
   tipo: "propuestas_iniciales";
   advertencia_ambiental?: AdvertenciaAmbiental;
+  enfoques_evaluados?: {
+    permitidos: string[];
+    prohibidos: string[];
+  };
   variable: {
     idVar: string;
     nombre: string;
@@ -277,6 +281,7 @@ const Index = () => {
   const [loadingMasOpciones, setLoadingMasOpciones] = useState(false);
   const [variableInfo, setVariableInfo] = useState<PropuestasIniciales["variable"] | null>(null);
   const [numPropuestasIniciales, setNumPropuestasIniciales] = useState(0);
+  const [enfoquesPermitidos, setEnfoquesPermitidos] = useState<string[]>([]);
   const [loadingRegenerando, setLoadingRegenerando] = useState(false);
   const { toast } = useToast();
 
@@ -342,6 +347,7 @@ const Index = () => {
               setPropuestasAcumuladas(data.propuestas);
               setNumPropuestasIniciales(data.propuestas.length);
               setVariableInfo(data.variable);
+              setEnfoquesPermitidos(data.enfoques_evaluados?.permitidos ?? []);
             }
           } catch (error) {
             toast({
@@ -413,6 +419,7 @@ const Index = () => {
         setPropuestasAcumuladas(data.propuestas || []);
         setNumPropuestasIniciales((data.propuestas || []).length);
         setVariableInfo(data.variable);
+        setEnfoquesPermitidos(data.enfoques_evaluados?.permitidos ?? []);
       }
       
       // Si son propuestas adicionales, acumular y marcar como todas mostradas
@@ -630,6 +637,7 @@ const Index = () => {
     setLoadingPropuestaId(null);
     setLoadingMasOpciones(false);
     setNumPropuestasIniciales(0);
+    setEnfoquesPermitidos([]);
     // Si venía por URL, navegar a la raíz
     if (idFromUrl) {
       navigate('/');
@@ -1663,31 +1671,43 @@ const Index = () => {
 
                       {/* Botones de acción */}
                       <div className="space-y-4">
-                        {!mostrandoTodas ? (
-                          <Button
-                            onClick={handleMasOpciones}
-                            disabled={loading || loadingPropuestaId !== null || loadingMasOpciones}
-                            variant="outline"
-                            className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
-                            size="lg"
-                          >
-                            {loadingMasOpciones ? (
-                              <>
-                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                Generando propuestas adicionales...
-                              </>
-                            ) : (
-                              <>
-                                <RefreshCw className="w-5 h-5 mr-2" />
-                                Generar más propuestas
-                              </>
-                            )}
-                          </Button>
-                        ) : (
-                          <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
-                            <p className="text-sm text-inegi-blue-dark">✅ {propuestasAcumuladas.length} propuestas generadas. Selecciona del 1 al {propuestasAcumuladas.length}</p>
-                          </div>
-                        )}
+                        {(() => {
+                          const hayMasEnfoques = enfoquesPermitidos.length > propuestasAcumuladas.length;
+                          
+                          if (mostrandoTodas || !hayMasEnfoques) {
+                            if (propuestasAcumuladas.length > 0) {
+                              return (
+                                <div className="p-4 bg-inegi-blue-light border border-inegi-blue-medium/30 rounded-lg text-center">
+                                  <p className="text-sm text-inegi-blue-dark">
+                                    ✅ {propuestasAcumuladas.length} {propuestasAcumuladas.length === 1 ? 'propuesta generada' : 'propuestas generadas'}. Selecciona del 1 al {propuestasAcumuladas.length}
+                                  </p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }
+                          return (
+                            <Button
+                              onClick={handleMasOpciones}
+                              disabled={loading || loadingPropuestaId !== null || loadingMasOpciones}
+                              variant="outline"
+                              className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
+                              size="lg"
+                            >
+                              {loadingMasOpciones ? (
+                                <>
+                                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                  Generando propuestas adicionales...
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="w-5 h-5 mr-2" />
+                                  Generar más propuestas
+                                </>
+                              )}
+                            </Button>
+                          );
+                        })()}
 
                         {/* Propuesta Personalizada */}
                         <Card className="border-inegi-green/30 bg-gradient-to-r from-inegi-green/5 to-inegi-blue-light">
