@@ -283,6 +283,7 @@ const Index = () => {
   const [numPropuestasIniciales, setNumPropuestasIniciales] = useState(0);
   const [enfoquesPermitidos, setEnfoquesPermitidos] = useState<string[]>([]);
   const [loadingRegenerando, setLoadingRegenerando] = useState(false);
+  const [loadingVarianteKey, setLoadingVarianteKey] = useState<string | null>(null);
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
@@ -543,7 +544,7 @@ const Index = () => {
     }
   };
 
-  const handleSeleccionar = async (propuesta: PropuestaIndicador) => {
+  const handleSeleccionar = async (propuesta: PropuestaIndicador, varianteSeleccionada?: string) => {
     setLoadingPropuestaId(propuesta.id);
     try {
       const body = {
@@ -552,32 +553,24 @@ const Index = () => {
         accion: "seleccionar",
         propuestaId: propuesta.id,
         nombrePropuesta: propuesta.nombre,
+        varianteSeleccionada: varianteSeleccionada ?? propuesta.variante_usada ?? null,
       };
 
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) {
-        throw new Error("Error en la conexión con el servidor");
-      }
+      if (!res.ok) throw new Error("Error en la conexión con el servidor");
 
       const data = await res.json();
-      
-      // Parsear la respuesta que viene en el campo "output" como string con markdown
       let fichaData = data;
       if (data.output && typeof data.output === 'string') {
-        // Extraer el JSON del markdown code block
         const jsonMatch = data.output.match(/```json\s*([\s\S]*?)\s*```/);
-        if (jsonMatch && jsonMatch[1]) {
-          fichaData = JSON.parse(jsonMatch[1]);
-        }
+        if (jsonMatch && jsonMatch[1]) fichaData = JSON.parse(jsonMatch[1]);
       }
-      
+
       if (fichaData.tipo === "ficha_metodologica") {
         setFichaMetodologica(fichaData);
         setIsModalOpen(true);
@@ -590,6 +583,49 @@ const Index = () => {
       });
     } finally {
       setLoadingPropuestaId(null);
+    }
+  };
+
+  const handleSeleccionarVariante = async (propuesta: PropuestaIndicador, variante: string) => {
+    const key = `${propuesta.id}-${variante}`;
+    setLoadingVarianteKey(key);
+    try {
+      const body = {
+        idVar: idVar.toUpperCase(),
+        sessionId,
+        accion: "seleccionar",
+        propuestaId: propuesta.id,
+        nombrePropuesta: propuesta.nombre,
+        varianteSeleccionada: variante,
+      };
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) throw new Error("Error en la conexión con el servidor");
+
+      const data = await res.json();
+      let fichaData = data;
+      if (data.output && typeof data.output === 'string') {
+        const jsonMatch = data.output.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch && jsonMatch[1]) fichaData = JSON.parse(jsonMatch[1]);
+      }
+
+      if (fichaData.tipo === "ficha_metodologica") {
+        setFichaMetodologica(fichaData);
+        setIsModalOpen(true);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo generar la ficha para esta variante.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingVarianteKey(null);
     }
   };
 
@@ -1427,32 +1463,47 @@ const Index = () => {
                         <div className="flex flex-wrap gap-1.5">
                           {propuesta.variantes.map((variante, idx) => {
                             const esUsada = variante === propuesta.variante_usada;
-                            return (
-                              <span
-                                key={idx}
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                                  esUsada
-                                    ? "bg-[#185FA5] text-white border-[#185FA5]"
-                                    : "bg-white text-[#185FA5] border-[#C5DCEF]"
-                                }`}
-                              >
-                                {esUsada && (
-                                  <svg
-                                    className="w-3 h-3 flex-shrink-0"
-                                    viewBox="0 0 12 12"
-                                    fill="none"
-                                  >
-                                    <path
-                                      d="M2 6l3 3 5-5"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
+                            const varianteKey = `${propuesta.id}-${variante}`;
+                            const estaCargando = loadingVarianteKey === varianteKey;
+
+                            if (esUsada) {
+                              return (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#185FA5] text-white border border-[#185FA5]"
+                                >
+                                  <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 12 12" fill="none">
+                                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
-                                )}
-                                {variante}
-                              </span>
+                                  {variante}
+                                </span>
+                              );
+                            }
+
+                            return (
+                              <TooltipProvider key={idx}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      onClick={() => handleSeleccionarVariante(propuesta, variante)}
+                                      disabled={loadingPropuestaId !== null || loadingMasOpciones || loadingVarianteKey !== null}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-white text-[#185FA5] border border-[#C5DCEF] hover:bg-[#185FA5] hover:text-white hover:border-[#185FA5] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      {estaCargando ? (
+                                        <Loader2 className="w-3 h-3 animate-spin flex-shrink-0" />
+                                      ) : (
+                                        <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 12 12" fill="none">
+                                          <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                        </svg>
+                                      )}
+                                      {variante}
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs">
+                                    Generar ficha con variante "{variante}"
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             );
                           })}
                         </div>
