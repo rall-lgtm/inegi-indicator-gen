@@ -221,11 +221,11 @@ type FichaMetodologica = {
         estadistica1?: string;
         estadistica2?: string;
       }>;
-      pnd?: {
+      pnd?: Array<{
         eje: string;
         objetivo: string;
         estrategia: string;
-      };
+      }>;
     };
   };
   visualizacion?: {
