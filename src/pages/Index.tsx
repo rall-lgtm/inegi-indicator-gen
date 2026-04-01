@@ -266,6 +266,7 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalExpanded, setIsModalExpanded] = useState(false);
   const [sessionId] = useState(`session-${Date.now()}`);
+  const fichaModalRef = useRef<HTMLDivElement>(null);
   const [propuestasAcumuladas, setPropuestasAcumuladas] = useState<PropuestaIndicador[]>([]);
   const [mostrandoTodas, setMostrandoTodas] = useState(false);
   const [nombrePersonalizado, setNombrePersonalizado] = useState("");
