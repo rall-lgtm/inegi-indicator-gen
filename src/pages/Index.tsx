@@ -1872,7 +1872,7 @@ const Index = () => {
             </DialogHeader>
             <ScrollArea className={`${isModalExpanded ? 'h-[calc(95vh-8rem)]' : 'h-[calc(90vh-8rem)]'} p-6`}>
               {fichaMetodologica && (
-                <div className="space-y-6">
+                <div className="space-y-6" ref={fichaModalRef}>
                   {/* Header de la ficha */}
                   <Card className="border-inegi-blue-medium border-2 bg-inegi-blue-light">
                     <CardHeader>
