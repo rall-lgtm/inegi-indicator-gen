@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Search, AlertCircle, CheckCircle, Download, RefreshCw, Loader2, TrendingUp, FileText, Info, AlertTriangle, Maximize2, Minimize2, FileDown, Sparkles, PenLine, Check, RotateCcw } from "lucide-react";
 import { ResponsiveContainer, LineChart, BarChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, PieChart, Pie, Cell } from "recharts";
@@ -266,6 +266,7 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalExpanded, setIsModalExpanded] = useState(false);
   const [sessionId] = useState(`session-${Date.now()}`);
+  const fichaModalRef = useRef<HTMLDivElement>(null);
   const [propuestasAcumuladas, setPropuestasAcumuladas] = useState<PropuestaIndicador[]>([]);
   const [mostrandoTodas, setMostrandoTodas] = useState(false);
   const [nombrePersonalizado, setNombrePersonalizado] = useState("");
@@ -1871,7 +1872,7 @@ const Index = () => {
             </DialogHeader>
             <ScrollArea className={`${isModalExpanded ? 'h-[calc(95vh-8rem)]' : 'h-[calc(90vh-8rem)]'} p-6`}>
               {fichaMetodologica && (
-                <div className="space-y-6">
+                <div className="space-y-6" ref={fichaModalRef}>
                   {/* Header de la ficha */}
                   <Card className="border-inegi-blue-medium border-2 bg-inegi-blue-light">
                     <CardHeader>
@@ -2438,16 +2439,43 @@ const Index = () => {
 
                   {/* Botones de acción */}
                   <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                    {fichaMetodologica.descarga.disponible && (
-                      <Button
-                        className="flex-1 bg-inegi-green hover:bg-[#5A8E31] text-white"
-                        size="lg"
-                        onClick={() => window.open(fichaMetodologica.descarga.url, "_blank")}
-                      >
-                        <Download className="w-5 h-5 mr-2" />
-                        Descargar PDF
-                      </Button>
-                    )}
+                    <Button
+                      className="flex-1 bg-inegi-green hover:bg-[#5A8E31] text-white"
+                      size="lg"
+                      onClick={async () => {
+                        if (!fichaModalRef.current || !fichaMetodologica) return;
+                        try {
+                          // Load html2pdf.js from CDN if not already loaded
+                          if (!(window as any).html2pdf) {
+                            await new Promise<void>((resolve, reject) => {
+                              const script = document.createElement('script');
+                              script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                              script.onload = () => resolve();
+                              script.onerror = () => reject(new Error('Failed to load html2pdf.js'));
+                              document.head.appendChild(script);
+                            });
+                          }
+                          const html2pdf = (window as any).html2pdf;
+                          const element = fichaModalRef.current.cloneNode(true) as HTMLElement;
+                          // Remove action buttons from clone
+                          const buttons = element.querySelectorAll('button');
+                          buttons.forEach(btn => btn.remove());
+                          await html2pdf().set({
+                            margin: 10,
+                            filename: `Ficha_${fichaMetodologica.indicador.nombre ?? 'indicador'}.pdf`,
+                            image: { type: 'jpeg', quality: 0.98 },
+                            html2canvas: { scale: 2, useCORS: true },
+                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                          }).from(element).save();
+                          toast({ title: "PDF generado", description: "El archivo se descargó correctamente." });
+                        } catch (error) {
+                          toast({ title: "Error", description: "No se pudo generar el PDF.", variant: "destructive" });
+                        }
+                      }}
+                    >
+                      <Download className="w-5 h-5 mr-2" />
+                      Descargar PDF
+                    </Button>
                     <Button
                       className="flex-1 bg-inegi-blue-medium hover:bg-inegi-blue-dark text-white"
                       size="lg"
