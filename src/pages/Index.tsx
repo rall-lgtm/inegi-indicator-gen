@@ -2462,7 +2462,7 @@ const Index = () => {
                           buttons.forEach(btn => btn.remove());
                           await html2pdf().set({
                             margin: 10,
-                            filename: `Ficha_${fichaMetodologica.ficha.nombre ?? fichaMetodologica.indicador.nombre ?? 'indicador'}.pdf`,
+                            filename: `Ficha_${fichaMetodologica.indicador.nombre ?? 'indicador'}.pdf`,
                             image: { type: 'jpeg', quality: 0.98 },
                             html2canvas: { scale: 2, useCORS: true },
                             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
