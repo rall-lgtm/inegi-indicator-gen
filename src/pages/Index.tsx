@@ -2456,17 +2456,26 @@ const Index = () => {
                             });
                           }
                           const html2pdf = (window as any).html2pdf;
-                          const element = fichaModalRef.current.cloneNode(true) as HTMLElement;
+                          // Clone content off-screen so html2canvas measures full height without modal scroll constraints
+                          const clone = fichaModalRef.current.cloneNode(true) as HTMLElement;
                           // Remove action buttons from clone
-                          const buttons = element.querySelectorAll('button');
+                          const buttons = clone.querySelectorAll('button');
                           buttons.forEach(btn => btn.remove());
+                          clone.style.cssText = 'position:fixed;top:-9999px;width:210mm;background:white;';
+                          document.body.appendChild(clone);
                           await html2pdf().set({
-                            margin: 10,
+                            margin: [5, 10, 10, 10],
                             filename: `Ficha_${fichaMetodologica.indicador.nombre ?? 'indicador'}.pdf`,
                             image: { type: 'jpeg', quality: 0.98 },
-                            html2canvas: { scale: 2, useCORS: true },
-                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                          }).from(element).save();
+                            html2canvas: {
+                              scale: 2,
+                              useCORS: true,
+                              scrollY: 0,
+                              windowWidth: document.documentElement.offsetWidth
+                            },
+                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                          }).from(clone).save().then(() => clone.remove());
                           toast({ title: "PDF generado", description: "El archivo se descargó correctamente." });
                         } catch (error) {
                           toast({ title: "Error", description: "No se pudo generar el PDF.", variant: "destructive" });
