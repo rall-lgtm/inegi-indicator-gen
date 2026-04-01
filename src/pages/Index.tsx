@@ -1872,7 +1872,7 @@ const Index = () => {
             </DialogHeader>
             <ScrollArea className={`${isModalExpanded ? 'h-[calc(95vh-8rem)]' : 'h-[calc(90vh-8rem)]'} p-6`}>
               {fichaMetodologica && (
-                <div className="space-y-6" ref={fichaModalRef}>
+                <div className="space-y-6" id="contenido-ficha" ref={fichaModalRef}>
                   {/* Header de la ficha */}
                   <Card className="border-inegi-blue-medium border-2 bg-inegi-blue-light">
                     <CardHeader>
@@ -2443,7 +2443,9 @@ const Index = () => {
                       className="flex-1 bg-inegi-green hover:bg-[#5A8E31] text-white"
                       size="lg"
                       onClick={async () => {
-                        if (!fichaModalRef.current || !fichaMetodologica) return;
+                        const contenido = document.querySelector('#contenido-ficha') as HTMLElement | null;
+                        if (!contenido || !fichaMetodologica) return;
+                        let wrapper: HTMLDivElement | null = null;
                         try {
                           // Load html2pdf.js from CDN if not already loaded
                           if (!(window as any).html2pdf) {
@@ -2456,13 +2458,16 @@ const Index = () => {
                             });
                           }
                           const html2pdf = (window as any).html2pdf;
-                          // Clone content off-screen so html2canvas measures full height without modal scroll constraints
-                          const clone = fichaModalRef.current.cloneNode(true) as HTMLElement;
-                          // Remove action buttons from clone
+                          wrapper = document.createElement('div');
+                          wrapper.setAttribute('aria-hidden', 'true');
+                          wrapper.style.cssText = 'position:absolute;left:0;top:0;width:210mm;padding:0;background:#fff;z-index:-1;opacity:1;display:block;visibility:visible;overflow:visible;pointer-events:none;';
+                          const clone = contenido.cloneNode(true) as HTMLElement;
                           const buttons = clone.querySelectorAll('button');
                           buttons.forEach(btn => btn.remove());
-                          clone.style.cssText = 'position:fixed;top:-9999px;width:210mm;background:white;';
-                          document.body.appendChild(clone);
+                          clone.style.cssText = 'display:block;visibility:visible;opacity:1;overflow:visible;max-height:none;height:auto;transform:none;background:#fff;';
+                          wrapper.appendChild(clone);
+                          document.body.appendChild(wrapper);
+
                           await html2pdf().set({
                             margin: [5, 10, 10, 10],
                             filename: `Ficha_${fichaMetodologica.indicador.nombre ?? 'indicador'}.pdf`,
@@ -2470,15 +2475,19 @@ const Index = () => {
                             html2canvas: {
                               scale: 2,
                               useCORS: true,
+                              scrollX: 0,
                               scrollY: 0,
-                              windowWidth: document.documentElement.offsetWidth
+                              backgroundColor: '#ffffff'
                             },
                             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-                          }).from(clone).save().then(() => clone.remove());
+                            pagebreak: { mode: ['css', 'legacy'] }
+                          }).from(clone).save();
+
                           toast({ title: "PDF generado", description: "El archivo se descargó correctamente." });
                         } catch (error) {
                           toast({ title: "Error", description: "No se pudo generar el PDF.", variant: "destructive" });
+                        } finally {
+                          wrapper?.remove();
                         }
                       }}
                     >
