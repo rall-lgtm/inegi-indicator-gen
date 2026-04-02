@@ -2356,18 +2356,16 @@ const Index = () => {
                         {fichaMetodologica.ficha.alineacion.ods && fichaMetodologica.ficha.alineacion.ods.length > 0 ? (
                           <div className="pl-2 space-y-3">
                             {fichaMetodologica.ficha.alineacion.ods.map((ods, idx) => (
-                              <div key={idx} className={idx > 0 ? "pt-3 border-t border-inegi-blue-medium/10" : ""}>
-                                <Badge className="bg-inegi-blue-medium text-white mb-1">
-                                  {ods.objetivo}
-                                </Badge>
-                                <p className="text-xs text-inegi-gray-medium mt-1">
-                                  <span className="font-medium">Meta:</span> {ods.meta}
+                              <div key={idx} className={`pl-2 space-y-1 ${idx > 0 ? "pt-3 border-t border-inegi-blue-medium/10" : ""}`}>
+                                <p className="text-sm text-inegi-gray-dark">
+                                  <span className="font-medium text-inegi-blue-dark">Objetivo:</span> {ods.objetivo}
                                 </p>
-                                {ods.indicador && ods.indicador !== '-' && (
-                                  <p className="text-xs text-inegi-gray-medium mt-1">
-                                    <span className="font-medium">Indicador:</span> {ods.indicador}
-                                  </p>
-                                )}
+                                <p className="text-sm text-inegi-gray-dark">
+                                  <span className="font-medium text-inegi-blue-dark">Meta:</span> {ods.meta}
+                                </p>
+                                <p className="text-sm text-inegi-gray-dark">
+                                  <span className="font-medium text-inegi-blue-dark">Indicador:</span> {ods.indicador}
+                                </p>
                               </div>
                             ))}
                           </div>
