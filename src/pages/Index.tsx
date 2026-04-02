@@ -2411,26 +2411,30 @@ const Index = () => {
                       </div>
 
                       {/* PND — siempre visible */}
-                      {fichaMetodologica.ficha.alineacion.pnd && fichaMetodologica.ficha.alineacion.pnd.length > 0 && (
-                        <div className="pt-2 border-t border-inegi-blue-medium/20">
+                      <div className="pt-2 border-t border-inegi-blue-medium/20">
                           <p className="text-sm text-inegi-gray-medium mb-2 font-semibold">
                             Plan Nacional de Desarrollo (PND)
                           </p>
-                          {fichaMetodologica.ficha.alineacion.pnd.map((pnd, idx) => (
-                            <div key={idx} className="pl-2 space-y-1 mb-2">
-                              <p className="text-sm text-inegi-gray-dark">
-                                <span className="font-medium text-inegi-blue-dark">Eje:</span> {pnd.eje}
-                              </p>
-                              <p className="text-sm text-inegi-gray-dark">
-                                <span className="font-medium text-inegi-blue-dark">Objetivo:</span> {pnd.objetivo}
-                              </p>
-                              <p className="text-sm text-inegi-gray-dark">
-                                <span className="font-medium text-inegi-blue-dark">Estrategia:</span> {pnd.estrategia}
-                              </p>
+                          {fichaMetodologica.ficha.alineacion.pnd && fichaMetodologica.ficha.alineacion.pnd.length > 0 ? (
+                            <div className="pl-2 space-y-3">
+                              {fichaMetodologica.ficha.alineacion.pnd.map((pnd, idx) => (
+                                <div key={idx} className={`pl-2 space-y-1 ${idx > 0 ? "pt-3 border-t border-inegi-blue-medium/10" : ""}`}>
+                                  <p className="text-sm text-inegi-gray-dark">
+                                    <span className="font-medium text-inegi-blue-dark">Eje:</span> {pnd.eje}
+                                  </p>
+                                  <p className="text-sm text-inegi-gray-dark">
+                                    <span className="font-medium text-inegi-blue-dark">Objetivo:</span> {pnd.objetivo}
+                                  </p>
+                                  <p className="text-sm text-inegi-gray-dark">
+                                    <span className="font-medium text-inegi-blue-dark">Estrategia:</span> {pnd.estrategia}
+                                  </p>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          ) : (
+                            <p className="text-sm text-inegi-gray-medium pl-2 italic">Sin alineación específica detectada</p>
+                          )}
                         </div>
-                      )}
 
                     </CardContent>
                   </Card>
