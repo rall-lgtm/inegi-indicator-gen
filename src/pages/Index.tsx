@@ -1681,7 +1681,9 @@ const Index = () => {
                       <div className="space-y-4">
                         {(() => {
                           const hayMasEnfoques = enfoquesPermitidos.length > propuestasAcumuladas.length;
-                          
+                          const enfoquesYaUsados = new Set(propuestasAcumuladas.map(p => p.enfoque_id).filter(Boolean));
+                          const enfoquesPendientes = enfoquesPermitidos.filter(e => !enfoquesYaUsados.has(e));
+
                           if (mostrandoTodas || !hayMasEnfoques) {
                             if (propuestasAcumuladas.length > 0) {
                               return (
@@ -1694,26 +1696,90 @@ const Index = () => {
                             }
                             return null;
                           }
+
                           return (
-                            <Button
-                              onClick={handleMasOpciones}
-                              disabled={loading || loadingPropuestaId !== null || loadingMasOpciones}
-                              variant="outline"
-                              className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
-                              size="lg"
-                            >
-                              {loadingMasOpciones ? (
-                                <>
-                                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                  Generando propuestas adicionales...
-                                </>
-                              ) : (
-                                <>
-                                  <RefreshCw className="w-5 h-5 mr-2" />
-                                  Generar más propuestas
-                                </>
-                              )}
-                            </Button>
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-3 mt-8">
+                                <p className="text-xs font-semibold uppercase tracking-widest text-inegi-gray-medium">
+                                  Propuestas adicionales disponibles
+                                </p>
+                                <div className="flex-1 h-px bg-inegi-blue-medium/15" />
+                              </div>
+
+                              <div className="grid gap-4 md:grid-cols-2">
+                                {enfoquesPendientes.map((enfoqueId, idx) => {
+                                  const info = CATALOGO_ENFOQUES.find(e => e.id === enfoqueId);
+                                  const detalle = CATALOGO_ENFOQUES_DETALLE[enfoqueId];
+                                  const numPropuesta = propuestasAcumuladas.length + idx + 1;
+
+                                  return (
+                                    <div
+                                      key={enfoqueId}
+                                      className="rounded-xl border border-dashed border-inegi-blue-medium/40 bg-inegi-blue-light/50 p-4 flex flex-col gap-3"
+                                    >
+                                      <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 rounded-full border-2 border-dashed border-inegi-blue-medium/40 text-inegi-blue-medium/70 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                          {numPropuesta}
+                                        </div>
+                                        <div>
+                                          <p className="font-semibold text-sm text-inegi-blue-dark leading-tight">
+                                            {detalle?.nombreCompleto ?? info?.nombre ?? enfoqueId}
+                                          </p>
+                                          <p className="text-xs text-inegi-gray-medium mt-0.5">
+                                            {info?.descripcion}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex gap-2">
+                                        <Badge
+                                          variant="outline"
+                                          className="bg-[#E6F1FB] text-[#0C447C] border-[#C5DCEF] font-bold text-xs"
+                                        >
+                                          {enfoqueId}
+                                        </Badge>
+                                      </div>
+
+                                      {detalle?.queMide && (
+                                        <p className="text-xs text-inegi-gray-medium leading-relaxed line-clamp-2">
+                                          {detalle.queMide}
+                                        </p>
+                                      )}
+
+                                      <div className="flex items-center gap-1.5 text-[11px] text-inegi-blue-medium/70 mt-auto pt-1 border-t border-inegi-blue-medium/10">
+                                        <RefreshCw className="w-3 h-3 flex-shrink-0" />
+                                        <span>
+                                          Se generará al hacer clic en "Generar{' '}
+                                          {enfoquesPendientes.length === 1
+                                            ? '1 propuesta adicional'
+                                            : `${enfoquesPendientes.length} propuestas adicionales`}"
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+
+                              <Button
+                                onClick={handleMasOpciones}
+                                disabled={loading || loadingPropuestaId !== null || loadingMasOpciones}
+                                variant="outline"
+                                className="w-full border-inegi-blue-medium text-inegi-blue-medium hover:bg-inegi-blue-light hover:text-inegi-blue-dark"
+                                size="lg"
+                              >
+                                {loadingMasOpciones ? (
+                                  <>
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    Generando {enfoquesPendientes.length} propuesta{enfoquesPendientes.length !== 1 ? 's' : ''} adicional{enfoquesPendientes.length !== 1 ? 'es' : ''}...
+                                  </>
+                                ) : (
+                                  <>
+                                    <RefreshCw className="w-5 h-5 mr-2" />
+                                    Generar {enfoquesPendientes.length} propuesta{enfoquesPendientes.length !== 1 ? 's' : ''} adicional{enfoquesPendientes.length !== 1 ? 'es' : ''}
+                                  </>
+                                )}
+                              </Button>
+                            </div>
                           );
                         })()}
 
