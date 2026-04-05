@@ -1555,14 +1555,13 @@ const Index = () => {
                                       {tipoLabel[tipoVar] ?? tipoVar}
                                     </Badge>
                                   </TooltipTrigger>
-                                  {(response as PropuestasIniciales)?.variable?.clasificaciones &&
-                                    (response as PropuestasIniciales).variable.clasificaciones!.length > 0 && (
+                                  {variableInfo?.clasificaciones && variableInfo.clasificaciones.length > 0 && (
                                     <TooltipContent side="bottom" className="max-w-xs p-3 bg-white border border-gray-200 shadow-xl rounded-lg">
                                       <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">
                                         Clasificaciones disponibles
                                       </p>
                                       <div className="flex flex-col gap-1">
-                                        {(response as PropuestasIniciales).variable.clasificaciones!.map((c, i) => (
+                                        {variableInfo.clasificaciones.map((c, i) => (
                                           <div key={i} className="flex items-center gap-1.5">
                                             <div className="w-1.5 h-1.5 rounded-full bg-inegi-blue-medium flex-shrink-0" />
                                             <span className="text-xs text-gray-700">{c.clase}</span>
