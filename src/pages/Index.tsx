@@ -292,6 +292,7 @@ const Index = () => {
   const [enfoquesPermitidos, setEnfoquesPermitidos] = useState<string[]>([]);
   const [loadingRegenerando, setLoadingRegenerando] = useState(false);
   const [loadingVarianteKey, setLoadingVarianteKey] = useState<string | null>(null);
+  const [clasificacionOverride, setClasificacionOverride] = useState<string | null>(null);
   const { toast } = useToast();
 
   const API_URL = "https://n8n.fmoreno.com.mx/webhook/generar-propuestas";
@@ -637,10 +638,9 @@ const Index = () => {
     }
   };
 
-  const handleRegenerar = async () => {
+  const handleRegenerar = async (clasificacionOverrideVal?: string) => {
     setLoadingRegenerando(true);
     try {
-      // 1. Limpiar caché
       const cacheRes = await fetch("https://n8n.fmoreno.com.mx/webhook/limpiar-cache", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -651,19 +651,22 @@ const Index = () => {
         toast({ title: "Error", description: "No se pudo limpiar el caché", variant: "destructive" });
         return;
       }
-      // 2. Resetear UI al estado de carga inicial
       setPropuestasAcumuladas([]);
       setMostrandoTodas(false);
       setNumPropuestasIniciales(0);
       setFichaMetodologica(null);
       setErrorValidacion(null);
       setResponse(null);
-      await enviarConsulta("iniciar");
+      const extras = clasificacionOverrideVal
+        ? { clasificacion_override: clasificacionOverrideVal }
+        : {};
+      await enviarConsulta("iniciar", extras);
       toast({ title: "Regenerado", description: "Las propuestas iniciales se han regenerado correctamente." });
     } catch (error) {
       toast({ title: "Error", description: "No se pudo regenerar las propuestas", variant: "destructive" });
     } finally {
       setLoadingRegenerando(false);
+      setClasificacionOverride(null);
     }
   };
 
@@ -1153,7 +1156,7 @@ const Index = () => {
                   </div>
                 </div>
                 {variableInfo && propuestasAcumuladas.length > 0 && !loadingRegenerando && (
-                  <AlertDialog>
+                  <AlertDialog onOpenChange={(open) => { if (!open) setClasificacionOverride(null); }}>
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="outline"
@@ -1165,16 +1168,74 @@ const Index = () => {
                         Regenerar
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="max-w-md">
                       <AlertDialogHeader>
                         <AlertDialogTitle>¿Regenerar propuestas?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          ¿Regenerar propuestas para {idVar || idFromUrl?.toUpperCase()}? Se eliminarán las propuestas guardadas.
+                          Se eliminarán las propuestas guardadas para <strong>{idVar || idFromUrl?.toUpperCase()}</strong> y se generarán nuevas.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleRegenerar} className="bg-inegi-blue-medium hover:bg-inegi-blue-dark">
+
+                      {variableInfo._flags?.tipo && ['binaria', 'multicategoria'].includes(variableInfo._flags.tipo) &&
+                       variableInfo.clasificaciones && variableInfo.clasificaciones.length > 0 && (() => {
+                        const clases = variableInfo.clasificaciones!
+                          .map(c => (typeof c === 'string' ? c : c?.clase ?? ''))
+                          .filter(Boolean);
+                        if (clases.length === 0) return null;
+                        return (
+                          <div className="mt-3 space-y-2">
+                            <p className="text-sm font-semibold text-inegi-blue-dark">
+                              Clasificación representativa para E1 / E2 / E4
+                            </p>
+                            <p className="text-xs text-inegi-gray-medium">
+                              Selecciona la categoría que representará el fenómeno en los indicadores de proporción y evolución.
+                              Actualmente: <span className="font-medium text-inegi-blue-dark">{variableInfo.clasificacion_representativa ?? clases[0]}</span>
+                              {variableInfo.clasificacion_regla && (
+                                <span className="text-inegi-gray-medium"> · automática</span>
+                              )}
+                            </p>
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              <button
+                                type="button"
+                                onClick={() => setClasificacionOverride(null)}
+                                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                                  clasificacionOverride === null
+                                    ? 'bg-inegi-blue-medium text-white border-inegi-blue-medium shadow-sm'
+                                    : 'bg-white text-inegi-gray-medium border-gray-200 hover:border-inegi-blue-medium/50 hover:text-inegi-blue-dark'
+                                }`}
+                              >
+                                Automática
+                              </button>
+                              {clases.map((clase) => (
+                                <button
+                                  key={clase}
+                                  type="button"
+                                  onClick={() => setClasificacionOverride(clase)}
+                                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                                    clasificacionOverride === clase
+                                      ? 'bg-inegi-blue-dark text-white border-inegi-blue-dark shadow-sm'
+                                      : 'bg-inegi-blue-light text-inegi-blue-dark border-inegi-blue-medium/30 hover:border-inegi-blue-medium hover:bg-inegi-blue-medium/10'
+                                  }`}
+                                >
+                                  {clase}
+                                </button>
+                              ))}
+                            </div>
+                            {clasificacionOverride && (
+                              <p className="text-xs text-inegi-green font-medium pt-1">
+                                ✓ Se usará <strong>"{clasificacionOverride}"</strong> como clasificación representativa
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                      <AlertDialogFooter className="mt-4">
+                        <AlertDialogCancel onClick={() => setClasificacionOverride(null)}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleRegenerar(clasificacionOverride ?? undefined)}
+                          className="bg-inegi-blue-medium hover:bg-inegi-blue-dark"
+                        >
                           Regenerar
                         </AlertDialogAction>
                       </AlertDialogFooter>
