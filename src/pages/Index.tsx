@@ -1545,15 +1545,17 @@ const Index = () => {
 
                             {/* Tipo de variable con tooltip de clasificaciones */}
                             {tipoVar && (
-                              <TooltipProvider>
+                              <TooltipProvider delayDuration={0}>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Badge
-                                      variant="outline"
-                                      className="border-inegi-blue-medium/40 text-inegi-blue-dark bg-inegi-blue-light cursor-help"
-                                    >
-                                      {tipoLabel[tipoVar] ?? tipoVar}
-                                    </Badge>
+                                    <span className="inline-flex">
+                                      <Badge
+                                        variant="outline"
+                                        className="border-inegi-blue-medium/40 text-inegi-blue-dark bg-inegi-blue-light cursor-help"
+                                      >
+                                        {tipoLabel[tipoVar] ?? tipoVar}
+                                      </Badge>
+                                    </span>
                                   </TooltipTrigger>
                                    <TooltipContent side="bottom" className="max-w-xs p-3 bg-white border border-gray-200 shadow-xl rounded-lg">
                                      {variableInfo?.clasificaciones && variableInfo.clasificaciones.length > 0 ? (
