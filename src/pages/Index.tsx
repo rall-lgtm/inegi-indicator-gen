@@ -164,6 +164,18 @@ type PropuestasIniciales = {
     subtema: string;
     totalAnios: number;
     años: number[];
+    proceso?: {
+      estatus: string;
+      proceso: string;
+      periodicidad?: string;
+      metodo?: string;
+    };
+    _flags?: {
+      tipo: string;
+    };
+    clasificacion_representativa?: string;
+    clasificacion_regla?: string;
+    viabilidad?: string;
   };
   propuestas: PropuestaIndicador[];
 };
@@ -1347,42 +1359,6 @@ const Index = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {propuesta.viabilidad && (
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100">
-                          <span className="text-xs text-gray-500">Viabilidad</span>
-                          <div className="flex gap-1">
-                            {[1, 2, 3].map(i => (
-                              <div key={i} className={`w-2.5 h-2.5 rounded-full ${
-                                propuesta.viabilidad!.nivel === "Alta" ? "bg-green-600" :
-                                propuesta.viabilidad!.nivel === "Media" && i <= 2 ? "bg-amber-500" :
-                                propuesta.viabilidad!.nivel === "Baja" && i === 1 ? "bg-red-500" : "bg-gray-200"
-                              }`} />
-                            ))}
-                          </div>
-                          <span className={`text-xs font-medium ${
-                            propuesta.viabilidad!.nivel === "Alta" ? "text-green-700" :
-                            propuesta.viabilidad!.nivel === "Media" ? "text-amber-600" : "text-red-600"
-                          }`}>
-                            {propuesta.viabilidad!.nivel}
-                          </span>
-                        </div>
-                        {(propuesta.viabilidad!.nivel === "Media" || propuesta.viabilidad!.nivel === "Baja") && (
-                          <p className={`text-[11px] px-3 py-2 rounded-lg border-l-2 leading-snug ${
-                            propuesta.viabilidad!.nivel === "Media"
-                              ? "bg-amber-50 text-amber-800 border-amber-400"
-                              : "bg-red-50 text-red-800 border-red-400"
-                          }`}>
-                            {propuesta.viabilidad!.nota
-                              ? propuesta.viabilidad!.nota
-                              : propuesta.viabilidad!.nivel === "Media"
-                                ? "Se puede construir con las fuentes disponibles, pero considera las limitaciones antes de continuar."
-                                : "No es posible construirlo con las fuentes actuales disponibles para esta variable."
-                            }
-                          </p>
-                        )}
-                      </div>
-                    )}
                     <div className="flex gap-2 flex-wrap">
                       {propuesta.enfoque_id && (
                         <Badge
@@ -1496,13 +1472,38 @@ const Index = () => {
               return (
                 <div className="animate-fade-in">
                   {/* Sección: Definición */}
-                  {variableInfo && propuestasAcumuladas.length > 0 && (
-                    <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in mb-6">
-                      <CardContent className="pt-6">
-                        <div className="space-y-2">
-                          <p className="text-xs text-inegi-gray-medium uppercase tracking-wider">Definición</p>
-                          <p className="text-inegi-gray-dark font-semibold">{variableInfo.definicion}</p>
-                          <div className="flex flex-wrap gap-2 mt-4">
+                  {variableInfo && propuestasAcumuladas.length > 0 && (() => {
+                    const tipoVar = variableInfo._flags?.tipo;
+                    const tipoLabel: Record<string, string> = {
+                      multicategoria: "Multicategoría",
+                      binaria: "Binaria",
+                      numerica: "Numérica",
+                    };
+                    const estatus = variableInfo.proceso?.estatus;
+                    const estatusColor: Record<string, string> = {
+                      Activo: "bg-green-100 text-green-800 border-green-300",
+                      Inactivo: "bg-red-100 text-red-800 border-red-300",
+                      Histórico: "bg-amber-100 text-amber-800 border-amber-300",
+                    };
+                    const viabilidadNivel = propuestasAcumuladas[0]?.viabilidad?.nivel ?? null;
+                    const reglasLabel: Record<string, string> = {
+                      primera_candidata: "Primera candidata",
+                      mas_frecuente: "Más frecuente",
+                      manual: "Manual",
+                    };
+
+                    return (
+                      <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in mb-6">
+                        <CardContent className="pt-6 space-y-4">
+
+                          {/* Definición */}
+                          <div>
+                            <p className="text-xs text-inegi-gray-medium uppercase tracking-wider mb-1">Definición</p>
+                            <p className="text-inegi-gray-dark font-semibold">{variableInfo.definicion}</p>
+                          </div>
+
+                          {/* Fila 1: tema, subtema, años */}
+                          <div className="flex flex-wrap gap-2">
                             <Badge className="bg-inegi-blue-dark text-white">{variableInfo.tema}</Badge>
                             <Badge className="bg-inegi-blue-medium text-white">{variableInfo.subtema}</Badge>
                             <Badge className="bg-inegi-green text-white">
@@ -1512,10 +1513,78 @@ const Index = () => {
                               {variableInfo.años.join(", ")}
                             </Badge>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+
+                          {/* Divisor */}
+                          <div className="border-t border-inegi-blue-medium/10" />
+
+                          {/* Fila 2: viabilidad + tipo variable + estatus + proceso */}
+                          <div className="flex flex-wrap items-center gap-3">
+
+                            {/* Viabilidad */}
+                            {viabilidadNivel && (
+                              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
+                                <span className="text-xs text-inegi-gray-medium">Viabilidad</span>
+                                <div className="flex gap-1">
+                                  {[1, 2, 3].map(i => (
+                                    <div key={i} className={`w-2.5 h-2.5 rounded-full ${
+                                      viabilidadNivel === "Alta" ? "bg-green-600" :
+                                      viabilidadNivel === "Media" && i <= 2 ? "bg-amber-500" :
+                                      viabilidadNivel === "Baja" && i === 1 ? "bg-red-500" : "bg-gray-200"
+                                    }`} />
+                                  ))}
+                                </div>
+                                <span className={`text-xs font-medium ${
+                                  viabilidadNivel === "Alta" ? "text-green-700" :
+                                  viabilidadNivel === "Media" ? "text-amber-600" : "text-red-600"
+                                }`}>
+                                  {viabilidadNivel}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Tipo de variable */}
+                            {tipoVar && (
+                              <Badge variant="outline" className="border-inegi-blue-medium/40 text-inegi-blue-dark bg-inegi-blue-light">
+                                {tipoLabel[tipoVar] ?? tipoVar}
+                              </Badge>
+                            )}
+
+                            {/* Estatus */}
+                            {estatus && (
+                              <Badge variant="outline" className={`border ${estatusColor[estatus] ?? "bg-gray-100 text-gray-700 border-gray-300"}`}>
+                                {estatus}
+                              </Badge>
+                            )}
+
+                            {/* Proceso de producción */}
+                            {variableInfo.proceso?.proceso && (
+                              <span className="text-xs text-inegi-gray-medium truncate max-w-xs">
+                                <span className="font-medium text-inegi-blue-dark">Proceso: </span>
+                                {variableInfo.proceso.proceso}
+                              </span>
+                            )}
+
+                          </div>
+
+                          {/* Fila 3: clasificación representativa (solo si existe) */}
+                          {variableInfo.clasificacion_representativa && (
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-inegi-blue-light border border-inegi-blue-medium/20">
+                              <span className="text-xs text-inegi-gray-medium">Clasificación representativa:</span>
+                              <span className="text-xs font-semibold text-inegi-blue-dark">
+                                {variableInfo.clasificacion_representativa}
+                              </span>
+                              {variableInfo.clasificacion_regla && (
+                                <span className="text-[10px] text-inegi-gray-medium">
+                                  · {reglasLabel[variableInfo.clasificacion_regla] ?? variableInfo.clasificacion_regla}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                        </CardContent>
+                      </Card>
+                    );
+                  })()}
 
                   {/* Sidebar fijo a la izquierda de la página */}
                   <div className="hidden lg:block fixed left-0 top-20 w-[220px] z-40 h-[calc(100vh-5rem)] overflow-y-auto p-3">
