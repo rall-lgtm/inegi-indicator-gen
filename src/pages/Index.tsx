@@ -176,6 +176,7 @@ type PropuestasIniciales = {
     clasificacion_representativa?: string;
     clasificacion_regla?: string;
     viabilidad?: string;
+    clasificaciones?: Array<{ clase: string }>;
   };
   propuestas: PropuestaIndicador[];
 };
@@ -1498,7 +1499,7 @@ const Index = () => {
 
                           {/* Definición */}
                           <div>
-                            <p className="text-xs text-inegi-gray-medium uppercase tracking-wider mb-1">Definición</p>
+                            <p className="text-sm font-semibold text-inegi-gray-dark uppercase tracking-wider mb-1">Definición</p>
                             <p className="text-inegi-gray-dark font-semibold">{variableInfo.definicion}</p>
                           </div>
 
@@ -1542,11 +1543,36 @@ const Index = () => {
                               </div>
                             )}
 
-                            {/* Tipo de variable */}
+                            {/* Tipo de variable con tooltip de clasificaciones */}
                             {tipoVar && (
-                              <Badge variant="outline" className="border-inegi-blue-medium/40 text-inegi-blue-dark bg-inegi-blue-light">
-                                {tipoLabel[tipoVar] ?? tipoVar}
-                              </Badge>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge
+                                      variant="outline"
+                                      className="border-inegi-blue-medium/40 text-inegi-blue-dark bg-inegi-blue-light cursor-help"
+                                    >
+                                      {tipoLabel[tipoVar] ?? tipoVar}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  {(response as PropuestasIniciales)?.variable?.clasificaciones &&
+                                    (response as PropuestasIniciales).variable.clasificaciones!.length > 0 && (
+                                    <TooltipContent side="bottom" className="max-w-xs p-3 bg-white border border-gray-200 shadow-xl rounded-lg">
+                                      <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">
+                                        Clasificaciones disponibles
+                                      </p>
+                                      <div className="flex flex-col gap-1">
+                                        {(response as PropuestasIniciales).variable.clasificaciones!.map((c, i) => (
+                                          <div key={i} className="flex items-center gap-1.5">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-inegi-blue-medium flex-shrink-0" />
+                                            <span className="text-xs text-gray-700">{c.clase}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </TooltipContent>
+                                  )}
+                                </Tooltip>
+                              </TooltipProvider>
                             )}
 
                             {/* Estatus */}
@@ -1558,7 +1584,7 @@ const Index = () => {
 
                             {/* Proceso de producción */}
                             {variableInfo.proceso?.proceso && (
-                              <span className="text-xs text-inegi-gray-medium truncate max-w-xs">
+                              <span className="text-xs text-inegi-gray-medium">
                                 <span className="font-medium text-inegi-blue-dark">Proceso: </span>
                                 {variableInfo.proceso.proceso}
                               </span>
