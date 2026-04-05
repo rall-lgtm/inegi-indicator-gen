@@ -1189,23 +1189,9 @@ const Index = () => {
                             </p>
                             <p className="text-xs text-inegi-gray-medium">
                               Selecciona la categoría que representará el fenómeno en los indicadores de proporción y evolución.
-                              Actualmente: <span className="font-medium text-inegi-blue-dark">{variableInfo.clasificacion_representativa ?? clases[0]}</span>
-                              {variableInfo.clasificacion_regla && (
-                                <span className="text-inegi-gray-medium"> · automática</span>
-                              )}
+                              Si no seleccionas ninguna, se usará <span className="font-medium text-inegi-blue-dark">{variableInfo.clasificacion_representativa ?? clases[0]}</span> de forma automática.
                             </p>
                             <div className="flex flex-wrap gap-2 pt-1">
-                              <button
-                                type="button"
-                                onClick={() => setClasificacionOverride(null)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                                  clasificacionOverride === null
-                                    ? 'bg-inegi-blue-medium text-white border-inegi-blue-medium shadow-sm'
-                                    : 'bg-white text-inegi-gray-medium border-gray-200 hover:border-inegi-blue-medium/50 hover:text-inegi-blue-dark'
-                                }`}
-                              >
-                                Automática
-                              </button>
                               {clases.map((clase) => (
                                 <button
                                   key={clase}
