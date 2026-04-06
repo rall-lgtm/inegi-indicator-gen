@@ -1212,14 +1212,14 @@ const Index = () => {
                                     key={clase}
                                     className={`flex items-start gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all ${
                                       isSelected
-                                        ? 'border-blue-400 bg-blue-50'
+                                        ? 'border-inegi-blue-medium bg-inegi-blue-light'
                                         : 'border-border bg-secondary hover:border-inegi-blue-medium/40'
                                     }`}
                                   >
                                     <RadioGroupItem value={clase} className="mt-0.5 shrink-0" />
                                     <span className={`text-sm ${
                                       isSelected
-                                        ? 'text-blue-700 font-medium'
+                                        ? 'text-inegi-blue-dark font-medium'
                                         : 'text-foreground'
                                     }`}>
                                       {clase}
