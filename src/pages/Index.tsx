@@ -1156,7 +1156,7 @@ const Index = () => {
                     ) : null}
                   </div>
                 </div>
-                {variableInfo && propuestasAcumuladas.length > 0 && !loadingRegenerando && (
+                {variableInfo && propuestasAcumuladas.length > 0 && !loadingRegenerando && variableInfo._flags?.tipo && ['binaria', 'multicategoria'].includes(variableInfo._flags.tipo) && (
                   <AlertDialog onOpenChange={(open) => {
                     if (open) {
                       // Pre-select current representative classification
