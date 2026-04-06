@@ -1534,11 +1534,6 @@ const Index = () => {
                       Histórico: "bg-amber-100 text-amber-800 border-amber-300",
                     };
                     const viabilidadNivel = propuestasAcumuladas[0]?.viabilidad?.nivel ?? null;
-                    const reglasLabel: Record<string, string> = {
-                      primera_candidata: "Primera candidata",
-                      mas_frecuente: "Más frecuente",
-                      manual: "Manual",
-                    };
 
                     return (
                       <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in mb-6">
@@ -1644,18 +1639,18 @@ const Index = () => {
 
                           </div>
 
-                          {/* Fila 3: clasificación representativa (solo si existe) */}
+                          {/* Fila 3: categoría de análisis (solo si existe) */}
                           {variableInfo.clasificacion_representativa && (
                             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-inegi-blue-light border border-inegi-blue-medium/20">
-                              <span className="text-xs text-inegi-gray-medium">Clasificación representativa:</span>
+                              <span className="text-xs text-inegi-gray-medium">Categoría de análisis:</span>
                               <span className="text-xs font-semibold text-inegi-blue-dark">
                                 {variableInfo.clasificacion_representativa}
                               </span>
-                              {variableInfo.clasificacion_regla && (
-                                <span className="text-[10px] text-inegi-gray-medium">
-                                  · {reglasLabel[variableInfo.clasificacion_regla] ?? variableInfo.clasificacion_regla}
-                                </span>
-                              )}
+                              <span className="text-[10px] text-inegi-gray-medium">
+                                · {variableInfo.clasificacion_regla === "override_usuario"
+                                    ? "Definida manualmente"
+                                    : "Automática"}
+                              </span>
                             </div>
                           )}
 
