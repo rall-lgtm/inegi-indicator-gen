@@ -1580,29 +1580,22 @@ const Index = () => {
                           {/* Divisor */}
                           <div className="border-t border-inegi-blue-medium/10" />
 
-                          {/* Fila 2: viabilidad + tipo variable + estatus + proceso */}
+                          {/* Fila 2: proceso + estatus + tipo variable + viabilidad */}
                           <div className="flex flex-wrap items-center gap-3">
 
-                            {/* Viabilidad */}
-                            {viabilidadNivel && (
-                              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
-                                <span className="text-xs text-inegi-gray-medium">Viabilidad</span>
-                                <div className="flex gap-1">
-                                  {[1, 2, 3].map(i => (
-                                    <div key={i} className={`w-2.5 h-2.5 rounded-full ${
-                                      viabilidadNivel === "Alta" ? "bg-green-600" :
-                                      viabilidadNivel === "Media" && i <= 2 ? "bg-amber-500" :
-                                      viabilidadNivel === "Baja" && i === 1 ? "bg-red-500" : "bg-gray-200"
-                                    }`} />
-                                  ))}
-                                </div>
-                                <span className={`text-xs font-medium ${
-                                  viabilidadNivel === "Alta" ? "text-green-700" :
-                                  viabilidadNivel === "Media" ? "text-amber-600" : "text-red-600"
-                                }`}>
-                                  {viabilidadNivel}
-                                </span>
-                              </div>
+                            {/* Proceso de producción */}
+                            {variableInfo.proceso?.proceso && (
+                              <span className="text-xs text-inegi-gray-medium">
+                                <span className="font-medium text-inegi-blue-dark">Proceso: </span>
+                                {variableInfo.proceso.proceso}
+                              </span>
+                            )}
+
+                            {/* Estatus */}
+                            {estatus && (
+                              <Badge variant="outline" className={`border ${estatusColor[estatus] ?? "bg-gray-100 text-gray-700 border-gray-300"}`}>
+                                {estatus}
+                              </Badge>
                             )}
 
                             {/* Tipo de variable con tooltip de clasificaciones */}
@@ -1642,19 +1635,26 @@ const Index = () => {
                               </TooltipProvider>
                             )}
 
-                            {/* Estatus */}
-                            {estatus && (
-                              <Badge variant="outline" className={`border ${estatusColor[estatus] ?? "bg-gray-100 text-gray-700 border-gray-300"}`}>
-                                {estatus}
-                              </Badge>
-                            )}
-
-                            {/* Proceso de producción */}
-                            {variableInfo.proceso?.proceso && (
-                              <span className="text-xs text-inegi-gray-medium">
-                                <span className="font-medium text-inegi-blue-dark">Proceso: </span>
-                                {variableInfo.proceso.proceso}
-                              </span>
+                            {/* Viabilidad */}
+                            {viabilidadNivel && (
+                              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
+                                <span className="text-xs text-inegi-gray-medium">Viabilidad</span>
+                                <div className="flex gap-1">
+                                  {[1, 2, 3].map(i => (
+                                    <div key={i} className={`w-2.5 h-2.5 rounded-full ${
+                                      viabilidadNivel === "Alta" ? "bg-green-600" :
+                                      viabilidadNivel === "Media" && i <= 2 ? "bg-amber-500" :
+                                      viabilidadNivel === "Baja" && i === 1 ? "bg-red-500" : "bg-gray-200"
+                                    }`} />
+                                  ))}
+                                </div>
+                                <span className={`text-xs font-medium ${
+                                  viabilidadNivel === "Alta" ? "text-green-700" :
+                                  viabilidadNivel === "Media" ? "text-amber-600" : "text-red-600"
+                                }`}>
+                                  {viabilidadNivel}
+                                </span>
+                              </div>
                             )}
 
                           </div>
