@@ -1659,6 +1659,26 @@ const Index = () => {
 
                           </div>
 
+                          {(viabilidadNivel === "Media" || viabilidadNivel === "Baja") && (
+                            <div className={`flex items-start gap-2 rounded-lg px-3 py-2 mt-2 border ${
+                              viabilidadNivel === "Media"
+                                ? "bg-amber-50 border-amber-300"
+                                : "bg-red-50 border-red-300"
+                            }`}>
+                              <span className={`text-sm flex-shrink-0 mt-0.5 ${
+                                viabilidadNivel === "Media" ? "text-amber-600" : "text-red-600"
+                              }`}>ⓘ</span>
+                              <p className={`text-xs leading-relaxed m-0 ${
+                                viabilidadNivel === "Media" ? "text-amber-800" : "text-red-800"
+                              }`}>
+                                {viabilidadNivel === "Media"
+                                  ? "Este proceso ya no genera nuevas ediciones; los indicadores se calcularán únicamente con los datos disponibles."
+                                  : "Esta variable no cuenta con tabulados, microdatos ni datos abiertos disponibles; los indicadores generados tendrán limitaciones importantes para su cálculo."
+                                }
+                              </p>
+                            </div>
+                          )}
+
                           {/* Fila 3: categoría de análisis (solo si existe) */}
                           {variableInfo.clasificacion_representativa && (
                             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-inegi-blue-light border border-inegi-blue-medium/20">
