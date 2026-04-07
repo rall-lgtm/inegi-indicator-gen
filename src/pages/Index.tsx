@@ -1604,13 +1604,6 @@ const Index = () => {
                                 </span>
                               </div>
                             )}
-                            {propuestasAcumuladas[0]?.viabilidad?.nota && (
-                              <p className={`text-xs mt-1 ${
-                                viabilidadNivel === "Media" ? "text-amber-600" : "text-red-600"
-                              }`}>
-                                ⚠ {propuestasAcumuladas[0].viabilidad.nota}
-                              </p>
-                            )}
 
                             {/* Tipo de variable con tooltip de clasificaciones */}
                             {tipoVar && (
