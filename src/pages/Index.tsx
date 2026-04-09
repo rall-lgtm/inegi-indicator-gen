@@ -1447,7 +1447,7 @@ const Index = () => {
                             : "bg-[#E6F1FB] text-[#0C447C]"
                         }`}
                       >
-                        {propuesta.tipo}
+                        {propuesta.enfoque}
                       </Badge>
                     </div>
                     {propuesta.razon_seleccion && (
