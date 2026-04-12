@@ -1387,94 +1387,76 @@ const Index = () => {
                     <p className="text-xs text-inegi-gray-medium uppercase tracking-wider font-semibold">Sugerencia</p>
                     <div className="border border-inegi-blue-medium/20 rounded-lg overflow-hidden">
 
-                      {/* Header con badges según nivel_fuente */}
-                      {response.error.alternativas && response.error.alternativas.length > 0 && (
-                        <div className="flex flex-wrap gap-2 px-3 py-2 bg-inegi-blue-light border-b border-inegi-blue-medium/15">
-                          {response.error.nivel_fuente === 'keyword_activo' && (
-                            <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-800">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-600 inline-block" />
-                              Variables activas con nombre similar
-                            </span>
-                          )}
-                          {response.error.nivel_fuente === 'tema_activo' && (
-                            <>
-                              <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200">
-                                Sin activas con nombre similar
-                              </span>
+                      {/* Texto de sugerencia — siempre visible */}
+                      <div className="flex items-start gap-2.5 px-3 py-3 border-b border-inegi-blue-medium/10">
+                        <p className="text-sm text-inegi-gray-medium leading-relaxed">
+                          {response.error.sugerencia}
+                        </p>
+                      </div>
+
+                      {/* Alternativas — solo cuando nivel_fuente es nivel_a o nivel_b y hay alternativas */}
+                      {(response.error.nivel_fuente === 'nivel_a' || response.error.nivel_fuente === 'nivel_b') &&
+                        response.error.alternativas && response.error.alternativas.length > 0 && (
+                        <>
+                          {/* Badge de nivel */}
+                          <div className="flex flex-wrap gap-2 px-3 py-2 bg-inegi-blue-light border-b border-inegi-blue-medium/15">
+                            {response.error.nivel_fuente === 'nivel_a' && (
                               <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-800">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-600 inline-block" />
-                                Variables activas del mismo tema
+                                Variables alternativas con nombre similar
                               </span>
-                            </>
-                          )}
-                          {response.error.nivel_fuente === 'keyword_fallback' && (
-                            <>
-                              <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200">
-                                Sin activas disponibles
+                            )}
+                            {response.error.nivel_fuente === 'nivel_b' && (
+                              <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
+                                Variables alternativas por similitud conceptual
                               </span>
+                            )}
+                            {/* Aviso si todas son inactivas/históricas */}
+                            {response.error.alternativas_fallback && (
                               <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
-                                Procesos inactivos o históricos con nombre similar
+                                Sin procesos activos disponibles
                               </span>
-                            </>
-                          )}
-                          {response.error.nivel_fuente === 'tema_fallback' && (
-                            <>
-                              <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200">
-                                Sin activas disponibles
-                              </span>
-                              <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
-                                Procesos inactivos o históricos del mismo tema
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Aviso adicional para niveles 3 y 4 (fallback inactivos) */}
-                      {response.error.alternativas_fallback && response.error.alternativas.length > 0 && (
-                        <div className="px-3 py-2 bg-amber-50 border-b border-amber-200 text-xs text-amber-800">
-                          Estas variables no están activas, pero cuentan con serie comparable de al menos 2 años.
-                        </div>
-                      )}
-
-                      {/* Lista de alternativas */}
-                      {response.error.alternativas && response.error.alternativas.length > 0 ? (
-                        <div className="divide-y divide-inegi-blue-medium/10">
-                          {response.error.alternativas.map((alt) => (
-                            <div key={alt.idVar} className="flex items-center gap-3 px-3 py-2.5">
-                              <span className="text-sm font-semibold text-inegi-blue-medium min-w-[90px]">
-                                {alt.idVar}
-                              </span>
-                              <span className="text-sm text-inegi-gray-dark flex-1">
-                                {alt.nombre}
-                              </span>
-                              <span className="text-xs text-inegi-gray-medium whitespace-nowrap">
-                                {alt.totalAnios} años
-                              </span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                                alt.estatus_similar === 'Activo'
-                                  ? 'bg-green-100 text-green-800'
-                                  : alt.estatus_similar === 'Inactivo'
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}>
-                                {alt.estatus_similar}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        /* Sin alternativas — nivel 4 vacío */
-                        <div className="flex items-start gap-2.5 px-3 py-3">
-                          <div className="w-5 h-5 rounded-full border border-inegi-gray-medium/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <span className="text-xs text-inegi-gray-medium">→</span>
+                            )}
                           </div>
-                          <p className="text-sm text-inegi-gray-medium leading-relaxed">
-                            {response.error.sugerencia}
-                          </p>
-                        </div>
+
+                          {/* Lista de alternativas con proceso y clic */}
+                          <div className="divide-y divide-inegi-blue-medium/10">
+                            {response.error.alternativas.map((alt) => (
+                              <button
+                                key={alt.idVar}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-inegi-blue-light transition-colors duration-150"
+                                onClick={() => {
+                                  window.open(`https://inegi-indicator-gen.lovable.app/?idVar=${alt.idVar.toUpperCase().trim()}`, '_blank');
+                                }}
+                              >
+                                <span className="text-sm font-semibold text-inegi-blue-medium min-w-[90px]">
+                                  {alt.idVar}
+                                </span>
+                                <span className="text-sm text-inegi-gray-dark flex-1">
+                                  <span className="font-medium">{alt.nombre}</span>
+                                  {'proceso_nombre' in alt && alt.proceso_nombre && (
+                                    <span className="block text-xs text-inegi-gray-medium mt-0.5">{alt.proceso_nombre}</span>
+                                  )}
+                                </span>
+                                <span className="text-xs text-inegi-gray-medium whitespace-nowrap">
+                                  {alt.totalAnios} años
+                                </span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                                  alt.estatus_similar === 'Activo'
+                                    ? 'bg-green-100 text-green-800'
+                                    : alt.estatus_similar === 'Inactivo'
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {alt.estatus_similar}
+                                </span>
+                                <span className="text-inegi-gray-medium">›</span>
+                              </button>
+                            ))}
+                          </div>
+                        </>
                       )}
 
                     </div>
