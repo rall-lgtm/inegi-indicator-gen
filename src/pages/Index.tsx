@@ -2262,7 +2262,7 @@ const Index = () => {
 
                         // ── PATRÓN 2: Variación porcentual ((A - B) / B) × 100
                         const matchVariacion = formula.match(
-                          /^\(\((.+?)\s*[-−]\s*(.+?)\)\s*\/\s*(.+?)\)\s*[×x\*]\s*100$/i
+                          /\(\((.+?)\s*[-−]\s*(.+?)\)\s*\/\s*(.+?)\)\s*[×x\*]\s*100/i
                         );
 
                         // ── PATRÓN 3: Tasa acumulada CAGR con potencia ^
