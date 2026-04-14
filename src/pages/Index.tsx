@@ -2335,6 +2335,30 @@ const Index = () => {
                           );
                         }
 
+                        // ── PATRÓN 4: Fracción con × Unicode explícito (A / B) × 100
+                        const matchFraccionUnicode = formula.match(
+                          /\((.+?)\s*\/\s*(.+?)\)\s*×\s*100/i
+                        );
+
+                        if (matchFraccionUnicode && !matchFraccion && !matchVariacion && !matchCagr) {
+                          const [, numerador, denominador] = matchFraccionUnicode;
+                          return (
+                            <div className="flex flex-col items-center py-6 gap-2">
+                              <div className="flex items-center gap-4 text-inegi-blue-dark font-medium">
+                                <div className="flex flex-col items-center">
+                                  <span className="font-mono text-sm px-6 pb-2 border-b-2 border-inegi-blue-dark text-center">
+                                    {numerador.trim()}
+                                  </span>
+                                  <span className="font-mono text-sm px-6 pt-2 text-center">
+                                    {denominador.trim()}
+                                  </span>
+                                </div>
+                                <span className="text-xl font-bold">× 100</span>
+                              </div>
+                            </div>
+                          );
+                        }
+
                         // ── FALLBACK: texto plano
                         return (
                           <code className="block p-4 bg-white rounded-lg text-sm font-mono border border-inegi-blue-medium/20 leading-relaxed">
