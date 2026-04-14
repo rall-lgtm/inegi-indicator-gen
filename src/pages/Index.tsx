@@ -1763,21 +1763,23 @@ const Index = () => {
                               <span className="text-xs font-semibold text-inegi-blue-dark">
                                 {variableInfo.clasificacion_representativa}
                               </span>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="text-[10px] text-inegi-gray-medium inline-flex items-center gap-1 cursor-help">
-                                    · {variableInfo.clasificacion_regla === "override_usuario"
-                                        ? "Definida manualmente"
-                                        : "Automática"}
-                                    {variableInfo.justificacion_clasificacion && (
-                                      <span className="text-inegi-gray-medium/60 text-[11px]">ⓘ</span>
-                                    )}
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom" className="max-w-[380px] bg-white text-inegi-gray-dark text-xs leading-relaxed p-3 shadow-md border border-inegi-blue-medium/15 rounded-lg">
-                                  {variableInfo.justificacion_clasificacion || "Sin justificación disponible"}
-                                </TooltipContent>
-                              </Tooltip>
+                              <TooltipProvider delayDuration={0}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="text-[10px] text-inegi-gray-medium inline-flex items-center gap-1 cursor-help">
+                                      · {variableInfo.clasificacion_regla === "override_usuario"
+                                          ? "Definida manualmente"
+                                          : "Automática"}
+                                      {variableInfo.justificacion_clasificacion && (
+                                        <span className="text-inegi-gray-medium/60 text-[11px]">ⓘ</span>
+                                      )}
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="bottom" className="max-w-[380px] bg-white text-inegi-gray-dark text-xs leading-relaxed p-3 shadow-md border border-inegi-blue-medium/15 rounded-lg">
+                                    {variableInfo.justificacion_clasificacion || "Sin justificación disponible"}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </div>
                           )}
 
