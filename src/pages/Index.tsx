@@ -1187,14 +1187,23 @@ const Index = () => {
                         Regenerar
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="max-w-md">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>¿Regenerar propuestas?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Se eliminarán las propuestas de indicadores y las fichas guardadas para <strong>{idVar || idFromUrl?.toUpperCase()}</strong>. Esta acción no se puede deshacer.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
+                    <AlertDialogContent className="max-w-md rounded-2xl border-0 shadow-2xl p-0 overflow-hidden">
+                      {/* Header decorativo */}
+                      <div className="bg-gradient-to-r from-inegi-blue-dark to-inegi-blue-medium px-6 pt-6 pb-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                            <RotateCcw className="w-5 h-5 text-white" />
+                          </div>
+                          <AlertDialogHeader className="space-y-1 flex-1">
+                            <AlertDialogTitle className="text-white text-lg font-bold">¿Regenerar propuestas?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-blue-100/90 text-sm">
+                              Se eliminarán las propuestas de indicadores y las fichas guardadas para <strong className="text-white font-semibold">{idVar || idFromUrl?.toUpperCase()}</strong>. Esta acción no se puede deshacer.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                        </div>
+                      </div>
 
+                      <div className="px-6 pb-6 pt-4">
                       {variableInfo._flags?.tipo && ['binaria', 'multicategoria'].includes(variableInfo._flags.tipo) &&
                        variableInfo.clasificaciones && variableInfo.clasificaciones.length > 0 && (() => {
                         const clases = variableInfo.clasificaciones!
@@ -1203,33 +1212,33 @@ const Index = () => {
                         if (clases.length === 0) return null;
                         const currentRep = variableInfo.clasificacion_representativa ?? clases[0];
                         return (
-                          <div className="mt-3 space-y-2">
+                          <div className="space-y-3 mb-5">
                             <p className="text-sm font-semibold text-inegi-blue-dark">
                               Categoría de análisis
                             </p>
-                            <p className="text-xs text-inegi-gray-medium">
-                              Selecciona la categoría que representará el fenómeno en los indicadores. Si no seleccionas ninguna, se usará <span className="font-medium text-inegi-blue-dark">{currentRep}</span> de forma automática.
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              Selecciona la categoría que representará el fenómeno en los indicadores. Si no seleccionas ninguna, se usará <span className="font-semibold text-inegi-blue-dark italic">{currentRep}</span> de forma automática.
                             </p>
                             <RadioGroup
                               value={clasificacionOverride ?? ""}
                               onValueChange={(val) => setClasificacionOverride(val)}
-                              className="space-y-1.5 pt-1"
+                              className="space-y-2 pt-1 max-h-[260px] overflow-y-auto pr-1"
                             >
                               {clases.map((clase) => {
                                 const isSelected = clasificacionOverride === clase;
                                 return (
                                   <label
                                     key={clase}
-                                    className={`flex items-start gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all ${
+                                    className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
                                       isSelected
-                                        ? 'border-inegi-blue-medium bg-inegi-blue-light'
-                                        : 'border-border bg-secondary hover:border-inegi-blue-medium/40'
+                                        ? 'border-inegi-blue-medium bg-inegi-blue-light shadow-sm shadow-inegi-blue-medium/10'
+                                        : 'border-border bg-background hover:border-inegi-blue-medium/40 hover:bg-secondary/50'
                                     }`}
                                   >
-                                    <RadioGroupItem value={clase} className="mt-0.5 shrink-0" />
-                                    <span className={`text-sm ${
+                                    <RadioGroupItem value={clase} className="shrink-0" />
+                                    <span className={`text-sm leading-snug ${
                                       isSelected
-                                        ? 'text-inegi-blue-dark font-medium'
+                                        ? 'text-inegi-blue-dark font-semibold'
                                         : 'text-foreground'
                                     }`}>
                                       {clase}
@@ -1242,19 +1251,25 @@ const Index = () => {
                         );
                       })()}
 
-                      <AlertDialogFooter className="mt-4">
-                        <AlertDialogCancel onClick={() => setClasificacionOverride(null)}>Cancelar</AlertDialogCancel>
+                      <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+                        <AlertDialogCancel
+                          onClick={() => setClasificacionOverride(null)}
+                          className="flex-1 rounded-xl h-11 border-2 font-medium hover:bg-secondary"
+                        >
+                          Cancelar
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => {
                             const currentRep = variableInfo?.clasificacion_representativa ?? null;
                             const changed = clasificacionOverride && clasificacionOverride !== currentRep;
                             handleRegenerar(changed ? clasificacionOverride : undefined);
                           }}
-                          className="bg-inegi-blue-medium hover:bg-inegi-blue-dark"
+                          className="flex-1 rounded-xl h-11 bg-inegi-blue-medium hover:bg-inegi-blue-dark font-medium shadow-lg shadow-inegi-blue-medium/25"
                         >
                           Regenerar
                         </AlertDialogAction>
                       </AlertDialogFooter>
+                      </div>
                     </AlertDialogContent>
                   </AlertDialog>
                 )}
