@@ -2069,8 +2069,8 @@ const Index = () => {
                           );
                         })()}
 
-                        {/* Propuesta Personalizada */}
-                        <Card className="border-inegi-green/30 bg-gradient-to-r from-inegi-green/5 to-inegi-blue-light">
+                        {/* Propuesta Personalizada - Oculto temporalmente */}
+                        {false && <Card className="border-inegi-green/30 bg-gradient-to-r from-inegi-green/5 to-inegi-blue-light">
                           <CardContent className="pt-4 pb-4">
                             {!mostrarInputPersonalizado ? (
                               <Button
