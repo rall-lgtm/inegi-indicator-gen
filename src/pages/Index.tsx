@@ -2082,8 +2082,40 @@ const Index = () => {
               );
             })()}
 
+          </div>
+        )}
 
-                  {/* Objetivo e importancia */}
+        {/* Modal de Ficha Metodológica */}
+        <Dialog open={isModalOpen} onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) setIsModalExpanded(false);
+        }}>
+          <DialogContent className={`${isModalExpanded ? 'max-w-[95vw] max-h-[95vh]' : 'max-w-4xl max-h-[90vh]'} p-0 overflow-hidden transition-all duration-300`}>
+            <DialogHeader className="bg-inegi-blue-dark text-white p-6">
+              <div className="flex items-center justify-between">
+                <DialogTitle className="flex items-center gap-3 text-2xl">
+                  <FileText className="w-8 h-8" />
+                  Ficha Metodológica del Indicador
+                </DialogTitle>
+                <button
+                  onClick={() => setIsModalExpanded(!isModalExpanded)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  title={isModalExpanded ? "Reducir" : "Expandir"}
+                >
+                  {isModalExpanded ? (
+                    <Minimize2 className="w-5 h-5" />
+                  ) : (
+                    <Maximize2 className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </DialogHeader>
+            <ScrollArea className={`${isModalExpanded ? 'h-[calc(95vh-8rem)]' : 'h-[calc(90vh-8rem)]'} p-6`}>
+              {fichaMetodologica && (
+                <div className="space-y-6" id="contenido-ficha" ref={fichaModalRef}>
+                  {/* Header de la ficha */}
+
+
                   <Card className="border-inegi-blue-medium/20">
                     <CardHeader className="bg-inegi-blue-light">
                       <CardTitle className="text-inegi-blue-dark">Objetivo del Indicador</CardTitle>
