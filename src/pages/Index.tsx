@@ -2069,125 +2069,13 @@ const Index = () => {
                           );
                         })()}
 
-                        {/* Propuesta Personalizada */}
+                        {/* Propuesta Personalizada - Oculto temporalmente
                         <Card className="border-inegi-green/30 bg-gradient-to-r from-inegi-green/5 to-inegi-blue-light">
                           <CardContent className="pt-4 pb-4">
-                            {!mostrarInputPersonalizado ? (
-                              <Button
-                                onClick={() => setMostrarInputPersonalizado(true)}
-                                variant="outline"
-                                className="w-full border-inegi-green text-inegi-green hover:bg-inegi-green hover:text-white"
-                                size="lg"
-                              >
-                                <Sparkles className="w-5 h-5 mr-2" />
-                                Crear Propuesta Personalizada
-                              </Button>
-                            ) : (
-                              <div className="space-y-4">
-                                <div className="flex items-center gap-2 text-inegi-green">
-                                  <PenLine className="w-5 h-5" />
-                                  <h4 className="font-semibold">Propuesta Personalizada</h4>
-                                </div>
-                                <p className="text-sm text-inegi-gray-medium">
-                                  Escribe el nombre del indicador que deseas crear. El sistema generará automáticamente la descripción y ficha metodológica.
-                                </p>
-                                <div className="flex gap-2">
-                                  <Input
-                                    type="text"
-                                    placeholder="Ej: Tasa de reciclaje de residuos sólidos"
-                                    value={nombrePersonalizado}
-                                    onChange={(e) => {
-                                      setNombrePersonalizado(e.target.value);
-                                      if (errorValidacion) setErrorValidacion(null);
-                                    }}
-                                    disabled={loading}
-                                    className="flex-1 border-inegi-green/30 focus:border-inegi-green focus:ring-inegi-green"
-                                  />
-                                  <Button
-                                    onClick={handlePersonalizado}
-                                    disabled={loading || nombrePersonalizado.trim().length < 3}
-                                    className="bg-inegi-green hover:bg-inegi-green/90 text-white"
-                                  >
-                                    {loading ? (
-                                      <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                      <>
-                                        <Sparkles className="w-4 h-4 mr-2" />
-                                        Generar
-                                      </>
-                                    )}
-                                  </Button>
-                                </div>
-                                
-                                {/* Error de validación */}
-                                {errorValidacion && (
-                                  <Card className="border-red-300 bg-red-50">
-                                    <CardHeader className="pb-2">
-                                      <CardTitle className="text-red-700 text-base flex items-center gap-2">
-                                        <AlertCircle className="w-5 h-5" />
-                                        {errorValidacion.error.codigo.replace(/_/g, ' ')}
-                                      </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3 text-sm">
-                                      <p className="text-red-700 font-medium">{errorValidacion.error.mensaje}</p>
-                                      
-                                      <div className="space-y-1">
-                                        <p className="text-inegi-gray-dark"><span className="font-semibold">Nombre recibido:</span> {errorValidacion.error.nombre_recibido}</p>
-                                        <p className="text-inegi-gray-medium">{errorValidacion.error.razon}</p>
-                                      </div>
-                                      
-                                      {errorValidacion.error.sugerencias && errorValidacion.error.sugerencias.length > 0 && (
-                                        <div className="space-y-1">
-                                          <p className="font-semibold text-inegi-gray-dark">Sugerencias:</p>
-                                          <ul className="list-none space-y-1 text-inegi-gray-medium">
-                                            {errorValidacion.error.sugerencias.map((sugerencia, idx) => (
-                                              <li key={idx} className={idx === 0 ? "" : "pl-2"}>{sugerencia}</li>
-                                            ))}
-                                          </ul>
-                                        </div>
-                                      )}
-                                      
-                                      {errorValidacion.error.ejemplos_contextuales && errorValidacion.error.ejemplos_contextuales.length > 0 && (
-                                        <div className="space-y-1">
-                                          <p className="font-semibold text-inegi-gray-dark">Ejemplos contextuales:</p>
-                                          <ul className="list-disc list-inside space-y-1 text-inegi-gray-medium">
-                                            {errorValidacion.error.ejemplos_contextuales.map((ejemplo, idx) => (
-                                              <li key={idx}>{ejemplo}</li>
-                                            ))}
-                                          </ul>
-                                        </div>
-                                      )}
-                                      
-                                      {errorValidacion.variable && (
-                                        <div className="pt-2 border-t border-red-200">
-                                          <p className="text-xs text-inegi-gray-medium">
-                                            Variable: <span className="font-medium">{errorValidacion.variable.nombre}</span> ({errorValidacion.variable.idVar})
-                                          </p>
-                                          <p className="text-xs text-inegi-gray-medium">
-                                            Tema: {errorValidacion.variable.tema} / {errorValidacion.variable.subtema}
-                                          </p>
-                                        </div>
-                                      )}
-                                    </CardContent>
-                                  </Card>
-                                )}
-                                
-                                <Button
-                                  onClick={() => {
-                                    setMostrarInputPersonalizado(false);
-                                    setNombrePersonalizado("");
-                                    setErrorValidacion(null);
-                                  }}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-inegi-gray-medium hover:text-inegi-blue-dark"
-                                >
-                                  Cancelar
-                                </Button>
-                              </div>
-                            )}
+                            ...
                           </CardContent>
                         </Card>
+                        */}
                     </div>
                   </div>
                 </div>
@@ -2226,20 +2114,8 @@ const Index = () => {
               {fichaMetodologica && (
                 <div className="space-y-6" id="contenido-ficha" ref={fichaModalRef}>
                   {/* Header de la ficha */}
-                  <Card className="border-inegi-blue-medium border-2 bg-inegi-blue-light">
-                    <CardHeader>
-                      <div>
-                        <CardTitle className="text-xl text-inegi-blue-dark">
-                          {fichaMetodologica.indicador.nombre}
-                        </CardTitle>
-                        <Badge className="mt-2 bg-inegi-green text-white">
-                          {fichaMetodologica.indicador.siglas}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                  </Card>
 
-                  {/* Objetivo e importancia */}
+
                   <Card className="border-inegi-blue-medium/20">
                     <CardHeader className="bg-inegi-blue-light">
                       <CardTitle className="text-inegi-blue-dark">Objetivo del Indicador</CardTitle>
