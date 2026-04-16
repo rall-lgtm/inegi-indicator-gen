@@ -2076,6 +2076,11 @@ const Index = () => {
                           </CardContent>
                         </Card>
                         */}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
                   {/* Objetivo e importancia */}
                   <Card className="border-inegi-blue-medium/20">
