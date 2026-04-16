@@ -2126,6 +2126,7 @@ const Index = () => {
                       </p>
                     </div>
                   )}
+                  <Card className="border-inegi-blue-medium/20">
                     <CardHeader className="bg-inegi-blue-light">
                       <CardTitle className="text-inegi-blue-dark">Objetivo del Indicador</CardTitle>
                     </CardHeader>
