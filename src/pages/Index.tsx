@@ -2115,7 +2115,17 @@ const Index = () => {
                 <div className="space-y-6" id="contenido-ficha" ref={fichaModalRef}>
                   {/* Header de la ficha */}
 
-
+                  {/* Nombre y sigla del indicador */}
+                  {fichaMetodologica.indicador && (
+                    <div className="border-l-4 border-inegi-blue-dark bg-inegi-blue-light px-4 py-3 rounded-r-lg">
+                      <p className="text-xs font-semibold text-inegi-blue-medium uppercase tracking-widest mb-1">
+                        {fichaMetodologica.indicador.siglas}
+                      </p>
+                      <p className="text-lg font-semibold text-inegi-blue-dark leading-snug">
+                        {fichaMetodologica.indicador.nombre}
+                      </p>
+                    </div>
+                  )}
                   <Card className="border-inegi-blue-medium/20">
                     <CardHeader className="bg-inegi-blue-light">
                       <CardTitle className="text-inegi-blue-dark">Objetivo del Indicador</CardTitle>
