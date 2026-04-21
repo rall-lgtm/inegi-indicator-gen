@@ -186,7 +186,10 @@ type PropuestasIniciales = {
     clasificacion_representativa?: string;
     clasificacion_regla?: string;
     justificacion_clasificacion?: string;
-    viabilidad?: string;
+    viabilidad?: {
+      nivel: "Alta" | "Media" | "Baja";
+      nota?: string;
+    };
     clasificaciones?: Array<{ clase: string }>;
   };
   propuestas: PropuestaIndicador[];
@@ -1645,7 +1648,7 @@ const Index = () => {
                       Inactivo: "bg-red-100 text-red-800 border-red-300",
                       Histórico: "bg-amber-100 text-amber-800 border-amber-300",
                     };
-                    const viabilidadNivel = propuestasAcumuladas[0]?.viabilidad?.nivel ?? null;
+                    const viabilidadNivel = (response as PropuestasIniciales)?.variable?.viabilidad?.nivel ?? null;
 
                     return (
                       <Card className="shadow-lg border-l-4 border-l-inegi-blue-medium animate-fade-in mb-6">
