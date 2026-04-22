@@ -285,6 +285,7 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const idFromUrl = searchParams.get("idVar") || searchParams.get("id");
+  const enfoqueFromUrl = searchParams.get("enfoque");
   
   const [idVar, setIdVar] = useState("");
   const [loading, setLoading] = useState(false);
@@ -323,11 +324,20 @@ const Index = () => {
         const runQuery = async () => {
           setLoading(true);
           try {
-            const body = {
-              idVar: cleaned,
-              sessionId,
-              accion: "iniciar",
-            };
+            const tieneEnfoque = enfoqueFromUrl !== undefined && enfoqueFromUrl !== null && enfoqueFromUrl !== "";
+
+            const body = tieneEnfoque
+              ? {
+                  idVar: cleaned,
+                  sessionId,
+                  accion: "generar_propuesta_enfoque",
+                  enfoque: enfoqueFromUrl === "null" ? null : enfoqueFromUrl,
+                }
+              : {
+                  idVar: cleaned,
+                  sessionId,
+                  accion: "iniciar",
+                };
 
             const res = await fetch(API_URL, {
               method: "POST",
@@ -1944,8 +1954,15 @@ const Index = () => {
                               </p>
                               <div className="flex-1 h-px bg-inegi-blue-medium/15" />
                             </div>
-                            <div className="grid gap-4 md:grid-cols-2">
-                              {propuestasIniciales.map((propuesta, index) => renderCard(propuesta, index, true))}
+                            <div className={enfoqueFromUrl
+                              ? "flex justify-center"
+                              : "grid gap-4 md:grid-cols-2"
+                            }>
+                              {propuestasIniciales.map((propuesta, index) => (
+                                <div key={propuesta.id} className={enfoqueFromUrl ? "w-full max-w-2xl" : ""}>
+                                  {renderCard(propuesta, index, true)}
+                                </div>
+                              ))}
                             </div>
                           </>
                         )}
