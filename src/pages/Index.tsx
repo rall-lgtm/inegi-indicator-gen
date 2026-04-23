@@ -1179,7 +1179,7 @@ const Index = () => {
                     ) : null}
                   </div>
                 </div>
-                {variableInfo && propuestasAcumuladas.length > 0 && !loadingRegenerando && variableInfo._flags?.tipo && ['binaria', 'multicategoria'].includes(variableInfo._flags.tipo) && !(enfoqueFromUrl && enfoqueFromUrl !== 'null') && (
+                {variableInfo && propuestasAcumuladas.length > 0 && !loadingRegenerando && variableInfo._flags?.tipo && ['binaria', 'multicategoria'].includes(variableInfo._flags.tipo) && !(['E5', 'E9', 'E10'].includes(enfoqueFromUrl ?? '')) && (
                   <AlertDialog onOpenChange={(open) => {
                     if (open) {
                       // Pre-select current representative classification
