@@ -1948,18 +1948,20 @@ const Index = () => {
                         {/* Propuestas iniciales */}
                         {propuestasIniciales.length > 0 && (
                           <>
-                            <div className="flex items-center gap-3 mb-4">
-                              <p className="text-xs font-semibold uppercase tracking-widest text-inegi-gray-medium">
-                                Propuestas iniciales
-                              </p>
-                              <div className="flex-1 h-px bg-inegi-blue-medium/15" />
-                            </div>
-                            <div className={enfoqueFromUrl
+                            {!(enfoqueFromUrl && enfoqueFromUrl !== 'null') && (
+                              <div className="flex items-center gap-3 mb-4">
+                                <p className="text-xs font-semibold uppercase tracking-widest text-inegi-gray-medium">
+                                  Propuestas iniciales
+                                </p>
+                                <div className="flex-1 h-px bg-inegi-blue-medium/15" />
+                              </div>
+                            )}
+                            <div className={enfoqueFromUrl && enfoqueFromUrl !== 'null'
                               ? "flex justify-center"
                               : "grid gap-4 md:grid-cols-2"
                             }>
                               {propuestasIniciales.map((propuesta, index) => (
-                                <div key={propuesta.id} className={enfoqueFromUrl ? "w-full max-w-2xl" : ""}>
+                                <div key={propuesta.id} className={enfoqueFromUrl && enfoqueFromUrl !== 'null' ? "w-full" : ""}>
                                   {renderCard(propuesta, index, true)}
                                 </div>
                               ))}
