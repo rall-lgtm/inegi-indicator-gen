@@ -662,28 +662,12 @@ const Index = () => {
     }
   };
 
-  const handleRegenerar = async (clasificacionOverrideVal?: string) => {
+const handleRegenerar = async (clasificacionOverrideVal?: string) => {
     setLoadingRegenerando(true);
     const idVarFinal = idVar.toUpperCase() || idFromUrl?.toUpperCase() || '';
     const esModoPorEnfoque = !!(enfoqueFromUrl && enfoqueFromUrl !== 'null');
 
     try {
-      // Determinar qué cache key borrar según el modo
-      const cacheBody = esModoPorEnfoque
-        ? { idVar: idVarFinal, enfoque: enfoqueFromUrl }  // borra solo propuesta_enfoque:XXXX:EY
-        : { idVar: idVarFinal };                           // borra todo (comportamiento actual)
-
-      const cacheRes = await fetch("https://n8n.fmoreno.com.mx/webhook/limpiar-cache", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cacheBody),
-      });
-      const cacheData = await cacheRes.json();
-      if (!cacheData.success) {
-        toast({ title: "Error", description: "No se pudo limpiar el caché", variant: "destructive" });
-        return;
-      }
-
       setPropuestasAcumuladas([]);
       setMostrandoTodas(false);
       setNumPropuestasIniciales(0);
@@ -696,17 +680,17 @@ const Index = () => {
         const extras = clasificacionOverrideVal
           ? { clasificacion_override: clasificacionOverrideVal }
           : {};
-        await enviarConsulta("generar_propuesta_enfoque", {
-          enfoque: enfoqueFromUrl,
-          ...extras,
-        });
+        await enviarConsulta(
+          clasificacionOverrideVal ? "generar_propuesta_enfoque_manual" : "generar_propuesta_enfoque",
+          { enfoque: enfoqueFromUrl, ...extras }
+        );
         toast({ title: "Regenerado", description: "La propuesta de enfoque se ha regenerado con la nueva clasificación." });
       } else {
         // Modo normal: regenerar propuestas iniciales
         const extras = clasificacionOverrideVal
           ? { clasificacion_override: clasificacionOverrideVal }
           : {};
-        await enviarConsulta("iniciar", extras);
+        await enviarConsulta(clasificacionOverrideVal ? "iniciar_manual" : "iniciar", extras);
         toast({ title: "Regenerado", description: "Las propuestas iniciales se han regenerado correctamente." });
       }
     } catch (error) {
