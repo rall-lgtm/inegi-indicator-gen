@@ -460,6 +460,9 @@ const Index = () => {
       if (data.tipo === 'propuestas_adicionales') {
         setPropuestasAcumuladas(prev => [...prev, ...(data.propuestas || [])]);
         setMostrandoTodas(true);
+        if (data.variable) {
+          setVariableInfo(data.variable);
+        }
       }
 
       // Scroll al resultado
