@@ -589,6 +589,11 @@ const Index = () => {
   const handleSeleccionar = async (propuesta: PropuestaIndicador, varianteSeleccionada?: string) => {
     setLoadingPropuestaId(propuesta.id);
     try {
+      const overrideActivo = clasificacionOverride ||
+        (variableInfo?.clasificacion_regla === "override_usuario"
+          ? variableInfo?.clasificacion_representativa
+          : null);
+
       const body = {
         idVar: idVar.toUpperCase(),
         sessionId,
@@ -596,6 +601,7 @@ const Index = () => {
         propuestaId: propuesta.id,
         nombrePropuesta: propuesta.nombre,
         varianteSeleccionada: varianteSeleccionada ?? propuesta.variante_usada ?? null,
+        ...(overrideActivo ? { clasificacion_override: overrideActivo } : {}),
       };
 
       const res = await fetch(API_URL, {
@@ -632,6 +638,11 @@ const Index = () => {
     const key = `${propuesta.id}-${variante}`;
     setLoadingVarianteKey(key);
     try {
+      const overrideActivo = clasificacionOverride ||
+        (variableInfo?.clasificacion_regla === "override_usuario"
+          ? variableInfo?.clasificacion_representativa
+          : null);
+
       const body = {
         idVar: idVar.toUpperCase(),
         sessionId,
@@ -639,6 +650,7 @@ const Index = () => {
         propuestaId: propuesta.id,
         nombrePropuesta: propuesta.nombre,
         varianteSeleccionada: variante,
+        ...(overrideActivo ? { clasificacion_override: overrideActivo } : {}),
       };
 
       const res = await fetch(API_URL, {
