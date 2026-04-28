@@ -604,6 +604,7 @@ const Index = () => {
         propuestaId: propuesta.id,
         nombrePropuesta: propuesta.nombre,
         varianteSeleccionada: varianteSeleccionada ?? propuesta.variante_usada ?? null,
+        enfoque: propuesta.enfoque_id ?? "",
         ...(overrideActivo ? { clasificacion_override: overrideActivo } : {}),
       };
 
@@ -653,6 +654,7 @@ const Index = () => {
         propuestaId: propuesta.id,
         nombrePropuesta: propuesta.nombre,
         varianteSeleccionada: variante,
+        enfoque: propuesta.enfoque_id ?? "",
         ...(overrideActivo ? { clasificacion_override: overrideActivo } : {}),
       };
 
