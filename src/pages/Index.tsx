@@ -496,9 +496,15 @@ const Index = () => {
   const handleMasOpciones = async () => {
     setLoadingMasOpciones(true);
     try {
-      const extras = clasificacionOverride
-        ? { clasificacion_override: clasificacionOverride }
+      const overrideActivo = clasificacionOverride ||
+        (variableInfo?.clasificacion_regla === "override_usuario"
+          ? variableInfo?.clasificacion_representativa
+          : null);
+
+      const extras = overrideActivo
+        ? { clasificacion_override: overrideActivo }
         : {};
+
       await enviarConsulta("mas_opciones", extras);
     } finally {
       setLoadingMasOpciones(false);
