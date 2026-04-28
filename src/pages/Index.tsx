@@ -496,7 +496,10 @@ const Index = () => {
   const handleMasOpciones = async () => {
     setLoadingMasOpciones(true);
     try {
-      await enviarConsulta("mas_opciones");
+      const extras = clasificacionOverride
+        ? { clasificacion_override: clasificacionOverride }
+        : {};
+      await enviarConsulta("mas_opciones", extras);
     } finally {
       setLoadingMasOpciones(false);
     }
