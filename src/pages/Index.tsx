@@ -1820,7 +1820,7 @@ const handleRegenerar = async (clasificacionOverrideVal?: string) => {
                           {/* Fila 3: categoría de análisis (solo si existe) */}
                           {variableInfo.clasificacion_representativa && (
                             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-inegi-blue-light border border-inegi-blue-medium/20">
-                              <span className="text-xs text-inegi-gray-medium">Categoría de análisis:</span>
+                              <span className="text-xs text-inegi-gray-medium">Clase de análisis:</span>
                               <span className="text-xs font-semibold text-inegi-blue-dark">
                                 {variableInfo.clasificacion_representativa}
                               </span>
