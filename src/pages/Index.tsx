@@ -605,6 +605,7 @@ const Index = () => {
         nombrePropuesta: propuesta.nombre,
         varianteSeleccionada: varianteSeleccionada ?? propuesta.variante_usada ?? null,
         enfoque: propuesta.enfoque_id ?? "",
+        enfoqueId: propuesta.enfoque_id ?? "",
         ...(overrideActivo ? { clasificacion_override: overrideActivo } : {}),
       };
 
@@ -655,6 +656,7 @@ const Index = () => {
         nombrePropuesta: propuesta.nombre,
         varianteSeleccionada: variante,
         enfoque: propuesta.enfoque_id ?? "",
+        enfoqueId: propuesta.enfoque_id ?? "",
         ...(overrideActivo ? { clasificacion_override: overrideActivo } : {}),
       };
 
@@ -2762,7 +2764,7 @@ const handleRegenerar = async (clasificacionOverrideVal?: string) => {
                       className="flex-1 bg-inegi-green hover:bg-[#5A8E31] text-white"
                       size="lg"
                       onClick={async () => {
-                        const contenido = document.querySelector('#contenido-ficha') as HTMLElement | null;
+                        const contenido = fichaModalRef.current;
                         if (!contenido || !fichaMetodologica) return;
                         let wrapper: HTMLDivElement | null = null;
                         try {
