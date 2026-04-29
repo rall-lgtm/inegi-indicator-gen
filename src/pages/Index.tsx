@@ -1243,7 +1243,7 @@ const handleRegenerar = async (clasificacionOverrideVal?: string) => {
                           <AlertDialogHeader className="space-y-1 flex-1">
                             <AlertDialogTitle className="text-white text-lg font-bold">¿Regenerar propuestas?</AlertDialogTitle>
                             <AlertDialogDescription className="text-blue-100/90 text-sm">
-                              Se eliminarán las propuestas de indicadores y las fichas guardadas para <strong className="text-white font-semibold">{idVar || idFromUrl?.toUpperCase()}</strong>. Esta acción no se puede deshacer.
+                              Se generarán nuevas propuestas para <strong className="text-white font-semibold">{idVar || idFromUrl?.toUpperCase()}</strong> con la clase seleccionada.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                         </div>
@@ -1260,10 +1260,10 @@ const handleRegenerar = async (clasificacionOverrideVal?: string) => {
                         return (
                           <div className="space-y-3 mb-5">
                             <p className="text-sm font-semibold text-inegi-blue-dark">
-                              Categoría de análisis
+                              Clase de análisis
                             </p>
                             <p className="text-xs text-muted-foreground leading-relaxed">
-                              Selecciona la categoría que representará el fenómeno en los indicadores. Si no seleccionas ninguna, se usará <span className="font-semibold text-inegi-blue-dark italic">{currentRep}</span> de forma automática.
+                              Selecciona la clase que representará el fenómeno en los indicadores. Si no seleccionas ninguna, se usará <span className="font-semibold text-inegi-blue-dark italic">{currentRep}</span> de forma automática.
                             </p>
                             <RadioGroup
                               value={clasificacionOverride ?? ""}
