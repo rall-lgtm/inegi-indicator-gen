@@ -148,15 +148,15 @@ const CATALOGO_ENFOQUES = [
 
 const CATALOGO_ENFOQUES_DETALLE: Record<string, { nombreCompleto: string; queMide: string; requiere: string }> = {
   E1: { nombreCompleto: "Proporción/Cobertura", queMide: "El porcentaje de casos que presentan un atributo respecto al total del universo.", requiere: "Variable categórica o binaria con clasificaciones definidas y total del universo." },
-  E2: { nombreCompleto: "Evolución temporal", queMide: "El cambio porcentual de una variable entre períodos consecutivos.", requiere: "Serie de tiempo con al menos 2 años de datos comparables." },
-  E3: { nombreCompleto: "Comparativo geográfico", queMide: "Las diferencias en la ocurrencia de un fenómeno entre regiones o entidades.", requiere: "Desagregación geográfica en tabulados o microdatos." },
-  E4: { nombreCompleto: "Tasa de cambio acumulada", queMide: "El cambio porcentual total entre el año más antiguo y el más reciente de la serie.", requiere: "Serie de tiempo con al menos 3 años de datos comparables." },
-  E5: { nombreCompleto: "Comparativo por categoría", queMide: "La distribución de un fenómeno cruzado con otra variable categórica.", requiere: "Variable con 3 o más clasificaciones, o desglose por categorías en tabulados." },
+  E2: { nombreCompleto: "Tendencia temporal", queMide: "El cambio porcentual de una variable entre períodos consecutivos.", requiere: "Serie de tiempo con al menos 2 años de datos comparables." },
+  E3: { nombreCompleto: "Distribución por entidad", queMide: "Las diferencias en la ocurrencia de un fenómeno entre regiones o entidades.", requiere: "Desagregación geográfica en tabulados o microdatos." },
+  E4: { nombreCompleto: "Variación acumulada", queMide: "El cambio porcentual total entre el año más antiguo y el más reciente de la serie.", requiere: "Serie de tiempo con al menos 3 años de datos comparables." },
+  E5: { nombreCompleto: "Distribución por categoría", queMide: "La distribución de un fenómeno cruzado con otra variable categórica.", requiere: "Variable con 3 o más clasificaciones, o desglose por categorías en tabulados." },
   E6: { nombreCompleto: "Brecha sexo/edad", queMide: "Las diferencias en la ocurrencia entre grupos de sexo o rangos de edad.", requiere: "Universo que incluya personas, o desglose por sexo/edad en tabulados o microdatos de personas." },
   E7: { nombreCompleto: "Brecha socioeconómica", queMide: "Las diferencias en la ocurrencia entre grupos de distinto nivel socioeconómico.", requiere: "Desglose por ingreso o decil en tabulados, o microdatos de hogares disponibles." },
   E8: { nombreCompleto: "Concentración", queMide: "El grado en que un fenómeno se concentra en un subgrupo o territorio específico.", requiere: "Desagregación geográfica en tabulados o microdatos." },
   E9: { nombreCompleto: "Composición", queMide: "La estructura porcentual interna de un fenómeno según sus categorías.", requiere: "Variable con múltiples categorías (3 o más) excluyentes que sumen el total." },
-  E10: { nombreCompleto: "Intensidad/magnitud", queMide: "El promedio, total o valor per cápita del fenómeno por unidad de análisis.", requiere: "Variable numérica continua, sin clasificaciones categóricas definidas." },
+  E10: { nombreCompleto: "Promedio/Intensidad", queMide: "El promedio, total o valor per cápita del fenómeno por unidad de análisis.", requiere: "Variable numérica continua, sin clasificaciones categóricas definidas." },
 };
 
 type PropuestasIniciales = {
