@@ -135,15 +135,15 @@ type PropuestaIndicador = {
 
 const CATALOGO_ENFOQUES = [
   { id: "E1", nombre: "Proporción", descripcion: "% con el evento" },
-  { id: "E2", nombre: "Evolución temporal", descripcion: "Cambio entre períodos" },
-  { id: "E3", nombre: "Comp. geográfico", descripcion: "Diferencias por región" },
-  { id: "E4", nombre: "Tasa acumulada", descripcion: "Cambio total del período" },
-  { id: "E5", nombre: "Comp. por categoría", descripcion: "Entre categorías" },
+  { id: "E2", nombre: "Tendencia", descripcion: "Cambio entre períodos" },
+  { id: "E3", nombre: "Dist. por entidad", descripcion: "Diferencias por región" },
+  { id: "E4", nombre: "Variación acumulada", descripcion: "Cambio total del período" },
+  { id: "E5", nombre: "Dist. por categoría", descripcion: "Entre categorías" },
   { id: "E6", nombre: "Brecha sexo/edad", descripcion: "Hombre vs mujer" },
   { id: "E7", nombre: "Brecha socioecon.", descripcion: "Por ingreso o decil" },
   { id: "E8", nombre: "Concentración", descripcion: "En subgrupo o territorio" },
   { id: "E9", nombre: "Composición", descripcion: "Estructura porcentual" },
-  { id: "E10", nombre: "Intensidad", descripcion: "Promedio per cápita" },
+  { id: "E10", nombre: "Promedio", descripcion: "Promedio per cápita" },
 ];
 
 const CATALOGO_ENFOQUES_DETALLE: Record<string, { nombreCompleto: string; queMide: string; requiere: string }> = {
