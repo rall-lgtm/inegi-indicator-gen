@@ -156,7 +156,7 @@ const CATALOGO_ENFOQUES_DETALLE: Record<string, { nombreCompleto: string; queMid
   E7: { nombreCompleto: "Brecha socioeconómica", queMide: "Las diferencias en la ocurrencia entre grupos de distinto nivel socioeconómico.", requiere: "Desglose por ingreso o decil en tabulados, o microdatos de hogares disponibles." },
   E8: { nombreCompleto: "Concentración", queMide: "El grado en que un fenómeno se concentra en un subgrupo o territorio específico.", requiere: "Desagregación geográfica en tabulados o microdatos." },
   E9: { nombreCompleto: "Composición", queMide: "La estructura porcentual interna de un fenómeno según sus categorías.", requiere: "Variable con múltiples categorías (3 o más) excluyentes que sumen el total." },
-  E10: { nombreCompleto: "Promedio/Intensidad", queMide: "El promedio, total o valor per cápita del fenómeno por unidad de análisis.", requiere: "Variable numérica continua, sin clasificaciones categóricas definidas." }, "El promedio, total o valor per cápita del fenómeno por unidad de análisis.", requiere: "Variable numérica continua, sin clasificaciones categóricas definidas." },
+  E10: { nombreCompleto: "Promedio/Intensidad", queMide: "El promedio, total o valor per cápita del fenómeno por unidad de análisis.", requiere: "Variable numérica continua, sin clasificaciones categóricas definidas." },
 };
 
 type PropuestasIniciales = {
