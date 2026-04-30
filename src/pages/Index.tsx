@@ -136,7 +136,7 @@ type PropuestaIndicador = {
 const CATALOGO_ENFOQUES = [
   { id: "E1", nombre: "Proporción", descripcion: "% con el evento" },
   { id: "E2", nombre: "Tendencia", descripcion: "Cambio entre períodos" },
-  { id: "E3", nombre: "Dist. por entidad", descripcion: "Diferencias por región" },
+  { id: "E3", nombre: "Comparación geográfica", descripcion: "Distribución por entidad federativa" },
   { id: "E4", nombre: "Variación acumulada", descripcion: "Cambio total del período" },
   { id: "E5", nombre: "Dist. por categoría", descripcion: "Entre categorías" },
   { id: "E6", nombre: "Brecha sexo/edad", descripcion: "Hombre vs mujer" },
