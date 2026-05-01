@@ -147,16 +147,16 @@ const CATALOGO_ENFOQUES = [
 ];
 
 const CATALOGO_ENFOQUES_DETALLE: Record<string, { nombreCompleto: string; queMide: string; requiere: string }> = {
-  E1: { nombreCompleto: "Proporción", queMide: "El porcentaje de casos que presentan un atributo respecto al total del universo.", requiere: "Variable categórica o binaria con clasificaciones definidas y total del universo." },
-  E2: { nombreCompleto: "Tendencia", queMide: "El cambio porcentual de una variable entre períodos consecutivos.", requiere: "Aplica para cualquier tipo de variable (binaria, categórica y numérica). Requiere al menos 2 años de datos disponibles." },
-  E3: { nombreCompleto: "Comparación geográfica", queMide: "Las diferencias en la ocurrencia de un fenómeno entre regiones o entidades.", requiere: "Variable categórica, binaria o numérica con desagregación geográfica en tabulados o microdatos." },
-  E4: { nombreCompleto: "Variación acumulada", queMide: "El cambio porcentual total entre el año más antiguo y el más reciente de la serie.", requiere: "Variable binaria o numérica con serie de tiempo con, al menos, 3 años de datos comparables." },
-  E5: { nombreCompleto: "Distribución por categoría", queMide: "La distribución de un fenómeno cruzado con otra variable categórica.", requiere: "Variable categórica con 3 o más clasificaciones." },
-  E6: { nombreCompleto: "Brecha sexo/edad", queMide: "La diferencia o disparidad del fenómeno entre grupos de sexo o grupos de edad.", requiere: "Variable categórica o binaria donde el universo del proceso de producción incluya personas, o desglose por sexo/edad en tabulados o microdatos de personas." },
+  E1: { nombreCompleto: "Proporción", queMide: "El porcentaje de casos que presentan un atributo respecto al total del universo.", requiere: "Variable categórica o binaria con clases claramente definidas y un universo total identificable por periodo." },
+  E2: { nombreCompleto: "Tendencia", queMide: "La evolución temporal del valor de una variable a lo largo de periodos consecutivos, a partir de sus variaciones interanuales sucesivas.", requiere: "Variable binaria, categórica o numérica con al menos tres años consecutivos de datos comparables." },
+  E3: { nombreCompleto: "Comparación geográfica", queMide: "Las diferencias en la ocurrencia de un fenómeno entre regiones o entidades.", requiere: "Variable categórica, binaria o numérica con desagregación geográfica disponible en tabulados o microdatos." },
+  E4: { nombreCompleto: "Variación acumulada", queMide: "El cambio porcentual total entre el año más antiguo y el más reciente de una serie temporal.", requiere: "Variable binaria o numérica con serie temporal de al menos tres años comparables." },
+  E5: { nombreCompleto: "Distribución por categoría", queMide: "La distribución del fenómeno entre las distintas clases de una clasificación, analizando cada clase de manera independiente respecto al total del universo.", requiere: "Variable categórica con una clasificación que contenga tres o más clases." },
+  E6: { nombreCompleto: "Brecha sexo/edad", queMide: "La diferencia o disparidad del fenómeno entre grupos de sexo o grupos de edad.", requiere: "Variable categórica o binaria con desglose por sexo y/o edad disponible en tabulados o microdatos." },
   E7: { nombreCompleto: "Brecha socioeconómica", queMide: "La diferencia o disparidad del fenómeno entre grupos socioeconómicos o niveles de ingreso.", requiere: "Variable categórica o binaria, con desglose por ingreso o decil en tabulados o microdatos cuyo universo sean hogares o viviendas." },
-  E8: { nombreCompleto: "Concentración", queMide: "El grado en que un fenómeno se concentra en un subgrupo o territorio específico.", requiere: "Variable categórica o binaria con desagregación geográfica en tabulados o microdatos; o variable numérica con microdatos y desagregación geográfica." },
-  E9: { nombreCompleto: "Composición porcentual", queMide: "La estructura porcentual interna de un fenómeno según sus categorías.", requiere: "Variable con múltiples categorías (3 o más)." },
-  E10: { nombreCompleto: "Intensidad", queMide: "El promedio, total o valor per cápita del fenómeno por unidad de análisis.", requiere: "Variable numérica continua, sin clasificaciones categóricas definidas." },
+  E8: { nombreCompleto: "Concentración", queMide: "El grado en que el fenómeno se concentra de forma desigual en ciertos territorios o subgrupos respecto al total observado.", requiere: "Variable categórica o binaria con desagregación geográfica en tabulados o microdatos; o variable numérica con microdatos y desagregación geográfica." },
+  E9: { nombreCompleto: "Composición porcentual", queMide: "La estructura porcentual interna del fenómeno considerando simultáneamente todas las clases de una clasificación.", requiere: "Variable categórica con una clasificación que contenga tres o más clases exhaustivas y mutuamente excluyentes." },
+  E10: { nombreCompleto: "Intensidad", queMide: "El valor promedio, total o per cápita del fenómeno por unidad de análisis.", requiere: "Variable numérica continua, sin clases cualitativas asociadas." },
 };
 
 type PropuestasIniciales = {
