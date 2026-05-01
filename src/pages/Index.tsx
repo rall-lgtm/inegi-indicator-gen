@@ -1759,12 +1759,18 @@ const handleRegenerar = async (clasificacionOverrideVal?: string) => {
                                            Clasificaciones disponibles
                                          </p>
                                          <div className="flex flex-col gap-1">
-                                           {variableInfo.clasificaciones.map((c, i) => (
-                                             <div key={i} className="flex items-center gap-1.5">
-                                               <div className="w-1.5 h-1.5 rounded-full bg-inegi-blue-medium flex-shrink-0" />
-                                               <span className="text-xs text-gray-700">{c.clase}</span>
-                                             </div>
-                                           ))}
+                                           {(() => {
+                                             const clasificacionSeleccionada = clasificacionOverride ?? variableInfo?.clasificacion_representativa ?? null;
+                                             return variableInfo.clasificaciones.map((c, i) => {
+                                               const isActive = c.clase === clasificacionSeleccionada;
+                                               return (
+                                                 <div key={i} className="flex items-center gap-1.5">
+                                                   <div className="w-1.5 h-1.5 rounded-full bg-inegi-blue-medium flex-shrink-0" />
+                                                   <span className={`text-xs ${isActive ? "text-inegi-blue-dark font-bold" : "text-gray-700"}`}>{c.clase}</span>
+                                                 </div>
+                                               );
+                                             });
+                                           })()}
                                          </div>
                                        </>
                                      ) : (
