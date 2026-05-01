@@ -1683,7 +1683,7 @@ const handleRegenerar = async (clasificacionOverrideVal?: string) => {
                   {variableInfo && propuestasAcumuladas.length > 0 && (() => {
                     const tipoVar = variableInfo._flags?.tipo;
                     const tipoLabel: Record<string, string> = {
-                      multicategoria: "Multicategoría",
+                      multicategoria: "Categórica",
                       binaria: "Binaria",
                       numerica: "Numérica",
                     };
@@ -1713,7 +1713,7 @@ const handleRegenerar = async (clasificacionOverrideVal?: string) => {
                               {variableInfo.totalAnios} años disponibles
                             </Badge>
                             <Badge variant="outline" className="border-inegi-blue-medium text-inegi-blue-dark">
-                              {variableInfo.años.join(", ")}
+                              {[...variableInfo.años].sort((a, b) => a - b).join(", ")}
                             </Badge>
                           </div>
 
@@ -2816,7 +2816,7 @@ const handleRegenerar = async (clasificacionOverrideVal?: string) => {
                       Descargar PDF
                     </Button>
                     <Button
-                      className="flex-1 bg-inegi-blue-medium hover:bg-inegi-blue-dark text-white"
+                      className="flex-1 bg-inegi-blue-medium hover:bg-inegi-blue-dark text-white hidden"
                       size="lg"
                       onClick={() => handleDownloadFichaWord()}
                     >
